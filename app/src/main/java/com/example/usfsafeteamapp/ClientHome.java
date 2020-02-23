@@ -36,6 +36,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
         mMapView.onCreate(mapViewBundle);
 
         mMapView.getMapAsync(this);
+
     }
 
     @Override

@@ -21,11 +21,16 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import static com.example.usfsafeteamapp.Constants.ERROR_DIALOG_REQUEST;
+import static com.example.usfsafeteamapp.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+import static com.example.usfsafeteamapp.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
+
 public class MainActivity extends AppCompatActivity {
 
     Button B;
     Button B1;
     boolean mLocationPermissionGranted = false;
+    private static final String TAG = "MainActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
-            getChatrooms();
+            //getChatrooms();
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -149,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
                 if(mLocationPermissionGranted){
-                    getChatrooms();
+                   // getChatrooms();
                 }
                 else{
                     getLocationPermission();
