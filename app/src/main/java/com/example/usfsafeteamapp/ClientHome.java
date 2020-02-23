@@ -1,4 +1,5 @@
 package com.example.usfsafeteamapp;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -13,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * This shows how to create a simple activity with a raw MapView and add a marker to it. This
  * requires forwarding all the important lifecycle methods onto MapView.
  */
-public class RawMapViewDemoActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class ClientHome extends AppCompatActivity implements OnMapReadyCallback {
 
     private MapView mMapView;
 
