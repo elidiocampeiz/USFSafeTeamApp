@@ -2,49 +2,35 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <fragment
+        android:id="@+id/map_container1"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:weightSum="100"
-        >
+        android:layout_height="495dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginBottom="108dp" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="65"
-            android:id="@+id/map_container">
-
-            <com.google.android.gms.maps.MapView
-                android:id="@+id/user_list_map"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginEnd="0dp"
-                android:layout_marginRight="0dp"
-                android:layout_marginBottom="0dp" />
-        </RelativeLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="35"
-            android:id="@+id/user_list_recycler_view">
-
-        </android.support.v7.widget.RecyclerView>
-
-    </LinearLayout>
-
-    <ProgressBar
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/buttonConfirm"
+        android:layout_width="223dp"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_centerInParent="true"
-        android:visibility="gone"/>
-
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="96dp"
+        android:layout_marginRight="96dp"
+        android:layout_marginBottom="30dp"
+        android:text="Confim Request" />
 </RelativeLayout>

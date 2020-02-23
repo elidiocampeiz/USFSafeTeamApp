@@ -43,25 +43,25 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_home);
 
-        Button B = findViewById(R.id.butt);
+        Button B = findViewById(R.id.buttonRequest);
 
-        B.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(ClientHome.this, "NOME DA PROXIMA ACTIVITY".class);
-                startActivity(i);
-            }
-        });
+//        B.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent i = new Intent(ClientHome.this, "NOME DA PROXIMA ACTIVITY".class);
+//                startActivity(i);
+//            }
+//        });
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_container);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_container2);
         mapFragment.getMapAsync(this);
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
         if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PackageManager.PERMISSION_GRANTED);
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PackageManager.PERMISSION_GRANTED);
-            return;
+
         }
         if(locm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
         {
