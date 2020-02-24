@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.usfsafeteamapp.Client.ClientHome;
 import com.example.usfsafeteamapp.Client.ClientWait;
@@ -57,10 +58,12 @@ public class DriverWait extends AppCompatActivity implements OnMapReadyCallback 
         B1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextView txtnotification = (TextView) findViewById(R.id.textViewNotification);
-                txtnotification.setText("Notification Sent" );
+                Toast.makeText(DriverWait.this, "Search button selected", Toast.LENGTH_SHORT).show();
+
             }
         });
+
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment2);
         mapFragment.getMapAsync(this);
