@@ -42,7 +42,9 @@
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
         android:layout_marginBottom="75dp"
-        android:text="Estimated wait time: 5-10 min" />
+        android:text="Estimated wait time: 5-10 min"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textSize="24sp" />
 
     <Button
         android:id="@+id/cancelbut"
