@@ -1,5 +1,21 @@
 package com.example.usfsafeteamapp.Client;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.widget.Button;
+import android.view.View;
+import android.content.Intent;
+import android.widget.EditText;
+
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -8,34 +24,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
-import java.io.IOException;
-import java.util.List;
-
-/**
- * This shows how to create a simple activity with a raw MapView and add a marker to it. This
- * requires forwarding all the important lifecycle methods onto MapView.
- */
 public class ClientHome extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     LocationManager locm;
+    EditText ET;
+    MarkerOptions mkr;
+
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -43,18 +38,21 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_home);
 
-        Button B = findViewById(R.id.buttonRequest);
+        Button B = findViewById(R.id.buttonConfirm);
+        ET = findViewById(R.id.textView2);
 
         B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(ClientHome.this, ClientConfirmation.class);
+                Intent i = new Intent(ClientHome.this, ClientWait.class);
+                String str = ET.getText().toString();
+                i.putExtra("value", str);
                 startActivity(i);
             }
         });
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_container2);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment2);
         mapFragment.getMapAsync(this);
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -73,21 +71,22 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
                     double lat = location.getLatitude();
                     double lon = location.getLongitude();
                     LatLng coords = new LatLng(lat,lon);
+                    mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
 
-                    Geocoder geo = new Geocoder(getApplicationContext());
-
-                    try{
-                        List<Address> list = geo.getFromLocation(lat,lon,1);
-
-                        String str = list.get(0).getLocality() + ", ";
-                        str += list.get(0).getCountryName();
-
-                        mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
-                    }
-                    catch(IOException e){
-                        e.printStackTrace();
-                    }
+//                    Geocoder geo = new Geocoder(getApplicationContext());
+//
+//                    try{
+//                        List<Address> list = geo.getFromLocation(lat,lon,1);
+//
+//                        String str = list.get(0).getLocality() + ", ";
+//                        str += list.get(0).getCountryName();
+//                        mkr = new MarkerOptions().position(coords).title("This is my position");
+//
+//                    }
+//                    catch(IOException e){
+//                        e.printStackTrace();
+//                    }
                 }
 
                 @Override
@@ -115,20 +114,22 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
                     double lon = location.getLongitude();
 
                     LatLng coords = new LatLng(lat,lon);
-
-                    Geocoder geo = new Geocoder(getApplicationContext());
-
-                    try{
-                        List<Address> list = geo.getFromLocation(lat,lon,1);
-                        String str = list.get(0).getLocality() + ", ";
-                        str += list.get(0).getCountryName();
-
-                        mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
-                    }
-                    catch(IOException e){
-                        e.printStackTrace();
-                    }
+                    mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
+//
+//                    Geocoder geo = new Geocoder(getApplicationContext());
+//
+//                    try{
+//                        List<Address> list = geo.getFromLocation(lat,lon,1);
+//                        String str = list.get(0).getLocality() + ", ";
+//                        str += list.get(0).getCountryName();
+//
+//                        mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
+//                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
+//                    }
+//                    catch(IOException e){
+//                        e.printStackTrace();
+//                    }
                 }
 
                 @Override
@@ -163,7 +164,8 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+//        mMap.addMarker(mkr);
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));

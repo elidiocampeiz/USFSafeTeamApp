@@ -16,11 +16,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.usfsafeteamapp.Client.ClientHome;
-import com.example.usfsafeteamapp.Client.ClientWait;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
