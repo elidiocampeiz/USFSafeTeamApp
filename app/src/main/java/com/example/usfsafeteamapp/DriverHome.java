@@ -29,8 +29,8 @@ package com.example.usfsafeteamapp;
 
 public class DriverHome extends AppCompatActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-    LocationManager locm;
+    private GoogleMap myMap;
+    LocationManager locationManager;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -52,15 +52,15 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_container1);
         mapFragment.getMapAsync(this);
 
-        locm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PackageManager.PERMISSION_GRANTED);
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PackageManager.PERMISSION_GRANTED);
 
         }
-        if(locm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+        if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
         {
-            locm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener()
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener()
             {
 
                 @Override
@@ -77,8 +77,8 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
                         String str = list.get(0).getLocality() + ", ";
                         str += list.get(0).getCountryName();
 
-                        mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
+                        myMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
+                        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();
@@ -102,8 +102,8 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
             });
 
         }
-        else if(locm.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            locm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
+        else if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     double lat = location.getLatitude();
@@ -118,8 +118,8 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
                         String str = list.get(0).getLocality() + ", ";
                         str += list.get(0).getCountryName();
 
-                        mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
+                        myMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
+                        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();
@@ -157,12 +157,12 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        myMap = googleMap;
 
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        //myMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        //myMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
 }
