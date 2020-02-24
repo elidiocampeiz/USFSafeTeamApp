@@ -50,7 +50,7 @@ public class ClientWait extends AppCompatActivity implements OnMapReadyCallback 
         });
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_container2);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
         mapFragment.getMapAsync(this);
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
