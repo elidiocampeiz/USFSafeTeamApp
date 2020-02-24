@@ -18,10 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".UserConfimation"> </activity>
-        <activity android:name=".ClientWait"> </activity>
-        <activity android:name=".ClientHome"> </activity>
-        <activity android:name=".DriverHome"> </activity>
+        <activity android:name=".Driver.DriverWait" > </activity>
+        <activity android:name=".Client.UserConfirmation"> </activity>
+
+        <activity android:name=".Client.ClientWait" > </activity>
+        <activity android:name=".Client.ClientHome" > </activity>
+        <activity android:name=".Driver.DriverHome"> </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

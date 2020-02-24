@@ -1,4 +1,4 @@
-package com.example.usfsafeteamapp;
+package com.example.usfsafeteamapp.Driver;
 
         import androidx.annotation.RequiresApi;
         import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +17,7 @@ package com.example.usfsafeteamapp;
         import android.view.View;
         import android.widget.Button;
 
+        import com.example.usfsafeteamapp.R;
         import com.google.android.gms.maps.CameraUpdateFactory;
         import com.google.android.gms.maps.GoogleMap;
         import com.google.android.gms.maps.OnMapReadyCallback;
@@ -38,15 +39,15 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_home);
 
-        Button B = findViewById(R.id.buttonConfirm);
+        Button B = findViewById(R.id.buttonConfirmation);
 
-//        B.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent i = new Intent(DriverHome.this, "NOME DA PROXIMA ACTIVITY".class);
-//                startActivity(i);
-//            }
-//        });
+        B.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(DriverHome.this, DriverWait.class);
+                startActivity(i);
+            }
+        });
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_container1);

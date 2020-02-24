@@ -1,10 +1,11 @@
-package com.example.usfsafeteamapp;
+package com.example.usfsafeteamapp.Client;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -13,11 +14,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.widget.Button;
 import android.view.View;
-import android.content.Intent;
-import android.widget.EditText;
+import android.widget.Button;
 
+import com.example.usfsafeteamapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -28,33 +28,29 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
 import java.util.List;
 
-public class UserConfimation extends AppCompatActivity implements OnMapReadyCallback {
+public class ClientWait extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     LocationManager locm;
-    EditText ET;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_confimation);
+        setContentView(R.layout.activity_client_wait);
 
-        Button B = findViewById(R.id.button);
-        ET = findViewById(R.id.textView2);
+        Button B = findViewById(R.id.cancelbut);
 
         B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(UserConfimation.this, ClientWait.class);
-                String str = ET.getText().toString();
-                i.putExtra("value", str);
+                Intent i = new Intent(ClientWait.this, ClientHome.class);
                 startActivity(i);
             }
         });
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment2);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
         mapFragment.getMapAsync(this);
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -83,7 +79,7 @@ public class UserConfimation extends AppCompatActivity implements OnMapReadyCall
                         str += list.get(0).getCountryName();
 
                         mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();
@@ -124,7 +120,7 @@ public class UserConfimation extends AppCompatActivity implements OnMapReadyCall
                         str += list.get(0).getCountryName();
 
                         mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();

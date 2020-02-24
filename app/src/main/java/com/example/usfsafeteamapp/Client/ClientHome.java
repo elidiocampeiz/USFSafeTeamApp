@@ -1,8 +1,8 @@
-package com.example.usfsafeteamapp;
+package com.example.usfsafeteamapp.Client;
 
+import com.example.usfsafeteamapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -48,7 +48,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
         B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(ClientHome.this, UserConfimation.class);
+                Intent i = new Intent(ClientHome.this, UserConfirmation.class);
                 startActivity(i);
             }
         });
