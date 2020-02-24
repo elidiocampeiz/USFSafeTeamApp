@@ -36,7 +36,7 @@ public class ClientConfirmation extends AppCompatActivity implements OnMapReadyC
     LocationManager locm;
     EditText ET;
     MarkerOptions mkr;
-    LatLng coords;
+
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -76,21 +76,23 @@ public class ClientConfirmation extends AppCompatActivity implements OnMapReadyC
                 public void onLocationChanged(Location location) {
                     double lat = location.getLatitude();
                     double lon = location.getLongitude();
-                    coords = new LatLng(lat,lon);
+                    LatLng coords = new LatLng(lat,lon);
+                    mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
 
-                    Geocoder geo = new Geocoder(getApplicationContext());
-
-                    try{
-                        List<Address> list = geo.getFromLocation(lat,lon,1);
-
-                        String str = list.get(0).getLocality() + ", ";
-                        str += list.get(0).getCountryName();
-                        mkr = new MarkerOptions().position(coords).title("This is my position");
-
-                    }
-                    catch(IOException e){
-                        e.printStackTrace();
-                    }
+//                    Geocoder geo = new Geocoder(getApplicationContext());
+//
+//                    try{
+//                        List<Address> list = geo.getFromLocation(lat,lon,1);
+//
+//                        String str = list.get(0).getLocality() + ", ";
+//                        str += list.get(0).getCountryName();
+//                        mkr = new MarkerOptions().position(coords).title("This is my position");
+//
+//                    }
+//                    catch(IOException e){
+//                        e.printStackTrace();
+//                    }
                 }
 
                 @Override
@@ -117,21 +119,23 @@ public class ClientConfirmation extends AppCompatActivity implements OnMapReadyC
                     double lat = location.getLatitude();
                     double lon = location.getLongitude();
 
-                    coords = new LatLng(lat,lon);
-
-                    Geocoder geo = new Geocoder(getApplicationContext());
-
-                    try{
-                        List<Address> list = geo.getFromLocation(lat,lon,1);
-                        String str = list.get(0).getLocality() + ", ";
-                        str += list.get(0).getCountryName();
-                        mkr = new MarkerOptions().position(coords).title("This is my position");
+                    LatLng coords = new LatLng(lat,lon);
+                    mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
+//
+//                    Geocoder geo = new Geocoder(getApplicationContext());
+//
+//                    try{
+//                        List<Address> list = geo.getFromLocation(lat,lon,1);
+//                        String str = list.get(0).getLocality() + ", ";
+//                        str += list.get(0).getCountryName();
+//
 //                        mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
 //                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
-                    }
-                    catch(IOException e){
-                        e.printStackTrace();
-                    }
+//                    }
+//                    catch(IOException e){
+//                        e.printStackTrace();
+//                    }
                 }
 
                 @Override
@@ -166,8 +170,8 @@ public class ClientConfirmation extends AppCompatActivity implements OnMapReadyC
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.addMarker(mkr);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
+//        mMap.addMarker(mkr);
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));

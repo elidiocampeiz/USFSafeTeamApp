@@ -58,7 +58,7 @@ public class DriverWait extends AppCompatActivity implements OnMapReadyCallback 
         B1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(DriverWait.this, "Search button selected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DriverWait.this, "Notification Sent", Toast.LENGTH_SHORT).show();
 
             }
         });
