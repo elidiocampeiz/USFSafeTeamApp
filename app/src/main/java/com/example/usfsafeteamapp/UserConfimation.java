@@ -41,7 +41,7 @@ public class UserConfimation extends AppCompatActivity implements OnMapReadyCall
         setContentView(R.layout.activity_user_confimation);
 
         Button B = findViewById(R.id.button);
-        ET = findViewById(R.id.text);
+        ET = findViewById(R.id.textView2);
 
         B.setOnClickListener(new View.OnClickListener() {
             @Override
