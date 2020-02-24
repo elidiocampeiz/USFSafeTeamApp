@@ -78,7 +78,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
                         str += list.get(0).getCountryName();
 
                         myMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
+                        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();
@@ -119,7 +119,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
                         str += list.get(0).getCountryName();
 
                         myMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
+                        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();

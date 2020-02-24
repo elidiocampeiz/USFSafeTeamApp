@@ -83,7 +83,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
                         str += list.get(0).getCountryName();
 
                         mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();
@@ -124,7 +124,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
                         str += list.get(0).getCountryName();
 
                         mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 8.2f));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();

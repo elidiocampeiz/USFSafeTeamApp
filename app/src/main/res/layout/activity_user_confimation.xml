@@ -86,7 +86,9 @@
         android:layout_marginEnd="13dp"
         android:layout_marginRight="13dp"
         android:layout_marginBottom="510dp"
-        android:text="Where to" />
+        android:hint="Where to?"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/textView3"
@@ -104,5 +106,8 @@
         android:layout_marginEnd="12dp"
         android:layout_marginRight="12dp"
         android:layout_marginBottom="556dp"
-        android:text="Current Location" />
+        android:text="Current Location"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/blue"
+        android:textSize="20sp" />
 </RelativeLayout>
