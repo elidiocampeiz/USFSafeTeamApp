@@ -62,7 +62,7 @@ public class DriverWait extends AppCompatActivity implements OnMapReadyCallback 
             }
         });
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment2);
         mapFragment.getMapAsync(this);
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
