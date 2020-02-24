@@ -48,7 +48,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
         B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(ClientHome.this, UserConfirmation.class);
+                Intent i = new Intent(ClientHome.this, ClientConfirmation.class);
                 startActivity(i);
             }
         });

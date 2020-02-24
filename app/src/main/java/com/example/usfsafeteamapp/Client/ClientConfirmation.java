@@ -24,22 +24,25 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.List;
 
-public class UserConfirmation extends AppCompatActivity implements OnMapReadyCallback {
+public class ClientConfirmation extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     LocationManager locm;
     EditText ET;
+    MarkerOptions mkr;
+    LatLng coords;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_confirmation);
+        setContentView(R.layout.activity_client_confirmation);
 
         Button B = findViewById(R.id.buttonConfirm);
         ET = findViewById(R.id.textView2);
@@ -47,7 +50,7 @@ public class UserConfirmation extends AppCompatActivity implements OnMapReadyCal
         B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(UserConfirmation.this, ClientWait.class);
+                Intent i = new Intent(ClientConfirmation.this, ClientWait.class);
                 String str = ET.getText().toString();
                 i.putExtra("value", str);
                 startActivity(i);
@@ -73,7 +76,7 @@ public class UserConfirmation extends AppCompatActivity implements OnMapReadyCal
                 public void onLocationChanged(Location location) {
                     double lat = location.getLatitude();
                     double lon = location.getLongitude();
-                    LatLng coords = new LatLng(lat,lon);
+                    coords = new LatLng(lat,lon);
 
                     Geocoder geo = new Geocoder(getApplicationContext());
 
@@ -82,9 +85,8 @@ public class UserConfirmation extends AppCompatActivity implements OnMapReadyCal
 
                         String str = list.get(0).getLocality() + ", ";
                         str += list.get(0).getCountryName();
+                        mkr = new MarkerOptions().position(coords).title("This is my position");
 
-                        mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();
@@ -115,7 +117,7 @@ public class UserConfirmation extends AppCompatActivity implements OnMapReadyCal
                     double lat = location.getLatitude();
                     double lon = location.getLongitude();
 
-                    LatLng coords = new LatLng(lat,lon);
+                    coords = new LatLng(lat,lon);
 
                     Geocoder geo = new Geocoder(getApplicationContext());
 
@@ -123,9 +125,9 @@ public class UserConfirmation extends AppCompatActivity implements OnMapReadyCal
                         List<Address> list = geo.getFromLocation(lat,lon,1);
                         String str = list.get(0).getLocality() + ", ";
                         str += list.get(0).getCountryName();
-
-                        mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
+                        mkr = new MarkerOptions().position(coords).title("This is my position");
+//                        mMap.addMarker(new MarkerOptions().position(coords).title("This is my position"));
+//                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
                     }
                     catch(IOException e){
                         e.printStackTrace();
@@ -164,7 +166,8 @@ public class UserConfirmation extends AppCompatActivity implements OnMapReadyCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+        mMap.addMarker(mkr);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 12.2f));
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));

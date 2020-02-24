@@ -19,7 +19,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".Driver.DriverWait" > </activity>
-        <activity android:name=".Client.UserConfirmation"> </activity>
+        <activity android:name=".Client.ClientConfirmation"> </activity>
 
         <activity android:name=".Client.ClientWait" > </activity>
         <activity android:name=".Client.ClientHome" > </activity>
