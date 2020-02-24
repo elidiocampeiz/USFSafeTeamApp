@@ -22,7 +22,7 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity android:name=".ClientHome"> </activity>
-        <activity android:name=".DriverHome"></activity>
+        <activity android:name=".DriverHome"> </activity>
 
         <activity android:name=".MainActivity">
             <intent-filter>
