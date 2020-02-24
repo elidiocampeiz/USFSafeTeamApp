@@ -1,12 +1,8 @@
 package com.example.usfsafeteamapp;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.Intent;
@@ -20,19 +16,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.List;
 
-/**
- * This shows how to create a simple activity with a raw MapView and add a marker to it. This
- * requires forwarding all the important lifecycle methods onto MapView.
- */
-public class ClientHome extends AppCompatActivity implements OnMapReadyCallback {
+public class ClientWait extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     LocationManager locm;
@@ -41,14 +37,14 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_client_home);
+        setContentView(R.layout.activity_client_wait);
 
-        Button B = findViewById(R.id.buttonRequest);
+        Button B = findViewById(R.id.cancelbut);
 
         B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(ClientHome.this, UserConfimation.class);
+                Intent i = new Intent(ClientWait.this, ClientHome.class);
                 startActivity(i);
             }
         });
