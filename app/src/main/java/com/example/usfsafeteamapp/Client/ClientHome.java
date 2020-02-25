@@ -24,6 +24,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
+import java.util.Arrays;
+
 public class ClientHome extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -149,7 +152,22 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
             });
         }
 
+
     }
+//    void googlePleaceSearchIntent(){
+//        int AUTOCOMPLETE_REQUEST_CODE = 1;
+//
+//    // Set the fields to specify which types of place data to
+//    // return after the user has made a selection.
+//            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+//
+//    // Start the autocomplete intent.
+//            Intent intent = new Autocomplete.IntentBuilder(
+//                    AutocompleteActivityMode.FULLSCREEN, fields)
+//                    .build(this);
+//        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+//
+//    }
 
 
     /**
