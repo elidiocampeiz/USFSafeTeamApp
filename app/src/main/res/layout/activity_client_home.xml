@@ -105,17 +105,7 @@
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="19dp"/>
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="95dp"
-        android:text="TextView" />
+
 
 
 </RelativeLayout>
