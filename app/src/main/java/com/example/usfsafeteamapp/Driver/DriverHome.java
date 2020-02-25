@@ -39,13 +39,12 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_home);
 
-        Button B = findViewById(R.id.buttonConfirmation);
+        Button B = findViewById(R.id.button);
 
         B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(DriverHome.this, DriverWait.class);
-                startActivity(i);
+                startActivity(new Intent(DriverHome.this,Pop.class));
             }
         });
 

@@ -23,19 +23,6 @@
         android:layout_marginRight="0dp"
         android:layout_marginBottom="214dp" />
 
-    <Button
-        android:id="@+id/buttonConfirmation"
-        android:layout_width="233dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginEnd="82dp"
-        android:layout_marginRight="82dp"
-        android:layout_marginBottom="15dp"
-        android:text="Confirm Request" />
-
     <TextView
         android:id="@+id/textViewRequestDisplay"
         android:layout_width="233dp"
@@ -54,20 +41,21 @@
         android:text="Next Requests:"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="252dp"
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="86dp"
-        android:layout_marginLeft="86dp"
-        android:layout_marginBottom="66dp"
-        android:clipChildren="true"
-        android:clipToPadding="true"
-        android:visibility="visible"
-        tools:itemCount="2"
-        tools:listitem="@layout/recycler_view_item" />
+        android:layout_marginStart="161dp"
+        android:layout_marginLeft="161dp"
+        android:layout_marginTop="489dp"
+        android:layout_marginEnd="162dp"
+        android:layout_marginRight="162dp"
+        android:text="Button" />
 
 </RelativeLayout>
