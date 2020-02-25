@@ -127,9 +127,9 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
                     curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
 
-                    String url = getUrl(curr_mkr.getPosition(), dest_mkr.getPosition(), "Driving");
+                    String url = getUrl(curr_mkr.getPosition(), dest_mkr.getPosition(), "bicycling");
 
-                    new FetchURL(ClientHome.this).execute(url, "Driving");
+                    new FetchURL(ClientHome.this).execute(url, "bicycling");
                     mMap.addMarker(curr_mkr);
 
 //                    Geocoder geo = new Geocoder(getApplicationContext());
@@ -176,9 +176,9 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
                     curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
 
-                    String url = getUrl(curr_mkr.getPosition(), dest_mkr.getPosition(), "Driving");
+                    String url = getUrl(curr_mkr.getPosition(), dest_mkr.getPosition(), "bicycling");
 
-                    new FetchURL(ClientHome.this).execute(url, "Driving");
+                    new FetchURL(ClientHome.this).execute(url, "bicycling");
                     mMap.addMarker(curr_mkr);
 
 
