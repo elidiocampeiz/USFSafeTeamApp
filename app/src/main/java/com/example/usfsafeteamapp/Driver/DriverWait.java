@@ -56,7 +56,6 @@ public class DriverWait extends AppCompatActivity implements OnMapReadyCallback 
             @Override
             public void onClick(View v) {
                 Toast.makeText(DriverWait.this, "Notification Sent", Toast.LENGTH_SHORT).show();
-
             }
         });
 

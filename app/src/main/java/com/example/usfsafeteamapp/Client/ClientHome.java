@@ -21,16 +21,21 @@ import android.content.Intent;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.usfsafeteamapp.FetchURL;
 import com.example.usfsafeteamapp.R;
+import com.example.usfsafeteamapp.TaskLoadedCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -46,34 +51,40 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class ClientHome extends AppCompatActivity implements OnMapReadyCallback {
+public class ClientHome extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
     private GoogleMap mMap;
     SupportMapFragment mapFragment;
     LocationManager locm;
     LatLng curr_coords, dest_coords;
     //28.063959, -82.413417
+
+
     final LatLng msc_LatLng = new LatLng(28.0639,-82.4134);
     MarkerOptions curr_mkr, dest_mkr;
+    Polyline currentPolyline;
 
     int AUTOCOMPLETE_REQUEST_CODE = 1;
     String TAG;
     Place destination;
+
+
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_client_home);
 
         Button B = findViewById(R.id.buttonConfirm);
 
-
-        B.setOnClickListener(new View.OnClickListener() {
+        B.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(ClientHome.this, ClientWait.class);
-//                String str = ET.getText().toString();
-//                i.putExtra("value", str);
                 startActivity(i);
             }
         });
@@ -84,6 +95,8 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment2);
         mapFragment.getMapAsync(this);
 
+        dest_mkr = new MarkerOptions().position(new LatLng(28.0639,-82.4134)).title("MSC");
+
 
 
         // Initialize the AutocompleteSupportFragment.
@@ -91,11 +104,13 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
 
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED) {
+        if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED)
+        {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PackageManager.PERMISSION_GRANTED);
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PackageManager.PERMISSION_GRANTED);
 
         }
+
         if(locm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
         {
             locm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener()
@@ -108,9 +123,15 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
 
 //                    mapFragment.getMapAsync(ClientHome.this);
                     curr_coords = new LatLng(lat,lon );
-                    curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
-                    mMap.addMarker(curr_mkr);
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curr_coords, 14.2f));
+
+                    curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
+
+                    String url = getUrl(curr_mkr.getPosition(), dest_mkr.getPosition(), "Driving");
+
+                    new FetchURL(ClientHome.this).execute(url, "Driving");
+                    mMap.addMarker(curr_mkr);
+
 //                    Geocoder geo = new Geocoder(getApplicationContext());
 //
 //                    try{
@@ -150,12 +171,17 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
                     double lat = location.getLatitude();
                     double lon = location.getLongitude();
 
-
-//                    mapFragment.getMapAsync(ClientHome.this);
                     curr_coords = new LatLng(lat,lon );
-                    curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
-                    mMap.addMarker(curr_mkr);
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curr_coords, 14.2f));
+
+                    curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
+
+                    String url = getUrl(curr_mkr.getPosition(), dest_mkr.getPosition(), "Driving");
+
+                    new FetchURL(ClientHome.this).execute(url, "Driving");
+                    mMap.addMarker(curr_mkr);
+
+
 //
 //                    Geocoder geo = new Geocoder(getApplicationContext());
 //
@@ -223,21 +249,35 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-//        mMap.addMarker(mkr);
+        mMap.addMarker(dest_mkr);
 //        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curr_coords, 12.2f));
+
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 //        mMap.addMarker(new MarkerOptions().position(dest_coords).title("Destination!").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
 
-
-
-
-
-
-
     }
+
+    private String getUrl(LatLng origin, LatLng dest, String directionMode)
+    {
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        // Mode
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_api_key);
+        return url;
+    }
+
 
 //    @Override
 //    protected void onResume() {
@@ -280,7 +320,8 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(this);
     }
-    public void setUpAutocompleteSupportFragment(){
+    public void setUpAutocompleteSupportFragment()
+    {
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
 
@@ -300,9 +341,11 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
 //                MarkerOptions msc_mkr = new MarkerOptions().position(new LatLng(lat,lng)).title("This is my destination").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 //                mapFragment.getMapAsync(ClientHome.this);
 //                msc_LatLng
-                MarkerOptions msc_mkr = new MarkerOptions().position(msc_LatLng).title("This is my destination").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                mMap.addMarker(msc_mkr);
+                //MarkerOptions msc_mkr = new MarkerOptions().position(msc_LatLng).title("This is my destination").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                //mMap.addMarker(msc_mkr);
 //                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 14.2f));
+
+
             }
 
             @Override
@@ -311,5 +354,12 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback 
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyline != null)
+            currentPolyline.remove();
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
     }
 }
