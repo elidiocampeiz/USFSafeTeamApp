@@ -18,16 +18,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+
         tools:ignore="GoogleAppIndexingWarning">
+
         <activity android:name=".Driver.DriverWait" > </activity>
-        <activity android:name=".Client.ClientHome"> </activity>
-
-        <activity android:name=".Client.ClientWait" > </activity>
-        <activity android:name=".Driver.DriverHome"> </activity>
-        <activity android:name=".Driver.Pop"
-            android:theme="@style/AppTheme.CustomTheme"
-        ></activity>
-
+        <activity android:name=".Client.ClientHome" > </activity>
+        <activity android:name=".Client.ClientWait"> </activity>
+        <activity android:name=".Driver.DriverHome" > </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
