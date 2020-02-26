@@ -90,6 +90,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                 startActivity(i);
             }
         });
+
         //Initialize Places API
         setUpPlacesAPI();
 
@@ -98,7 +99,6 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
         mapFragment.getMapAsync(this);
 
         msc_mkr = new MarkerOptions().position(new LatLng(28.0639,-82.4134)).title("MSC");
-//        msc_mkr = new MarkerOptions().position(new LatLng(28.0639,-82.4134)).title("MSC").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 
 
         // Initialize the AutocompleteSupportFragment.
@@ -123,30 +123,10 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                     double lat = location.getLatitude();
                     double lon = location.getLongitude();
 
-//                    mapFragment.getMapAsync(ClientHome.this);
+                    //Gets the user current location and places a marker there
                     curr_coords = new LatLng(lat,lon );
-                    //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curr_coords, 14.2f));
-
                     curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
-
-//                    String url = getUrl(curr_mkr.getPosition(), msc_mkr.getPosition(), "bicycling");
-//
-//                    new FetchURL(ClientHome.this).execute(url, "bicycling");
                     mMap.addMarker(curr_mkr);
-
-//                    Geocoder geo = new Geocoder(getApplicationContext());
-//
-//                    try{
-//                        List<Address> list = geo.getFromLocation(lat,lon,1);
-//
-//                        String str = list.get(0).getLocality() + ", ";
-//                        str += list.get(0).getCountryName();
-//                        mkr = new MarkerOptions().position(curr_coords).title("This is my position");
-//
-//                    }
-//                    catch(IOException e){
-//                        e.printStackTrace();
-//                    }
                 }
 
                 @Override
@@ -173,31 +153,11 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                     double lat = location.getLatitude();
                     double lon = location.getLongitude();
 
-                    curr_coords = new LatLng(lat,lon );
-                    //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curr_coords, 14.2f));
-
+                    //Gets the user current location and places a marker there
+                    curr_coords = new LatLng(lat,lon);
                     curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
-
-//                    String url = getUrl(curr_mkr.getPosition(), msc_mkr.getPosition(), "bicycling");
-//
-//                    new FetchURL(ClientHome.this).execute(url, "bicycling");
                     mMap.addMarker(curr_mkr);
 
-
-//
-//                    Geocoder geo = new Geocoder(getApplicationContext());
-//
-//                    try{
-//                        List<Address> list = geo.getFromLocation(lat,lon,1);
-//                        String str = list.get(0).getLocality() + ", ";
-//                        str += list.get(0).getCountryName();
-//
-//                        mMap.addMarker(new MarkerOptions().position(curr_coords).title("This is my position"));
-//                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curr_coords, 12.2f));
-//                    }
-//                    catch(IOException e){
-//                        e.printStackTrace();
-//                    }
                 }
 
                 @Override
@@ -219,21 +179,21 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
         }
 
 //        final Context cntx = this;
-//        TextView txt2 = findViewById(R.id.textView2);
-//        txt2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Set the fields to specify which types of place data to
-//                // return after the user has made a selection.
-//                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
-//
-//                // Start the autocomplete intent.
-//                Intent Placeintent = new Autocomplete.IntentBuilder(
-//                        AutocompleteActivityMode.OVERLAY, fields)
-//                        .build(cntx);
-//                startActivityForResult(Placeintent, AUTOCOMPLETE_REQUEST_CODE);
-//            }
-//        });
+////        TextView txt2 = findViewById(R.id.textView2);
+////        txt2.setOnClickListener(new View.OnClickListener() {
+////            @Override
+////            public void onClick(View v) {
+////                // Set the fields to specify which types of place data to
+////                // return after the user has made a selection.
+////                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+////
+////                // Start the autocomplete intent.
+////                Intent Placeintent = new Autocomplete.IntentBuilder(
+////                        AutocompleteActivityMode.OVERLAY, fields)
+////                        .build(cntx);
+////                startActivityForResult(Placeintent, AUTOCOMPLETE_REQUEST_CODE);
+////            }
+////        });
 
     }
 
@@ -253,14 +213,6 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
         mMap = googleMap;
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 12.2f));
-
-        // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-//        mMap.addMarker(new MarkerOptions().position(dest_coords).title("Destination!").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-
     }
 
     private String getUrl(LatLng origin, LatLng dest, String directionMode)
@@ -334,24 +286,30 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
             public void onPlaceSelected( Place place) {
                 // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId()+", LatLng: "+ place.getLatLng() );
-//                assert place.getLatLng()!= null;
+
+                //Get the destination entered by the user
                 destination = place;
+
+                //Transform it into LatLng
                 LatLng LL = place.getLatLng();
+
+                //Clear the map after the user changes the location selected
                 mMap.clear();
-//                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title("Destination: "+ place.getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                //dest_coords = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
+
+                //Create a marker for the place selected by the user
                 MarkerOptions place_mkr = new MarkerOptions().position(LL).title(place.getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+
+                //Place the marker for your location and the chosen destination into the map
                 mMap.addMarker(place_mkr);
                 mMap.addMarker(curr_mkr);
-                String url = getUrl(curr_mkr.getPosition(), place_mkr.getPosition(), "bicycling");
 
+                //Push and fetch it into the String
+                String url = getUrl(curr_mkr.getPosition(), place_mkr.getPosition(), "bicycling");
                 new FetchURL(ClientHome.this).execute(url, "walking");
-//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LL, 12.2f));
+
+                //Zoom into the path
                 LatLngBounds LLB = new LatLngBounds(LL, curr_coords);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LLB.getCenter(), 15f));
-//
-
-
             }
 
             @Override
