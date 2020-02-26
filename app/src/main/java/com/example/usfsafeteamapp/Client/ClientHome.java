@@ -25,6 +25,7 @@ import com.example.usfsafeteamapp.FetchURL;
 import com.example.usfsafeteamapp.R;
 import com.example.usfsafeteamapp.TaskLoadedCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -309,7 +310,14 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
                 //Zoom into the path
                 LatLngBounds LLB = new LatLngBounds(LL, curr_coords);
+                //TODO: Handle the case in which a new path causes a bug
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LLB.getCenter(), 15f));
+
+                //set display estimated time
+                //ToDO: Fetch it from the server or Get it from the directions api
+                TextView txtTime = findViewById(R.id.textViewEstimatedTime);
+                String str = "Estimated time: 5-10 min";
+                txtTime.setText(str);
             }
 
             @Override
