@@ -347,7 +347,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
                 new FetchURL(ClientHome.this).execute(url, "walking");
 //                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LL, 12.2f));
-                LatLngBounds LLB = new LatLngBounds(LL,curr_coords);
+                LatLngBounds LLB = new LatLngBounds(LL, curr_coords);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LLB.getCenter(), 15f));
 //
 
