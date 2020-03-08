@@ -1,4 +1,4 @@
-package com.example.usfsafeteamapp;
+package com.example.usfsafeteamapp.DataParser;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;

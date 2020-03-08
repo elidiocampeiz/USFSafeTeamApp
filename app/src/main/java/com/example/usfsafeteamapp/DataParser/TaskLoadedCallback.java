@@ -1,4 +1,4 @@
-package com.example.usfsafeteamapp;
+package com.example.usfsafeteamapp.DataParser;
 
 public interface TaskLoadedCallback {
     void onTaskDone(Object... values);

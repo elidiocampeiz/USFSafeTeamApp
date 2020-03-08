@@ -4,11 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,41 +17,52 @@ import android.util.Log;
 import android.widget.Button;
 import android.view.View;
 import android.content.Intent;
-import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.example.usfsafeteamapp.FetchURL;
+import com.example.usfsafeteamapp.DataParser.FetchURL;
+import com.example.usfsafeteamapp.Driver.DriverWait;
+import com.example.usfsafeteamapp.Objects.Requests;
+import com.example.usfsafeteamapp.Objects.myPlace;
 import com.example.usfsafeteamapp.R;
-import com.example.usfsafeteamapp.TaskLoadedCallback;
+import com.example.usfsafeteamapp.DataParser.TaskLoadedCallback;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.PlaceLikelihood;
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
+import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.AutocompleteFragment;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class ClientHome extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
@@ -61,7 +71,11 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
     LocationManager locm;
     LatLng curr_coords, dest_coords;
     //28.063959, -82.413417
+    FirebaseFirestore mDb;
 
+    PlacesClient placesClient;
+
+    myPlace myCurrPlace , myDestPlace;
 
     final LatLng msc_LatLng = new LatLng(28.0639,-82.4134);
     MarkerOptions curr_mkr, msc_mkr;
@@ -81,14 +95,69 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
         setContentView(R.layout.activity_client_home);
 
+        mDb = FirebaseFirestore.getInstance(); // init firebase
+
         Button B = findViewById(R.id.buttonConfirm);
 
         B.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(ClientHome.this, ClientWait.class);
-                startActivity(i);
+                if(destination == null){
+                    Toast.makeText(ClientHome.this, "No Place Selected", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    CollectionReference placesCollectionRef = mDb.collection("Places");
+                    CollectionReference requestCollectionRef = mDb.collection("Requests");
+
+                    //add destination place to DB
+                    myDestPlace = new myPlace(destination);
+                    placesCollectionRef.document(myDestPlace.getPlace_id()).set(myDestPlace, SetOptions.merge())
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                        }
+                    })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
+
+
+                    myPlace myCurrPlace = new myPlace("Current Location", placesCollectionRef.document().toString(), curr_coords);//getCurrPlace();
+
+//                    myPlace currPlace = myCurrPlace;
+//                    myCurrPlace.setLatLng(curr_coords);
+//                    myCurrPlace.setName("Current Location");
+//                    myCurrPlace.setPlace_id("Curr Location Test");
+                    Requests nRequest = new Requests();
+                    String req_id = requestCollectionRef.document().getId();
+                    nRequest.setRequest_id(req_id);
+                    nRequest.setDest(myDestPlace);
+                    nRequest.setStart(myCurrPlace);
+                    nRequest.setTime_stamp(null);
+                    // add new request to DB
+                    requestCollectionRef.document(req_id).set(nRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                        }
+                    })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
+
+                    Intent i = new Intent(ClientHome.this, ClientWait.class);
+                    Bundle bd;
+                    i.putExtra("Request_Id", req_id);
+                    startActivity(i);
+                }
             }
         });
 
@@ -107,9 +176,9 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED)
+        if(checkSelfPermission(ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED)
         {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PackageManager.PERMISSION_GRANTED);
+            ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, PackageManager.PERMISSION_GRANTED);
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PackageManager.PERMISSION_GRANTED);
 
         }
@@ -126,7 +195,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
                     //Gets the user current location and places a marker there
                     curr_coords = new LatLng(lat,lon );
-                    curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
+                    curr_mkr = new MarkerOptions().position(curr_coords).title("This is your position");
                     mMap.addMarker(curr_mkr);
                 }
 
@@ -156,7 +225,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
                     //Gets the user current location and places a marker there
                     curr_coords = new LatLng(lat,lon);
-                    curr_mkr = new MarkerOptions().position(curr_coords).title("This is my position");
+                    curr_mkr = new MarkerOptions().position(curr_coords).title("This is your position");
                     mMap.addMarker(curr_mkr);
 
                 }
@@ -263,6 +332,59 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 //            }
 //        }
 //    }
+    public void getCurrPlace(){
+        Place ret;
+//        String placeN , placeId="";
+//        final LatLng placeLL;
+        float max = 0;
+        // Use fields to define the data types to return.
+        List<Place.Field> placeFields = Collections.singletonList(Place.Field.NAME);
+
+
+// Use the builder to create a FindCurrentPlaceRequest.
+        final FindCurrentPlaceRequest request =
+                FindCurrentPlaceRequest.newInstance(placeFields);
+
+// Call findCurrentPlace and handle the response (first check that the user has granted permission).
+
+        Task<FindCurrentPlaceResponse> placeResponse = placesClient.findCurrentPlace(request);
+        placeResponse.addOnCompleteListener(new OnCompleteListener<FindCurrentPlaceResponse>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<FindCurrentPlaceResponse> task) {
+                                                    if (task.isSuccessful()) {
+                                                        FindCurrentPlaceResponse response = task.getResult();
+                                                        for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
+                                                            Log.i(TAG, String.format("Place '%s' has likelihood: %f",
+                                                                    placeLikelihood.getPlace().getName(),
+                                                                    placeLikelihood.getLikelihood()));
+                                                            myCurrPlace.setName( placeLikelihood.getPlace().getName());
+                                                        }
+                                                        myCurrPlace = new myPlace(response.getPlaceLikelihoods().get(0).getPlace());
+
+                                                    }else{
+                                                        Exception exception = task.getException();
+                                                        if (exception instanceof ApiException) {
+                                                            ApiException apiException = (ApiException) exception;
+                                                            Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+                                                        }
+                                                    }
+                                                }
+                                            });
+
+        myCurrPlace = new myPlace(placeResponse.getResult().getPlaceLikelihoods().get(0).getPlace());
+//        FindCurrentPlaceResponse response = placeResponse.getResult();
+//        assert response != null;
+//        if(response.getPlaceLikelihoods().isEmpty()){
+//            myPlace.setName("Empty");
+//        }
+//        else{
+//            List<PlaceLikelihood> placeProbs = placeResponse.getResult().getPlaceLikelihoods();
+//
+//            myPlace.setName(getName());
+//        }
+//        myPlace.setName(ret.getName());
+
+        }
     public void setUpPlacesAPI(){
         //Init Places
         String apiKey = getString(R.string.google_maps_api_key);
@@ -273,14 +395,14 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
         }
 
         // Create a new Places client instance.
-        PlacesClient placesClient = Places.createClient(this);
+        placesClient = Places.createClient(this);
     }
     public void setUpAutocompleteSupportFragment()
     {
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
 
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG));
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG));
 
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
@@ -305,7 +427,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                 mMap.addMarker(curr_mkr);
 
                 //Push and fetch it into the String
-                String url = getUrl(curr_mkr.getPosition(), place_mkr.getPosition(), "bicycling");
+                String url = getUrl(curr_mkr.getPosition(), place_mkr.getPosition(), "walking");
                 new FetchURL(ClientHome.this).execute(url, "walking");
 
                 //Zoom into the path

@@ -1,4 +1,4 @@
-package com.example.usfsafeteamapp;
+package com.example.usfsafeteamapp.DataParser;
 
 import android.content.Context;
 import android.graphics.Color;
