@@ -1,5 +1,6 @@
 package com.example.usfsafeteamapp.Driver;
 
+        import androidx.annotation.Nullable;
         import androidx.annotation.RequiresApi;
         import androidx.appcompat.app.AppCompatActivity;
         import androidx.core.app.ActivityCompat;
@@ -29,6 +30,12 @@ package com.example.usfsafeteamapp.Driver;
         import com.google.android.gms.maps.SupportMapFragment;
         import com.google.android.gms.maps.model.LatLng;
         import com.google.android.gms.maps.model.MarkerOptions;
+        import com.google.firebase.firestore.CollectionReference;
+        import com.google.firebase.firestore.DocumentReference;
+        import com.google.firebase.firestore.EventListener;
+        import com.google.firebase.firestore.FirebaseFirestore;
+        import com.google.firebase.firestore.FirebaseFirestoreException;
+        import com.google.firebase.firestore.QuerySnapshot;
 
         import java.io.IOException;
         import java.util.List;
@@ -37,12 +44,14 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
 
     private GoogleMap myMap;
     LocationManager locationManager;
+    FirebaseFirestore mDb;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_home);
+        mDb = FirebaseFirestore.getInstance(); // init firebase
 
         final Button B = findViewById(R.id.buttonDriverConfirmation);
 
@@ -56,17 +65,32 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
 
             }
         });
-        Button B1 = findViewById(R.id.button);
+        /*Button B1 = findViewById(R.id.button);
 
         B1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                TextView textview=(TextView)findViewById(R.id.textnewrequest);
-                textview.setVisibility(View.VISIBLE);
-                B.setVisibility(View.VISIBLE);
-                TextView t2 = (TextView)findViewById(R.id.textViewRequestDisplay);
-                t2.setVisibility(View.INVISIBLE);
+
+            }
+        });*/
+
+        CollectionReference docref = mDb.collection("Places");
+        docref.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+
+                if (e == null) {
+                    return;
+                }
+                else{
+                    TextView textview=(TextView)findViewById(R.id.textnewrequest);
+                    textview.setVisibility(View.VISIBLE);
+                    B.setVisibility(View.VISIBLE);
+                    TextView t2 = (TextView)findViewById(R.id.textViewRequestDisplay);
+                    t2.setVisibility(View.INVISIBLE);
+                }
+
             }
         });
 
