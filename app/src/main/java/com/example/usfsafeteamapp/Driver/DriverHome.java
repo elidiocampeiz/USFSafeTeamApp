@@ -18,6 +18,7 @@ package com.example.usfsafeteamapp.Driver;
         import android.view.View;
         import android.view.ViewGroup;
         import android.widget.Button;
+        import android.widget.TextView;
 
         import com.example.usfsafeteamapp.Client.ClientHome;
         import com.example.usfsafeteamapp.Client.ClientWait;
@@ -43,7 +44,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_home);
 
-        Button B = findViewById(R.id.buttonDriverConfirmation);
+        final Button B = findViewById(R.id.buttonDriverConfirmation);
 
         B.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,6 +54,19 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
                 LayoutInflater inflater = LayoutInflater
                         .from(getApplicationContext());
 
+            }
+        });
+        Button B1 = findViewById(R.id.button);
+
+        B1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                TextView textview=(TextView)findViewById(R.id.textnewrequest);
+                textview.setVisibility(View.VISIBLE);
+                B.setVisibility(View.VISIBLE);
+                TextView t2 = (TextView)findViewById(R.id.textViewRequestDisplay);
+                t2.setVisibility(View.INVISIBLE);
             }
         });
 
