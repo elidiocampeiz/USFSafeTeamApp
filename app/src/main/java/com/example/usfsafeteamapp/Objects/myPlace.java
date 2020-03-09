@@ -2,7 +2,7 @@ package com.example.usfsafeteamapp.Objects;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.gms.maps.model.LatLng;
+
 public class myPlace {
     private String name;
     private String place_id;

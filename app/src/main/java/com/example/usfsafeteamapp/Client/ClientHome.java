@@ -61,6 +61,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -125,10 +126,27 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                                     Log.w(TAG, "Error writing document", e);
                                 }
                             });
+//                    setCurrPlace();
+
+                    if (myCurrPlace == null){
+
+                        myCurrPlace = new myPlace(null, requestCollectionRef.document().getId(),curr_coords);
+                    }
 
 
-                    myPlace myCurrPlace = new myPlace("Current Location", placesCollectionRef.document().toString(), curr_coords);//getCurrPlace();
-
+                    placesCollectionRef.document(myCurrPlace.getPlace_id()).set(myCurrPlace, SetOptions.merge())
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
 //                    myPlace currPlace = myCurrPlace;
 //                    myCurrPlace.setLatLng(curr_coords);
 //                    myCurrPlace.setName("Current Location");
@@ -139,6 +157,8 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                     nRequest.setDest(myDestPlace);
                     nRequest.setStart(myCurrPlace);
                     nRequest.setTime_stamp(null);
+
+
                     // add new request to DB
                     requestCollectionRef.document(req_id).set(nRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -173,6 +193,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
         // Initialize the AutocompleteSupportFragment.
         setUpAutocompleteSupportFragment();
+
 
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -332,34 +353,37 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 //            }
 //        }
 //    }
-    public void getCurrPlace(){
-        Place ret;
+    public void setCurrPlace(){
+//        myPlace ret = new myPlace();
 //        String placeN , placeId="";
 //        final LatLng placeLL;
-        float max = 0;
+//        float max = 0;
         // Use fields to define the data types to return.
-        List<Place.Field> placeFields = Collections.singletonList(Place.Field.NAME);
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME,Place.Field.ID, Place.Field.LAT_LNG );
 
 
 // Use the builder to create a FindCurrentPlaceRequest.
         final FindCurrentPlaceRequest request =
                 FindCurrentPlaceRequest.newInstance(placeFields);
-
+//        request.getPlaceFields().
 // Call findCurrentPlace and handle the response (first check that the user has granted permission).
+        PlacesClient pc = Places.createClient(this);
 
-        Task<FindCurrentPlaceResponse> placeResponse = placesClient.findCurrentPlace(request);
+        Task<FindCurrentPlaceResponse> placeResponse = pc.findCurrentPlace(request);
         placeResponse.addOnCompleteListener(new OnCompleteListener<FindCurrentPlaceResponse>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<FindCurrentPlaceResponse> task) {
                                                     if (task.isSuccessful()) {
                                                         FindCurrentPlaceResponse response = task.getResult();
                                                         for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
-                                                            Log.i(TAG, String.format("Place '%s' has likelihood: %f",
+                                                            Log.i(TAG, String.format("Success: Place '%s' has likelihood: %f",
                                                                     placeLikelihood.getPlace().getName(),
                                                                     placeLikelihood.getLikelihood()));
-                                                            myCurrPlace.setName( placeLikelihood.getPlace().getName());
+                                                            //myCurrPlace.setName( placeLikelihood.getPlace().getName());
                                                         }
+//                                                        myCurrPlace.setName(response.getPlaceLikelihoods().get(0).getPlace().getName());
                                                         myCurrPlace = new myPlace(response.getPlaceLikelihoods().get(0).getPlace());
+                                                        Log.i(TAG, String.format("CurrPlace name is '%s'", myCurrPlace.getName()));
 
                                                     }else{
                                                         Exception exception = task.getException();
@@ -371,8 +395,11 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                                                 }
                                             });
 
-        myCurrPlace = new myPlace(placeResponse.getResult().getPlaceLikelihoods().get(0).getPlace());
+        //toDO: Error here
+
+
 //        FindCurrentPlaceResponse response = placeResponse.getResult();
+
 //        assert response != null;
 //        if(response.getPlaceLikelihoods().isEmpty()){
 //            myPlace.setName("Empty");
