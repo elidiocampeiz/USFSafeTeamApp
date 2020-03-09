@@ -39,6 +39,10 @@ public class ClientWait extends AppCompatActivity implements OnMapReadyCallback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_wait);
 
+        //Creating the activity title and a back button
+        getSupportActionBar().setTitle("Client Wait");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         Button B = findViewById(R.id.cancelbut);
 
         B.setOnClickListener(new View.OnClickListener() {

@@ -96,8 +96,11 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_client_home);
+
+        //Creating the activity title and a back button
+        getSupportActionBar().setTitle("Client Home");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mDb = FirebaseFirestore.getInstance(); // init firebase
 
