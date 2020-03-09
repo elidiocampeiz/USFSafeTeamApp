@@ -21,10 +21,13 @@
 
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".Driver.DriverWait" > </activity>
-        <activity android:name=".Client.ClientHome" > </activity>
-        <activity android:name=".Client.ClientWait"> </activity>
-        <activity android:name=".Driver.DriverHome" > </activity>
+        <activity android:name=".Driver.DriverWait"> </activity>
+        <activity android:name=".Client.ClientHome"
+            android:parentActivityName=".MainActivity"> </activity>
+        <activity android:name=".Client.ClientWait"
+            android:parentActivityName=".Client.ClientHome"> </activity>
+        <activity android:name=".Driver.DriverHome"
+            android:parentActivityName=".MainActivity"> </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

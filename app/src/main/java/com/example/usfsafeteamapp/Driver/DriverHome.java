@@ -89,8 +89,12 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_driver_home);
+
+        //Creating the activity title and a back button
+        getSupportActionBar().setTitle("Driver Home");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         mDb = FirebaseFirestore.getInstance(); // init firebase
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         final Button B = findViewById(R.id.buttonDriverConfirmation);

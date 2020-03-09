@@ -40,6 +40,10 @@ public class DriverWait extends AppCompatActivity implements OnMapReadyCallback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_wait);
 
+        //Creating the activity title and a back button
+        getSupportActionBar().setTitle("Driver Wait");
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         Button B = findViewById(R.id.buttonCancel);
 
         B.setOnClickListener(new View.OnClickListener() {
