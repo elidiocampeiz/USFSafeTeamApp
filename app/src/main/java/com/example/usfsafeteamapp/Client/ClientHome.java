@@ -49,7 +49,9 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.Arrays;
@@ -102,6 +104,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                 else{
                     CollectionReference placesCollectionRef = mDb.collection("Places");
                     CollectionReference requestCollectionRef = mDb.collection("Requests");
+                    DocumentReference DriverRef = mDb.collection("Drivers").document("Driver");
 
                     //add destination place to DB
                     myDestPlace = new myPlace(destination);
@@ -120,10 +123,10 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                             });
 //                    setCurrPlace();
 
-                    if (myCurrPlace == null){
 
-                        myCurrPlace = new myPlace(null, requestCollectionRef.document().getId(),curr_coords);
-                    }
+                    GeoPoint geo = new GeoPoint(curr_coords.latitude,curr_coords.longitude);
+                    myCurrPlace = new myPlace(null, requestCollectionRef.document().getId(),geo );
+
 
 
                     placesCollectionRef.document(myCurrPlace.getPlace_id()).set(myCurrPlace, SetOptions.merge())
@@ -147,6 +150,10 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                     String req_id = requestCollectionRef.document().getId();
                     nRequest.setRequest_id(req_id);
                     nRequest.setDest(myDestPlace);
+                    if (myCurrPlace.getName()==null){
+                        myCurrPlace.setName("Start Location");
+                    }
+
                     nRequest.setStart(myCurrPlace);
                     nRequest.setTime_stamp(null);
 
@@ -164,6 +171,19 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                                     Log.w(TAG, "Error writing document", e);
                                 }
                             });
+                    //set request inside driver
+                    DriverRef.set(nRequest, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                        }
+                    })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });;
 
                     Intent i = new Intent(ClientHome.this, ClientWait.class);
                     Bundle bd;
@@ -298,7 +318,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 12.2f));
     }
 
-    private String getUrl(LatLng origin, LatLng dest, String directionMode)
+    public String getUrl(LatLng origin, LatLng dest, String directionMode)
     {
         // Origin of route
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
@@ -362,6 +382,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
         PlacesClient pc = Places.createClient(this);
 
         Task<FindCurrentPlaceResponse> placeResponse = pc.findCurrentPlace(request);
+
         placeResponse.addOnCompleteListener(new OnCompleteListener<FindCurrentPlaceResponse>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<FindCurrentPlaceResponse> task) {

@@ -9,22 +9,27 @@ public class Drivers {
     private LatLng latlng;
     private @ServerTimestamp Date time_stamp;
     private String username;
+    private Requests nextRequest;
 
     public Drivers(String driver_id, LatLng latlng, String username ) {
         this.driver_id = driver_id;
         this.latlng = latlng;
         this.time_stamp =   null;
         this.username = username;
+        this.nextRequest = new Requests();
     }
 
     public Drivers(String driver_id, LatLng latlng, Date time_stamp ) {
         this.driver_id = driver_id;
         this.latlng = latlng;
         this.time_stamp  = null;
+        this.nextRequest = new Requests();
 
     }
-    public Drivers(){
 
+    public Drivers(String username){
+        this.username = username;
+        this.nextRequest = new Requests();
     }
 
     public void setDriver_id(String driver_id) {
@@ -57,5 +62,18 @@ public class Drivers {
 
     public String getUsername() {
         return username;
+    }
+
+    public Requests getNextRequest() {
+        return nextRequest;
+    }
+
+    public void setNextRequest(Requests nextRequest) {
+        this.nextRequest = nextRequest;
+    }
+    public void updateLatlng(LatLng latlng){
+        this.latlng = latlng;
+        this.time_stamp =null;
+
     }
 }

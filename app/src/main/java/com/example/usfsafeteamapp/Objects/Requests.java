@@ -3,6 +3,7 @@ package com.example.usfsafeteamapp.Objects;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.firebase.firestore.ServerTimestamp;
 
+import java.sql.Driver;
 import java.util.Date;
 
 
@@ -23,6 +24,12 @@ public class Requests {
     public Requests() {
 
     }
+//    public Requests(Object...objects) {
+//        this.start = new myPlace(objects[0]);
+//        this.dest = new myPlace(objects[1]);
+//        this.request_id = objects[3].toString();
+//        this.time_stamp  = null;
+//    }
 
 
     public String getRequest_id() {
