@@ -32,6 +32,7 @@ package com.example.usfsafeteamapp.Driver;
         import com.google.android.gms.maps.model.MarkerOptions;
         import com.google.firebase.firestore.CollectionReference;
         import com.google.firebase.firestore.DocumentReference;
+        import com.google.firebase.firestore.DocumentSnapshot;
         import com.google.firebase.firestore.EventListener;
         import com.google.firebase.firestore.FirebaseFirestore;
         import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -65,7 +66,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
 
             }
         });
-        /*Button B1 = findViewById(R.id.button);
+        Button B1 = findViewById(R.id.button);
 
         B1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,26 +74,27 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
 
 
             }
-        });*/
+        });
 
-        CollectionReference docref = mDb.collection("Places");
-        docref.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        final DocumentReference docref = mDb.collection("Drivers").document("Driver");
+        docref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-
-                if (e == null) {
-                    return;
-                }
-                else{
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (documentSnapshot != null && documentSnapshot.exists()) {
                     TextView textview=(TextView)findViewById(R.id.textnewrequest);
                     textview.setVisibility(View.VISIBLE);
                     B.setVisibility(View.VISIBLE);
                     TextView t2 = (TextView)findViewById(R.id.textViewRequestDisplay);
                     t2.setVisibility(View.INVISIBLE);
-                }
 
+                } else {
+                    return;
+                }
             }
         });
+
+
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_container1);
