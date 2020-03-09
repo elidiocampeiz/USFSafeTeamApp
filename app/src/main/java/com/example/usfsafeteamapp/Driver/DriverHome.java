@@ -5,6 +5,7 @@ package com.example.usfsafeteamapp.Driver;
         import androidx.annotation.RequiresApi;
         import androidx.appcompat.app.AppCompatActivity;
         import androidx.core.app.ActivityCompat;
+        import androidx.core.app.BundleCompat;
 
         import android.Manifest;
         import android.content.Intent;
@@ -76,7 +77,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
     private ListenerRegistration mPlacesEventListener;
     LocationManager locationManager;
     FirebaseFirestore mDb;
-    Requests nextRequest;
+    Requests nRequest;
     String TAG;
     Polyline currentPolyline;
     LatLng curr_coords, start_coords, dest_coords;
@@ -98,9 +99,11 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(DriverHome.this, DriverWait.class);
+
+//                i.putExtra("request", nRequest.getRequest_id());
                 startActivity(i);
-                LayoutInflater inflater = LayoutInflater
-                        .from(getApplicationContext());
+//                LayoutInflater inflater = LayoutInflater
+//                        .from(getApplicationContext());
 
             }
         });
@@ -267,9 +270,16 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
                     new FetchURL(DriverHome.this).execute(url, "walking");
 
                     //Zoom into the path
-                    LatLngBounds LLB = new LatLngBounds(dest_coords, curr_coords);
-                    //TODO: Handle the case in which a new path causes a bug
-                    myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LLB.getCenter(), 15f));
+
+                    if (dest_coords.latitude < curr_coords.latitude){
+                        LatLngBounds LLB =  new LatLngBounds(dest_coords, curr_coords) ;
+                        LLB.including(start_coords);
+                        //TODO: Handle the case in which a new path causes a bug
+                        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LLB.getCenter(), 15f));
+
+                    }else{
+                        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curr_coords, 14f));
+                    }
 
 
 
@@ -343,7 +353,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
         mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
+                if (task.isSuccessful() && task.getResult()!=null) {
                     Location location = task.getResult();
 
                     GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());

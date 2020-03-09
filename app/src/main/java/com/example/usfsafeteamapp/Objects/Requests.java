@@ -3,16 +3,17 @@ package com.example.usfsafeteamapp.Objects;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.firebase.firestore.ServerTimestamp;
 
+import java.io.Serializable;
 import java.sql.Driver;
 import java.util.Date;
 
 
-public class Requests {
+public class Requests implements Serializable {
     private myPlace start;
     private myPlace dest;
     private String request_id;
     private @ServerTimestamp Date time_stamp; //when null object of this type is passed to firestore the current date is automatically assigned
-
+    private String driver_id;
 
     public Requests(myPlace start, myPlace dest, String request_id) {
         this.start = start;
@@ -65,4 +66,11 @@ public class Requests {
     }
 
 
+    public String getDriver_id() {
+        return driver_id;
+    }
+
+    public void setDriver_id(String driver_id) {
+        this.driver_id = driver_id;
+    }
 }

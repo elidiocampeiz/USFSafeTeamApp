@@ -1,27 +1,28 @@
 package com.example.usfsafeteamapp.Objects;
 
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
+import com.google.firebase.firestore.util.Assert;
 import com.google.type.Date;
-import com.google.type.LatLng;
-
+import com.google.android.gms.maps.model.LatLng;
 public class Drivers {
     private String driver_id;
-    private LatLng latlng;
+    private GeoPoint geoPoint;
     private @ServerTimestamp Date time_stamp;
     private String username;
     private Requests nextRequest;
 
-    public Drivers(String driver_id, LatLng latlng, String username ) {
+    public Drivers(String driver_id, GeoPoint geoPoint, String username ) {
         this.driver_id = driver_id;
-        this.latlng = latlng;
+        this.geoPoint = geoPoint;
         this.time_stamp =   null;
         this.username = username;
         this.nextRequest = new Requests();
     }
 
-    public Drivers(String driver_id, LatLng latlng, Date time_stamp ) {
+    public Drivers(String driver_id, GeoPoint geoPoint, Date time_stamp ) {
         this.driver_id = driver_id;
-        this.latlng = latlng;
+        this.geoPoint = geoPoint;
         this.time_stamp  = null;
         this.nextRequest = new Requests();
 
@@ -36,8 +37,8 @@ public class Drivers {
         this.driver_id = driver_id;
     }
 
-    public void setLatlng(LatLng latlng) {
-        this.latlng = latlng;
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
     }
 
     public void setTime_stamp(Date time_stamp) {
@@ -52,8 +53,8 @@ public class Drivers {
         return time_stamp;
     }
 
-    public LatLng getLatlng() {
-        return latlng;
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
     }
 
     public String getDriver_id() {
@@ -71,9 +72,8 @@ public class Drivers {
     public void setNextRequest(Requests nextRequest) {
         this.nextRequest = nextRequest;
     }
-    public void updateLatlng(LatLng latlng){
-        this.latlng = latlng;
-        this.time_stamp =null;
-
+    public LatLng getLatLng(){
+        return new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
     }
+
 }

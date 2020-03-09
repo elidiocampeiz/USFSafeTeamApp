@@ -8,6 +8,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -105,7 +108,19 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
             @Override
             public void onClick(View v) {
                 if(destination == null){
-                    Toast.makeText(ClientHome.this, "No Place Selected", Toast.LENGTH_SHORT).show();
+                    String txt = "No Place Selected";
+                    SpannableStringBuilder biggerText = new SpannableStringBuilder(txt);
+                    biggerText.setSpan(new RelativeSizeSpan(1.35f), 0, txt.length(), 0);
+                    Toast t = Toast.makeText(ClientHome.this, biggerText, Toast.LENGTH_LONG);
+
+                    t.setGravity(0, 45, 0);
+                    t.show();
+//                   Toast t = Toast.makeText(ClientHome.this, , Toast.LENGTH_LONG);
+//                   t.setGravity(0, 40, 50);
+//
+//                   t.setText();
+////                   t.setMargin(5f, 5f);
+//                   t.show();
                 }
                 else{
                     CollectionReference placesCollectionRef = mDb.collection("Places");
@@ -127,11 +142,10 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                                     Log.w(TAG, "Error writing document", e);
                                 }
                             });
-//                    setCurrPlace();
 
 
-                    GeoPoint geo = new GeoPoint(curr_coords.latitude,curr_coords.longitude);
-//                    myCurrPlace = new myPlace(null, requestCollectionRef.document().getId(),geo );
+
+
 
 
 
@@ -156,13 +170,13 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                     String req_id = requestCollectionRef.document().getId();
                     nRequest.setRequest_id(req_id);
                     nRequest.setDest(myDestPlace);
-                    if (myCurrPlace.getName()==null){
-                        myCurrPlace.setName("Start Location");
-                    }
+
+//                    GeoPoint geo = new GeoPoint(curr_coords.latitude,curr_coords.longitude);
+//                    myCurrPlace = new myPlace(null, requestCollectionRef.document().getId(),geo );
 
                     nRequest.setStart(myCurrPlace);
                     nRequest.setTime_stamp(null);
-
+                    nRequest.setDriver_id("Driver");
 
                     // add new request to DB
                     requestCollectionRef.document(req_id).set(nRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -392,12 +406,17 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                 public void onComplete(@NonNull Task<FindCurrentPlaceResponse> task) {
                     if (task.isSuccessful()) {
                         FindCurrentPlaceResponse response = task.getResult();
-                        myCurrPlace = new myPlace(response.getPlaceLikelihoods().get(0).getPlace());
-                        for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
-                            Log.i(TAG, String.format("Place '%s' has likelihood: %f",
-                                    placeLikelihood.getPlace().getName(),
-                                    placeLikelihood.getLikelihood()));
+                        if(response!=null)
+                            myCurrPlace = new myPlace(response.getPlaceLikelihoods().get(0).getPlace());
+                        else{
+                            GeoPoint geo = new GeoPoint(curr_coords.latitude,curr_coords.longitude);
+                            myCurrPlace = new myPlace("Pick Up Spot", "Stating Location", geo);
                         }
+//                        for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
+//                            Log.i(TAG, String.format("Place '%s' has likelihood: %f",
+//                                    placeLikelihood.getPlace().getName(),
+//                                    placeLikelihood.getLikelihood()));
+//                        }
                     } else {
                         Exception exception = task.getException();
                         if (exception instanceof ApiException) {
@@ -490,9 +509,16 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                 new FetchURL(ClientHome.this).execute(url, "walking");
 
                 //Zoom into the path
-                LatLngBounds LLB = new LatLngBounds(LL, curr_coords);
-                //TODO: Handle the case in which a new path causes a bug
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LLB.getCenter(), 15f));
+                //Northern Lat (secound parameter) has to be bellow Southern Lat(first paramenter)
+                if (LL.latitude < curr_coords.latitude){
+                    LatLngBounds LLB =  new LatLngBounds(LL, curr_coords) ;
+                    //TODO: Handle the case in which a new path causes a bug
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LLB.getCenter(), 15f));
+
+                }else{
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 14f));
+                }
+
 
                 //set display estimated time
                 //ToDO: Fetch it from the server or Get it from the directions api

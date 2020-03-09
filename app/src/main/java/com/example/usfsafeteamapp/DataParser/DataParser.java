@@ -36,6 +36,7 @@ public class DataParser
                         /** Traversing all points */
                         for (int l = 0; l < list.size(); l++) {
                             HashMap<String, String> hm = new HashMap<>();
+
                             hm.put("lat", Double.toString((list.get(l)).latitude));
                             hm.put("lng", Double.toString((list.get(l)).longitude));
                             path.add(hm);
