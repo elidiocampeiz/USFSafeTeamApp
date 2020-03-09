@@ -1,4 +1,4 @@
-package com.example.usfsafeteamapp.DataParser;
+package com.example.usfsafeteamapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,7 +9,6 @@ import android.widget.Button;
 
 import com.example.usfsafeteamapp.Client.ClientHome;
 import com.example.usfsafeteamapp.Driver.DriverHome;
-import com.example.usfsafeteamapp.R;
 
 //import com.google.android.gms.common.ConnectionResult;
 //import com.google.android.gms.common.GoogleApiAvailability;

@@ -25,7 +25,7 @@
         <activity android:name=".Client.ClientHome" > </activity>
         <activity android:name=".Client.ClientWait"> </activity>
         <activity android:name=".Driver.DriverHome" > </activity>
-        <activity android:name=".DataParser.MainActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

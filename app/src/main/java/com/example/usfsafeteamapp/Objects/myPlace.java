@@ -17,7 +17,8 @@ public class myPlace {
     public myPlace(Place place){
         this.name = place.getName();
         this.place_id = place.getId();
-        this.geoPoint = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
+        if (place.getLatLng()!=null)
+            this.geoPoint = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
     }
     public myPlace(){
 

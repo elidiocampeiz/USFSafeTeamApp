@@ -115,7 +115,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
         });
 
         getLastKnownLocation();
-        setDefaut_place("ENB - Engineering Building II");// creates a defaut place as the place to be the starting point of the trip
+//        setDefaut_place("ENB - Engineering Building II");// creates a defaut place as the place to be the starting point of the trip
 
 
 

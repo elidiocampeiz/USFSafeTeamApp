@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.usfsafeteamapp.DataParser.FetchURL;
 import com.example.usfsafeteamapp.DataParser.TaskLoadedCallback;
@@ -55,11 +56,16 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class ClientHome extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
+
+    public static final int ERROR_DIALOG_REQUEST = 9001;
+    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9002;
+    public static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9003;
 
     private GoogleMap mMap;
     SupportMapFragment mapFragment;
@@ -125,7 +131,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
 
                     GeoPoint geo = new GeoPoint(curr_coords.latitude,curr_coords.longitude);
-                    myCurrPlace = new myPlace(null, requestCollectionRef.document().getId(),geo );
+//                    myCurrPlace = new myPlace(null, requestCollectionRef.document().getId(),geo );
 
 
 
@@ -202,7 +208,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
         msc_mkr = new MarkerOptions().position(new LatLng(28.0639,-82.4134)).title("MSC");
 
-
+        setCurrPlace();
         // Initialize the AutocompleteSupportFragment.
         setUpAutocompleteSupportFragment();
 
@@ -371,60 +377,73 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 //        final LatLng placeLL;
 //        float max = 0;
         // Use fields to define the data types to return.
-        List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME,Place.Field.ID, Place.Field.LAT_LNG );
-
+        // Use fields to define the data types to return.
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
 // Use the builder to create a FindCurrentPlaceRequest.
-        final FindCurrentPlaceRequest request =
+        FindCurrentPlaceRequest request =
                 FindCurrentPlaceRequest.newInstance(placeFields);
-//        request.getPlaceFields().
+
 // Call findCurrentPlace and handle the response (first check that the user has granted permission).
-        PlacesClient pc = Places.createClient(this);
-
-        Task<FindCurrentPlaceResponse> placeResponse = pc.findCurrentPlace(request);
-
-        placeResponse.addOnCompleteListener(new OnCompleteListener<FindCurrentPlaceResponse>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<FindCurrentPlaceResponse> task) {
-                                                    if (task.isSuccessful()) {
-                                                        FindCurrentPlaceResponse response = task.getResult();
-                                                        for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
-                                                            Log.i(TAG, String.format("Success: Place '%s' has likelihood: %f",
-                                                                    placeLikelihood.getPlace().getName(),
-                                                                    placeLikelihood.getLikelihood()));
-                                                            //myCurrPlace.setName( placeLikelihood.getPlace().getName());
-                                                        }
-//                                                        myCurrPlace.setName(response.getPlaceLikelihoods().get(0).getPlace().getName());
-                                                        myCurrPlace = new myPlace(response.getPlaceLikelihoods().get(0).getPlace());
-                                                        Log.i(TAG, String.format("CurrPlace name is '%s'", myCurrPlace.getName()));
-
-                                                    }else{
-                                                        Exception exception = task.getException();
-                                                        if (exception instanceof ApiException) {
-                                                            ApiException apiException = (ApiException) exception;
-                                                            Log.e(TAG, "Place not found: " + apiException.getStatusCode());
-                                                        }
-                                                    }
-                                                }
-                                            });
-
-        //toDO: Error here
-
-
-//        FindCurrentPlaceResponse response = placeResponse.getResult();
-
-//        assert response != null;
-//        if(response.getPlaceLikelihoods().isEmpty()){
-//            myPlace.setName("Empty");
-//        }
-//        else{
-//            List<PlaceLikelihood> placeProbs = placeResponse.getResult().getPlaceLikelihoods();
-//
-//            myPlace.setName(getName());
-//        }
-//        myPlace.setName(ret.getName());
-
+        if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Task<FindCurrentPlaceResponse> placeResponse = placesClient.findCurrentPlace(request);
+            placeResponse.addOnCompleteListener(new OnCompleteListener<FindCurrentPlaceResponse>() {
+                @Override
+                public void onComplete(@NonNull Task<FindCurrentPlaceResponse> task) {
+                    if (task.isSuccessful()) {
+                        FindCurrentPlaceResponse response = task.getResult();
+                        myCurrPlace = new myPlace(response.getPlaceLikelihoods().get(0).getPlace());
+                        for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
+                            Log.i(TAG, String.format("Place '%s' has likelihood: %f",
+                                    placeLikelihood.getPlace().getName(),
+                                    placeLikelihood.getLikelihood()));
+                        }
+                    } else {
+                        Exception exception = task.getException();
+                        if (exception instanceof ApiException) {
+                            ApiException apiException = (ApiException) exception;
+                            Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+                        }
+                    }
+                }
+            });
+        } else {
+            // A local method to request required permissions;
+            // See https://developer.android.com/training/permissions/requesting
+            getLocationPermission();
         }
+    }
+    private void getLocationPermission() {
+        /*
+         * Request location permission, so that we can get the location of the
+         * device. The result of the permission request is handled by a callback,
+         * onRequestPermissionsResult.
+         */
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                }
+            }
+        }
+    }
     public void setUpPlacesAPI(){
         //Init Places
         String apiKey = getString(R.string.google_maps_api_key);
