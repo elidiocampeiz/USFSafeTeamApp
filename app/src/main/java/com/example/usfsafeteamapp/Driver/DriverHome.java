@@ -15,6 +15,7 @@ package com.example.usfsafeteamapp.Driver;
         import android.location.LocationManager;
         import android.os.Build;
         import android.os.Bundle;
+        import android.util.Log;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
@@ -30,6 +31,7 @@ package com.example.usfsafeteamapp.Driver;
         import com.google.android.gms.maps.SupportMapFragment;
         import com.google.android.gms.maps.model.LatLng;
         import com.google.android.gms.maps.model.MarkerOptions;
+        import com.google.firebase.database.core.Tag;
         import com.google.firebase.firestore.CollectionReference;
         import com.google.firebase.firestore.DocumentReference;
         import com.google.firebase.firestore.DocumentSnapshot;
@@ -47,10 +49,12 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
     LocationManager locationManager;
     FirebaseFirestore mDb;
 
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_driver_home);
         mDb = FirebaseFirestore.getInstance(); // init firebase
 
@@ -76,20 +80,31 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback 
             }
         });
 
-        final DocumentReference docref = mDb.collection("Drivers").document("Driver");
+        final DocumentReference docref = mDb.collection("Drivers").document("Driver0");
         docref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+
+                    /*TextView textview=(TextView)findViewById(R.id.textnewrequest);
+                    textview.setVisibility(View.VISIBLE);
+                    B.setVisibility(View.VISIBLE);
+                    TextView t2 = (TextView)findViewById(R.id.textViewRequestDisplay);
+                    t2.setVisibility(View.INVISIBLE);*/
+
+                /*if (e != null) {
+                    return;
+                }*/
+
                 if (documentSnapshot != null && documentSnapshot.exists()) {
+                    String TAG = "";
+                    Log.d(TAG, "CURRENT DATAAAAAA: " + documentSnapshot.getData());
                     TextView textview=(TextView)findViewById(R.id.textnewrequest);
                     textview.setVisibility(View.VISIBLE);
                     B.setVisibility(View.VISIBLE);
                     TextView t2 = (TextView)findViewById(R.id.textViewRequestDisplay);
                     t2.setVisibility(View.INVISIBLE);
-
-                } else {
-                    return;
                 }
+
             }
         });
 
