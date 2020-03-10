@@ -263,7 +263,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
                     //Place the marker for your location and the chosen destination into the map
 
 
-//                    assert curr_coords!=null;
+//                    assert curr_coords!=null;;;
                     if (curr_mkr==null) {
                         getLastKnownLocation();
                     }
@@ -274,7 +274,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
                     myMap.addMarker(start_mkr);
                     myMap.addMarker(dest_mkr);
 
-                    Log.d(TAG,"Curr: " + curr_coords + " S: " + start_coords +" D: "+dest_coords);
+                    Log.d(TAG,"Curr: " + curr_coords + " Startcords: " + start_coords +" D: "+dest_coords);
                     //Push and fetch it into the String
 
                     String url = getUrl(curr_coords, start_coords, dest_coords, "walking");
