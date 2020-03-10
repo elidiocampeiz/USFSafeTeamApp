@@ -1,22 +1,21 @@
 package com.example.usfsafeteamapp.Objects;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
-import com.google.firebase.firestore.util.Assert;
-import com.google.type.Date;
-import com.google.android.gms.maps.model.LatLng;
+import java.util.Date;
 public class Drivers {
     private String driver_id;
     private GeoPoint geoPoint;
     private @ServerTimestamp Date time_stamp;
-    private String username;
+//    private String username;
     private Requests nextRequest;
 
-    public Drivers(String driver_id, GeoPoint geoPoint, String username ) {
+    public Drivers(String driver_id, GeoPoint geoPoint ) {
         this.driver_id = driver_id;
         this.geoPoint = geoPoint;
         this.time_stamp =   null;
-        this.username = username;
+//        this.username = username;
         this.nextRequest = new Requests();
     }
 
@@ -28,8 +27,13 @@ public class Drivers {
 
     }
 
-    public Drivers(String username){
-        this.username = username;
+    public Drivers(String driver_id){
+        this.driver_id = driver_id;
+        this.nextRequest = new Requests();
+    }
+    public Drivers(){
+        this.driver_id = "Driver";
+        this.time_stamp  = null;
         this.nextRequest = new Requests();
     }
 
@@ -41,13 +45,9 @@ public class Drivers {
         this.geoPoint = geoPoint;
     }
 
-    public void setTime_stamp(Date time_stamp) {
-        this.time_stamp = time_stamp;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+
+
 
     public Date getTime_stamp() {
         return time_stamp;
@@ -61,9 +61,7 @@ public class Drivers {
         return driver_id;
     }
 
-    public String getUsername() {
-        return username;
-    }
+
 
     public Requests getNextRequest() {
         return nextRequest;
