@@ -233,7 +233,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
         // Initialize the AutocompleteSupportFragment.
         setUpAutocompleteSupportFragment();
 
-
+        getLastKnownLocation();
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
         if(checkSelfPermission(ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED)
