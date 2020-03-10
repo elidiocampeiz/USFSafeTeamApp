@@ -25,11 +25,13 @@ import androidx.core.content.ContextCompat;
 
 import com.example.usfsafeteamapp.DataParser.FetchURL;
 import com.example.usfsafeteamapp.DataParser.TaskLoadedCallback;
+import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.Objects.Requests;
 import com.example.usfsafeteamapp.Objects.myPlace;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -69,7 +71,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
     public static final int ERROR_DIALOG_REQUEST = 9001;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9002;
     public static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9003;
-
+    private FusedLocationProviderClient mFusedLocationClient;
     private GoogleMap mMap;
     SupportMapFragment mapFragment;
     LocationManager locm;
@@ -195,7 +197,9 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                                 }
                             });
                     //set request inside driver
-                    DriverRef.set(nRequest, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    Drivers dr = new Drivers("Driver",myCurrPlace.getGeoPoint());
+                    dr.setNextRequest(nRequest);
+                    DriverRef.set(dr, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d(TAG, "DocumentSnapshot successfully written!");
@@ -388,6 +392,28 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 //            }
 //        }
 //    }
+private void getLastKnownLocation() {
+    Log.d(TAG, "getLastKnownLocation: called.");
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        return;
+    }
+
+    mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+        @Override
+        public void onComplete(@NonNull Task<Location> task) {
+            if (task.isSuccessful() && task.getResult()!=null) {
+                Location location = task.getResult();
+
+                GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+
+                curr_coords = new LatLng(location.getLatitude(), location.getLongitude());
+                curr_mkr = new MarkerOptions().position(curr_coords).title("This is your position");
+
+            }
+        }
+    });
+
+}
     public void setCurrPlace(){
 //        myPlace ret = new myPlace();
 //        String placeN , placeId="";
@@ -414,6 +440,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                         else{
                             GeoPoint geo = new GeoPoint(curr_coords.latitude,curr_coords.longitude);
                             myCurrPlace = new myPlace("Pick Up Spot", "Stating Location", geo);
+                            curr_mkr = new MarkerOptions().position(curr_coords).title("This is your position");
                         }
 //                        for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
 //                            Log.i(TAG, String.format("Place '%s' has likelihood: %f",
@@ -435,6 +462,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
             getLocationPermission();
         }
     }
+
     private void getLocationPermission() {
         /*
          * Request location permission, so that we can get the location of the
@@ -451,6 +479,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
@@ -505,6 +534,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 
                 //Place the marker for your location and the chosen destination into the map
                 mMap.addMarker(place_mkr);
+
                 mMap.addMarker(curr_mkr);
 
                 //Push and fetch it into the String

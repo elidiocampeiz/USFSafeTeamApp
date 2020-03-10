@@ -6,6 +6,7 @@ package com.example.usfsafeteamapp.Driver;
         import androidx.appcompat.app.AppCompatActivity;
         import androidx.core.app.ActivityCompat;
         import androidx.core.app.BundleCompat;
+        import androidx.core.content.ContextCompat;
 
         import android.Manifest;
         import android.content.Intent;
@@ -29,6 +30,7 @@ package com.example.usfsafeteamapp.Driver;
         import com.example.usfsafeteamapp.Client.ClientWait;
         import com.example.usfsafeteamapp.DataParser.FetchURL;
         import com.example.usfsafeteamapp.DataParser.TaskLoadedCallback;
+        import com.example.usfsafeteamapp.Objects.Drivers;
         import com.example.usfsafeteamapp.Objects.Requests;
         import com.example.usfsafeteamapp.Objects.myPlace;
         import com.example.usfsafeteamapp.R;
@@ -71,11 +73,12 @@ package com.example.usfsafeteamapp.Driver;
 
 public class DriverHome extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
-
+    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9002;
     private FusedLocationProviderClient mFusedLocationClient;
     private GoogleMap myMap;
     private ListenerRegistration mPlacesEventListener;
     LocationManager locationManager;
+
     FirebaseFirestore mDb;
     Requests nRequest;
     String TAG;
@@ -199,7 +202,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
                 }
             });
         }
-        final DocumentReference docref = mDb.collection("Drivers").document("Driver");
+        DocumentReference docref = mDb.collection("Drivers").document("Driver");
         docref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -215,7 +218,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
                     return;
                 }
 
-                if ( documentSnapshot!=null && documentSnapshot.getData()!=null&& documentSnapshot.exists()) {
+                if ((documentSnapshot != null) && (documentSnapshot.getData() != null) && documentSnapshot.contains("nextRequest") && documentSnapshot.getData().size()>0 && documentSnapshot.exists()) {
 
 
 
@@ -235,8 +238,8 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
 ////                        i++;
 ////                    }
 //                    Requests nRequest = new Requests(object);
-
-                    Requests nRequest = documentSnapshot.toObject( Requests.class);
+                    Drivers currDr = documentSnapshot.toObject(Drivers.class);
+                    Requests nRequest = currDr.getNextRequest();
 
                     //Query DB
 //                    myPlace Defaut_place = new myPlace();
@@ -246,7 +249,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
 
 
 
-                    Log.d(TAG, "Request Id: " + nRequest.getRequest_id() + "\nStart location:  "+ "Start LatLng: "+nRequest.getStart().getGeoPoint() + nRequest.getStart() +"\n Destionation:  " +
+                    Log.d(TAG, "Request Id: " + nRequest.getRequest_id() + "\nStart location:  "+nRequest.getStart().getName()+ " Start LatLng: "+nRequest.getStart().getGeoPoint()  +"\n Destionation:  " +
                             ""+nRequest.getDest().getName()+ "Dest LatLng: "+nRequest.getDest().getGeoPoint());
 
                     myMap.clear();
@@ -264,9 +267,13 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
                     if (curr_mkr==null) {
                         getLastKnownLocation();
                     }
+                    else{
+                        myMap.addMarker(curr_mkr);
+
+                    }
                     myMap.addMarker(start_mkr);
                     myMap.addMarker(dest_mkr);
-                    myMap.addMarker(curr_mkr);
+
                     Log.d(TAG,"Curr: " + curr_coords + " S: " + start_coords +" D: "+dest_coords);
                     //Push and fetch it into the String
 
@@ -347,11 +354,41 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
             currentPolyline.remove();
         currentPolyline = myMap.addPolyline((PolylineOptions) values[0]);
     }
+    private void getLocationPermission() {
+        /*
+         * Request location permission, so that we can get the location of the
+         * device. The result of the permission request is handled by a callback,
+         * onRequestPermissionsResult.
+         */
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
 
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                }
+            }
+        }
+    }
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation: called.");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+            getLocationPermission();
         }
 
         mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
@@ -364,6 +401,9 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
 
                     curr_coords = new LatLng(location.getLatitude(), location.getLongitude());
                     curr_mkr = new MarkerOptions().position(curr_coords).title("This is your position");
+                    myMap.addMarker(curr_mkr);
+                    myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curr_coords, 15f));
+
 
                 }
             }
