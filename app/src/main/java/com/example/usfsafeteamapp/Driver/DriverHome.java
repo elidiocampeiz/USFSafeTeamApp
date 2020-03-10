@@ -114,7 +114,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
 
             }
         });
-        Button B1 = findViewById(R.id.button);
+        /*Button B1 = findViewById(R.id.button);
 
         B1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,7 +122,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
 
 
             }
-        });
+        });*/
 
         getLastKnownLocation();
 //        setDefaut_place("ENB - Engineering Building II");// creates a defaut place as the place to be the starting point of the trip
@@ -212,7 +212,8 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
                     B.setVisibility(View.VISIBLE);
                     TextView t2 = (TextView)findViewById(R.id.textViewRequestDisplay);
                     t2.setVisibility(View.INVISIBLE);*/
-
+                TextView t1 = findViewById(R.id.FROM);
+                TextView t5 = findViewById(R.id.TO);
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e);
                     return;
@@ -300,6 +301,10 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
                     B.setVisibility(View.VISIBLE);
                     TextView t2 = (TextView)findViewById(R.id.textViewRequestDisplay);
                     t2.setVisibility(View.INVISIBLE);
+                    t1.setText(nRequest.getStart().getName());
+                    t5.setText(nRequest.getDest().getName());
+                    t1.setVisibility(View.VISIBLE);
+                    t5.setVisibility(View.VISIBLE);
                 }
                 else {
                     Log.d(TAG, "Current data: null");
