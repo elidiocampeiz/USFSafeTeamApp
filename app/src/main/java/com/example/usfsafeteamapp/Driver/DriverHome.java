@@ -301,6 +301,8 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
                     B.setVisibility(View.VISIBLE);
                     TextView t2 = (TextView)findViewById(R.id.textViewRequestDisplay);
                     t2.setVisibility(View.INVISIBLE);
+                    t1.clearComposingText();
+                    t5.clearComposingText();
                     t1.setText(nRequest.getStart().getName());
                     t5.setText(nRequest.getDest().getName());
                     t1.setVisibility(View.VISIBLE);
