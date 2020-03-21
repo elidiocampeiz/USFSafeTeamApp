@@ -232,7 +232,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
         setCurrPlace();
         // Initialize the AutocompleteSupportFragment.
         setUpAutocompleteSupportFragment();
-
+        mFusedLocationClient = new FusedLocationProviderClient(ClientHome.this);
         getLastKnownLocation();
 
         locm = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -395,8 +395,10 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
 private void getLastKnownLocation() {
     Log.d(TAG, "getLastKnownLocation: called.");
     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        return;
+        getLocationPermission();
     }
+
+
 
     mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
         @Override
