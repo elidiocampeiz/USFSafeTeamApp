@@ -9,7 +9,9 @@ import android.widget.Button;
 
 import com.example.usfsafeteamapp.Client.ClientHome;
 import com.example.usfsafeteamapp.Driver.DriverHome;
+import com.example.usfsafeteamapp.v2.Client_Login;
 import com.example.usfsafeteamapp.v2.DriverHome2;
+import com.example.usfsafeteamapp.v2.Driver_Login;
 
 //import com.google.android.gms.common.ConnectionResult;
 //import com.google.android.gms.common.GoogleApiAvailability;
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, ClientHome.class);
+                Intent i = new Intent(MainActivity.this, Client_Login.class);
                 startActivity(i);
             }
         });
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         B1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent in = new Intent(MainActivity.this, DriverHome2.class);
+                Intent in = new Intent(MainActivity.this, Driver_Login.class);
                 startActivity(in);
             }
         });
