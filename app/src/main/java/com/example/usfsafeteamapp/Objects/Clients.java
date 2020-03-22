@@ -1,26 +1,31 @@
 package com.example.usfsafeteamapp.Objects;
 
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
 import com.google.type.Date;
 import com.google.type.LatLng;
 
 public class Clients {
     private String client_id;
-    private LatLng latlng;
+    private GeoPoint geoPoint;
     private @ServerTimestamp Date time_stamp;
     private String username;
 
-    public Clients(String client_id, LatLng latlng, String username ) {
+    public Clients(String client_id, GeoPoint geoPoint, String username ) {
         this.client_id = client_id;
-        this.latlng = latlng;
+        this.geoPoint = geoPoint;
         this.time_stamp =  null;
         this.username = username;
     }
 
-    public Clients(String client_id, LatLng latlng, Date time_stamp ) {
+    public Clients(String client_id, GeoPoint geoPoint) {
         this.client_id = client_id;
-        this.latlng = latlng;
+        this.geoPoint = geoPoint;
         this.time_stamp  = null;
+
+    }
+    public Clients(String client_id){
+        this.client_id = client_id;
 
     }
     public Clients(){
@@ -31,9 +36,7 @@ public class Clients {
         this.client_id = client_id;
     }
 
-    public void setLatlng(LatLng latlng) {
-        this.latlng = latlng;
-    }
+
 
     public void setTime_stamp(Date time_stamp) {
         this.time_stamp = time_stamp;
@@ -47,9 +50,7 @@ public class Clients {
         return time_stamp;
     }
 
-    public LatLng getLatlng() {
-        return latlng;
-    }
+
 
     public String getClient_id() {
         return client_id;
@@ -57,5 +58,13 @@ public class Clients {
 
     public String getUsername() {
         return username;
+    }
+
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
+    }
+
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
     }
 }

@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.usfsafeteamapp.Client.ClientHome;
 import com.example.usfsafeteamapp.Driver.DriverHome;
+import com.example.usfsafeteamapp.Objects.Clients;
+import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.common.api.Api;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,12 +23,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 public class Client_Login extends AppCompatActivity {
     private EditText Temail, Tpassword;
     private Button Blogin, Bregistrate;
     private FirebaseAuth aut;
     private FirebaseAuth.AuthStateListener autlist;
+    FirebaseFirestore mDb;
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -41,18 +47,18 @@ public class Client_Login extends AppCompatActivity {
                     Intent intent = new Intent(Client_Login.this, ClientHome.class);
                     startActivity(intent);
                     finish();
-                    return;
                 }
             }
         };
 
-
+        mDb = FirebaseFirestore.getInstance(); // init firebase
 
 
         Temail = (EditText) findViewById(R.id.emailtext);
         Tpassword = (EditText) findViewById(R.id.passwordtext);
         Blogin = (Button) findViewById(R.id.loginbut);
         Bregistrate = (Button) findViewById(R.id.registratebut);
+
 
         Bregistrate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,8 +73,11 @@ public class Client_Login extends AppCompatActivity {
                         }
                         else{
                             String user_ID = aut.getCurrentUser().getUid();
-                            DatabaseReference current_user_db = FirebaseDatabase.getInstance().getReference().child("User").child("Client").child(user_ID);
-                            current_user_db.setValue(true);
+                            DocumentReference docRef = mDb.collection("Clients").document(user_ID);
+
+                            Clients cl = new Clients(user_ID);
+                            docRef.set(cl, SetOptions.merge());
+
                         }
                     }
                 });
