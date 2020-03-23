@@ -2,8 +2,8 @@ package com.example.usfsafeteamapp.Objects;
 
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
-import com.google.type.Date;
-import com.google.type.LatLng;
+
+import java.util.Date;
 
 public class Clients {
     private String client_id;
@@ -38,17 +38,13 @@ public class Clients {
 
 
 
-    public void setTime_stamp(Date time_stamp) {
-        this.time_stamp = time_stamp;
-    }
+
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-    public Date getTime_stamp() {
-        return time_stamp;
-    }
+
 
 
 
@@ -66,5 +62,13 @@ public class Clients {
 
     public void setGeoPoint(GeoPoint geoPoint) {
         this.geoPoint = geoPoint;
+    }
+
+    public Date getTime_stamp() {
+        return time_stamp;
+    }
+
+    public void setTime_stamp(Date time_stamp) {
+        this.time_stamp = time_stamp;
     }
 }
