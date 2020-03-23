@@ -1,14 +1,11 @@
 package com.example.usfsafeteamapp.Objects;
 
-import com.google.android.libraries.places.api.model.Place;
 import com.google.firebase.firestore.ServerTimestamp;
 
-import java.io.Serializable;
-import java.sql.Driver;
 import java.util.Date;
 
 
-public class Requests implements Serializable {
+public class Requests  {
     private myPlace start;
     private myPlace dest;
     private String request_id;

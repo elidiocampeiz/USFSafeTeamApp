@@ -10,19 +10,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.usfsafeteamapp.Client.ClientHome;
-import com.example.usfsafeteamapp.Driver.DriverHome;
 import com.example.usfsafeteamapp.Objects.Clients;
-import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.R;
-import com.google.android.gms.common.api.Api;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -44,7 +38,7 @@ public class Client_Login extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if(user != null){
-                    Intent intent = new Intent(Client_Login.this, ClientHome.class);
+                    Intent intent = new Intent(Client_Login.this, ClientHome2.class);
                     startActivity(intent);
                     finish();
                 }

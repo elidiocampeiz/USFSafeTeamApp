@@ -1,0 +1,65 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.usfsafeteamapp.v2.DriverHome2" >
+
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="614dp"
+        android:layout_marginTop="-6dp"
+        android:layout_marginBottom="5dp" />
+
+    <TextView
+        android:id="@+id/textViewEstimatedTime"
+        android:layout_width="216dp"
+        android:layout_height="31dp"
+        android:layout_marginStart="95dp"
+        android:layout_marginLeft="95dp"
+        android:layout_marginTop="500dp"
+        android:layout_marginEnd="100dp"
+        android:layout_marginRight="100dp"
+        android:layout_marginBottom="74dp" />
+
+
+    <Button
+        android:id="@+id/buttonConfirm"
+        android:layout_width="251dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="83dp"
+        android:layout_marginLeft="500dp"
+        android:layout_marginTop="528dp"
+        android:layout_marginEnd="93dp"
+        android:layout_marginRight="55dp"
+        android:layout_marginBottom="30dp"
+        android:text="Confirm"
+        android:visibility="gone"/>
+    
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="374dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="19dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginTop="51dp">
+
+        <fragment
+            android:id="@+id/autocomplete_fragment"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            android:layout_width="374dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="5dp"
+            />
+
+    </androidx.cardview.widget.CardView>
+
+
+
+
+</FrameLayout>
+
