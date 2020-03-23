@@ -21,6 +21,8 @@ public class ClientHome2 extends AppCompatActivity {
         getSupportActionBar().setTitle("Client Home 2");
     }
 
+    //Menu Options
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
