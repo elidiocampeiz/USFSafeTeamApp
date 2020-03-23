@@ -11,6 +11,13 @@ public class Drivers {
 //    private String username;
     private Requests nextRequest;
 
+
+    public Drivers(String driver_id, GeoPoint geoPoint, Requests nextRequest) {
+        this.driver_id = driver_id;
+        this.geoPoint = geoPoint;
+        this.time_stamp  = null;
+        this.nextRequest = nextRequest;
+    }
     public Drivers(String driver_id, GeoPoint geoPoint ) {
         this.driver_id = driver_id;
         this.geoPoint = geoPoint;
@@ -19,20 +26,12 @@ public class Drivers {
         this.nextRequest = new Requests();
     }
 
-    public Drivers(String driver_id, GeoPoint geoPoint, Date time_stamp ) {
-        this.driver_id = driver_id;
-        this.geoPoint = geoPoint;
-        this.time_stamp  = null;
-        this.nextRequest = new Requests();
-
-    }
-
     public Drivers(String driver_id){
         this.driver_id = driver_id;
         this.nextRequest = new Requests();
     }
     public Drivers(){
-        this.driver_id = "Driver";
+        this.driver_id = "Driver"; // TODO : default value for testing -> delete it
         this.time_stamp  = null;
         this.nextRequest = new Requests();
     }
@@ -44,9 +43,6 @@ public class Drivers {
     public void setGeoPoint(GeoPoint geoPoint) {
         this.geoPoint = geoPoint;
     }
-
-
-
 
 
     public Date getTime_stamp() {
@@ -70,8 +66,7 @@ public class Drivers {
     public void setNextRequest(Requests nextRequest) {
         this.nextRequest = nextRequest;
     }
-    public LatLng getLatLng(){
-        return new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-    }
+
+
 
 }

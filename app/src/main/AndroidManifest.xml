@@ -19,17 +19,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".v2.DriverHome2"></activity>
-        <activity android:name=".Driver.DriverWait"></activity>
+        <activity android:name=".v2.DriverHome2" />
+        <activity android:name=".v2.Driver_Login" />
+        <activity android:name=".v2.Client_Login" />
+        <activity android:name=".Driver.DriverWait" />
         <activity
             android:name=".Client.ClientHome"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".Client.ClientWait"
-            android:parentActivityName=".Client.ClientHome"></activity>
+            android:parentActivityName=".Client.ClientHome" />
         <activity
             android:name=".Driver.DriverHome"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
