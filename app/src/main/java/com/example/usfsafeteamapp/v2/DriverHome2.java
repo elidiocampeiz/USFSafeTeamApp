@@ -12,6 +12,8 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,8 +22,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.ebanx.swipebtn.OnStateChangeListener;
+import com.ebanx.swipebtn.SwipeButton;
 import com.example.usfsafeteamapp.MainActivity;
-import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -36,14 +39,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.SetOptions;
 
 public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -56,6 +55,8 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private SupportMapFragment mapFragment;
     private Button mLogout;
+    private RelativeLayout mCustomerInfo;
+
     FirebaseFirestore mDb;
     String driverIdRef;
 
@@ -78,6 +79,9 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         driverIdRef = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        mCustomerInfo = (RelativeLayout) findViewById(R.id.customerInfo);
+
+        mCustomerInfo.setVisibility(View.VISIBLE);
         mLogout = (Button) findViewById(R.id.logout);
         mLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +95,13 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 startActivity(intent);
                 finish();
 
+            }
+        });
+        SwipeButton enableButton = (SwipeButton) findViewById(R.id.swipe_btn);
+        enableButton.setOnStateChangeListener(new OnStateChangeListener() {
+            @Override
+            public void onStateChange(boolean active) {
+                Toast.makeText(DriverHome2.this, "State: " + active, Toast.LENGTH_SHORT).show();
             }
         });
 
