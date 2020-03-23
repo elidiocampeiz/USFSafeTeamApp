@@ -69,7 +69,7 @@ public class Client_Login extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(!task.isSuccessful()){
-                            Toast.makeText(Client_Login.this, "Sign in error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Client_Login.this, "Sign up error", Toast.LENGTH_SHORT).show();
                         }
                         else{
                             String user_ID = aut.getCurrentUser().getUid();

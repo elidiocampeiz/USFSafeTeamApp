@@ -3,12 +3,14 @@ package com.example.usfsafeteamapp.v2;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -18,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.usfsafeteamapp.MainActivity;
 import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -33,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
@@ -53,7 +57,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     private SupportMapFragment mapFragment;
     private Button mLogout;
     FirebaseFirestore mDb;
-    String driverIdRef = "Driver";
+    String driverIdRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +76,23 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_frag);
         mapFragment.getMapAsync(this);
 
-        mLogout = (Button) findViewById(R.id.logout);
+        driverIdRef = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        mLogout = (Button) findViewById(R.id.logout);
+        mLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                isLoggingOut = true;
+
+                disconnectDriver();
+
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(DriverHome2.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+
+            }
+        });
 
     }
 
@@ -125,6 +144,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 //                    Log.d(TAG, "onLocationResult: B2");
 
                     //update it in the db
+                    //NOTE: At this point a driver with the Auth usr id as the document id is already
                     DocumentReference DO = mDb.collection("DriversOnline").document(driverIdRef);
 //                    Drivers dr = new Drivers(driverIdRef,new GeoPoint( location.getLatitude(), location.getLongitude() ) );
 //                    DO.set(dr, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
