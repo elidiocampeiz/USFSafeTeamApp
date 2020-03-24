@@ -10,6 +10,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -81,21 +84,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         mCustomerInfo = (RelativeLayout) findViewById(R.id.customerInfo);
 
         mCustomerInfo.setVisibility(View.VISIBLE);
-        mLogout = (Button) findViewById(R.id.logout);
-        mLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                isLoggingOut = true;
 
-                disconnectDriver();
-
-                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(DriverHome2.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-
-            }
-        });
         SwipeButton enableButton = (SwipeButton) findViewById(R.id.swipe_btn);
         enableButton.setOnStateChangeListener(new OnStateChangeListener() {
             @Override
@@ -263,6 +252,39 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 });
 
 
+    }
+
+
+
+    //Menu Options
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.example_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case R.id.item1:
+                Toast.makeText(this, "You are now logged out", Toast.LENGTH_SHORT).show();
+                disconnectDriver();
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(DriverHome2.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+
+            case R.id.item2:
+                Toast.makeText(this, "To be implemented", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }
