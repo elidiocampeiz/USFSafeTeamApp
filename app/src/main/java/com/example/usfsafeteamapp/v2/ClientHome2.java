@@ -1,17 +1,27 @@
 package com.example.usfsafeteamapp.v2;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.usfsafeteamapp.MainActivity;
 import com.example.usfsafeteamapp.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.firebase.auth.FirebaseAuth;
 
-public class ClientHome2 extends AppCompatActivity {
+public class ClientHome2 extends AppCompatActivity
+{
+
+    private Button mLogout;
+    private FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,7 +29,15 @@ public class ClientHome2 extends AppCompatActivity {
         setContentView(R.layout.activity_client_home2);
 
         getSupportActionBar().setTitle("Client Home 2");
+
     }
+
+
+
+
+
+
+
 
     //Menu Options
 
@@ -41,9 +59,25 @@ public class ClientHome2 extends AppCompatActivity {
                 return true;
 
             case R.id.item2:
-                Toast.makeText(this, "To be implemented", Toast.LENGTH_SHORT).show();
+                mLogout = (Button) findViewById(R.id.logout);
+                mLogout.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        FirebaseAuth.getInstance().signOut();
+                        Intent intent = new Intent(ClientHome2.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+
+                    }
+                });
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
+
 }

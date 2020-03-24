@@ -12,7 +12,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -139,7 +138,8 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
-    LocationCallback mLocationCallback = new LocationCallback(){
+    LocationCallback mLocationCallback = new LocationCallback()
+    {
         @Override
         public void onLocationResult(LocationResult locationResult) {
 
