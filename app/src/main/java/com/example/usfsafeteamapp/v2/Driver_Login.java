@@ -83,8 +83,7 @@ public class Driver_Login extends AppCompatActivity {
             public void onClick(View v) {
                 final String email = Temail.getText().toString();
                 final String password = Tpassword.getText().toString();
-
-                aut.createUserWithEmailAndPassword(email,password).addOnCompleteListener(Driver_Login.this, new OnCompleteListener<AuthResult>() {
+                aut.signInWithEmailAndPassword(email, password).addOnCompleteListener(Driver_Login.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(!task.isSuccessful())

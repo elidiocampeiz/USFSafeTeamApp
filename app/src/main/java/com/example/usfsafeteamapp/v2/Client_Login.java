@@ -84,7 +84,7 @@ public class Client_Login extends AppCompatActivity {
                 final String email = Temail.getText().toString();
                 final String password = Tpassword.getText().toString();
 
-                aut.createUserWithEmailAndPassword(email,password).addOnCompleteListener(Client_Login.this, new OnCompleteListener<AuthResult>() {
+                aut.signInWithEmailAndPassword(email, password).addOnCompleteListener(Client_Login.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(!task.isSuccessful())
