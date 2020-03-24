@@ -30,6 +30,7 @@ public class ClientHome2 extends AppCompatActivity
 
         getSupportActionBar().setTitle("Client Home 2");
 
+
     }
 
 
@@ -56,22 +57,14 @@ public class ClientHome2 extends AppCompatActivity
         {
             case R.id.item1:
                 Toast.makeText(this, "You are now logged out", Toast.LENGTH_SHORT).show();
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(ClientHome2.this, MainActivity.class);
+                startActivity(intent);
+                finish();
                 return true;
 
             case R.id.item2:
-                mLogout = (Button) findViewById(R.id.logout);
-                mLogout.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
-                    {
-                        FirebaseAuth.getInstance().signOut();
-                        Intent intent = new Intent(ClientHome2.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-
-                    }
-                });
+                Toast.makeText(this, "To be implemented", Toast.LENGTH_SHORT).show();
                 return true;
         }
         return super.onOptionsItemSelected(item);
