@@ -49,6 +49,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -292,6 +293,17 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                 //Calling function that will create the route to the destination
                 getRouteToMarker(LL);
+
+                //Zoom into the path
+                //Northern Lat (secound parameter) has to be bellow Southern Lat(first paramenter)
+                if (LL.latitude < myCurrPlace.getLatLng().latitude){
+                    LatLngBounds LLB =  new LatLngBounds(LL, myCurrPlace.getLatLng()) ;
+                    //TODO: Handle the case in which a new path causes a bug
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LLB.getCenter(), 15f));
+
+                }else{
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 13f));
+                }
 
 // create a Requests Object
 
