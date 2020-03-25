@@ -109,28 +109,66 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 }
 
                 if ((documentSnapshot != null) && (documentSnapshot.getData() != null) && documentSnapshot.contains("nextRequest") && documentSnapshot.getData().size()>0 && documentSnapshot.exists()) {
-                    Requests mRequest = (Requests)  documentSnapshot.get("nextRequest", Requests.class);
-                    String clientId = (String) mRequest.getClient_id();
-
-                    DocumentReference cusloc = mDb.collection("Clients").document(clientId);
-                    cusloc.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                            if ((documentSnapshot != null) && documentSnapshot.exists() ){
-                                GeoPoint geo = documentSnapshot.getGeoPoint("GeoPoint");
-
-                                //GeoPoint pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
-                                //getRouteToMarker(pickupLatLng);
-
-                            }
-                        }
-                    });
-
-
-
+                    getclientlocation(documentSnapshot);
+                    getclientdest(documentSnapshot);
+                    getclientinfo(documentSnapshot);
                 }
                 else {
                     Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+    }
+    private void getclientlocation(DocumentSnapshot documentSnapshot){
+        Requests mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
+        String clientId = (String) mRequest.getClient_id();
+
+        DocumentReference cusloc = mDb.collection("Clients").document(clientId);
+        cusloc.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if ((documentSnapshot != null) && documentSnapshot.exists() ){
+                    GeoPoint geo = documentSnapshot.getGeoPoint("GeoPoint");
+
+                    //GeoPoint pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
+                    //getRouteToMarker(pickupLatLng);
+
+                }
+            }
+        });
+    }
+    private void getclientdest(DocumentSnapshot documentSnapshot){
+        final Requests mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
+        String clientId = (String) mRequest.getClient_id();
+
+        DocumentReference cusloc = mDb.collection("Clients").document(clientId);
+        cusloc.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if ((documentSnapshot != null) && documentSnapshot.exists() ){
+                    LatLng LL = mRequest.getDest().getLatLng();
+
+                    //GeoPoint pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
+                    //getRouteToMarker(pickupLatLng);
+
+                }
+            }
+        });
+    }
+    private void getclientinfo(DocumentSnapshot documentSnapshot){
+        final Requests mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
+        String clientId = (String) mRequest.getClient_id();
+
+        DocumentReference cusloc = mDb.collection("Clients").document(clientId);
+        cusloc.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if ((documentSnapshot != null) && documentSnapshot.exists() ){
+                    String clientname = mRequest.getClient_id();
+
+                    //GeoPoint pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
+                    //getRouteToMarker(pickupLatLng);
+
                 }
             }
         });
