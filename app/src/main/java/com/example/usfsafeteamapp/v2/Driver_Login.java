@@ -10,7 +10,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.usfsafeteamapp.Driver.DriverHome;
 import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -18,8 +17,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -69,7 +66,6 @@ public class Driver_Login extends AppCompatActivity {
                         else{
                             String user_ID = aut.getCurrentUser().getUid();
                             DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
-
                             Drivers dr = new Drivers(user_ID);
                             docRef.set(dr, SetOptions.merge());
                         }

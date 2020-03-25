@@ -146,7 +146,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             }
         });
-        getClosestDirver();
+//        getClosestDirver();
 
     }
 
@@ -194,8 +194,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     mLastLocation = location;
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+//                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
 //                    Log.d(TAG, "onLocationResult: B2");
 
@@ -237,7 +237,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                             });
 
 
-
+                    getClosestDirver();
                 }
 
             }
@@ -306,6 +306,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 //Get closest driver
                 getClosestDirver();
 // put new request to
+
                 mRequest.setDriver_id(assignDriver.getDriver_id());
                 mDb.collection("Requests").add(mRequest);
                 mDb.collection("DriversOnline").document(assignDriver.getDriver_id()).update("nextRequest", mRequest);

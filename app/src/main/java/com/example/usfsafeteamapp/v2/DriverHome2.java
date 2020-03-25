@@ -225,7 +225,8 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     //update it in the db
                     //NOTE: At this point a driver with the Auth usr id as the document id is already
-                    DocumentReference DO = mDb.collection("DriversOnline").document(driverIdRef);
+                    String driverId= (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    DocumentReference DO = mDb.collection("DriversOnline").document(driverId);
 //                    Drivers dr = new Drivers(driverIdRef,new GeoPoint( location.getLatitude(), location.getLongitude() ) );
 //                    DO.set(dr, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
 //                        @Override

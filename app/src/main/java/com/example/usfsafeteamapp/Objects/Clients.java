@@ -26,6 +26,7 @@ public class Clients {
     }
     public Clients(String client_id){
         this.client_id = client_id;
+        this.time_stamp  = null;
 
     }
     public Clients(){

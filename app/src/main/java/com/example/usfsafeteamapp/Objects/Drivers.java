@@ -28,12 +28,11 @@ public class Drivers {
 
     public Drivers(String driver_id){
         this.driver_id = driver_id;
+        this.time_stamp =   null;
         this.nextRequest = new Requests();
     }
     public Drivers(){
-        this.driver_id = "Driver"; // TODO : default value for testing -> delete it
-        this.time_stamp  = null;
-        this.nextRequest = new Requests();
+
     }
 
     public void setDriver_id(String driver_id) {
