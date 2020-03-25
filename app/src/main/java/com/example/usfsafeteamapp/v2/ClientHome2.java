@@ -296,8 +296,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 // put new request to
                 mRequest.setDriver_id(assignDriver.getDriver_id());
                 mDb.collection("Requests").add(mRequest);
-                mDb.collection("DriversOnline").document(assignDriver.getDriver_id()).update("NextRequest", mRequest);
-
+                mDb.collection("DriversOnline").document(assignDriver.getDriver_id()).update("nextRequest", mRequest);
+                mDb.collection("Drivers").document(assignDriver.getDriver_id()).update("nextRequest", mRequest);
 
 
             }
@@ -463,12 +463,14 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                                 GeoPoint geo = document.get("geoPoint", GeoPoint.class);
                                 dest.setLatitude(geo.getLatitude());
                                 dest.setLongitude(geo.getLongitude());
+                                float dist = mLastLocation.distanceTo(dest);
+                                if (shortestDistance >= dist) {
 
-                                if (shortestDistance <= mLastLocation.distanceTo(dest)) {
                                     assignDriver = document.toObject(Drivers.class);
-                                    shortestDistance = mLastLocation.distanceTo(dest);
 
-                                    Log.i(TAG, "Driver: " + assignDriver.getDriver_id());
+                                    shortestDistance = dist;
+
+                                    Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + "Distance: " + dist);
                                 }
 
                             }
