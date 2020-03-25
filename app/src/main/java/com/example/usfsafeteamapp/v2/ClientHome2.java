@@ -72,6 +72,12 @@ import java.util.List;
 
 public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback, RoutingListener {
 
+    //Msc Location
+    final LatLng msc_LatLng = new LatLng(28.0639,-82.4134);
+
+    //Variable to update the time
+    TextView estimatedTime;
+
     String TAG;
     private GoogleMap mMap;
     private Location mLastLocation;
@@ -141,6 +147,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 12.2f));
 
         mLocationRequest = new LocationRequest();
 //        mLocationRequest.setSmallestDisplacement(10);
@@ -295,13 +302,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         routing.execute();
     }
 
-    public void setCurrPlace(){
-//        myPlace ret = new myPlace();
-//        String placeN , placeId="";
-//        final LatLng placeLL;
-//        float max = 0;
-        // Use fields to define the data types to return.
-        // Use fields to define the data types to return.
+    public void setCurrPlace()
+    {
         List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
 // Use the builder to create a FindCurrentPlaceRequest.
@@ -497,7 +499,11 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             Polyline polyline = mMap.addPolyline(polyOptions);
             polylines.add(polyline);
 
-            Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
+
+            String str = "duration - "+ route.get(i).getDurationValue();
+            estimatedTime = findViewById(R.id.textViewEstimatedTimeHome2);
+            estimatedTime.setText(str);
+            //Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
         }
     }
 
