@@ -73,7 +73,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback, RoutingListener {
@@ -202,24 +201,15 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     //update it in the db
                     //NOTE: At this point a driver with the Auth usr id as the document id is already
-                    DocumentReference DO = mDb.collection("Clients").document(clientIdRef);
-//                    Drivers dr = new Drivers(driverIdRef,new GeoPoint( location.getLatitude(), location.getLongitude() ) );
-//                    DO.set(dr, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                        @Override
-//                        public void onSuccess(Void aVoid) {
-//                            Log.d(TAG, "DocumentSnapshot successfully written!:");
-//                        }
-//                    })
-//                            .addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    Log.w(TAG, "Error writing document", e);
-//                                }
-//                            });
+                    String clientId = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    DocumentReference DO = mDb.collection("Clients").document(clientId);
+//
                     GeoPoint gp = new GeoPoint( location.getLatitude(), location.getLongitude() );
+
 //                    Drivers dr = new Drivers(driverIdRef,gp );
 //                    DO.set(dr, SetOptions.merge());
-                    DO.update("geoPoint",gp )
+
+                    DO.update("geoPoint", gp )
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
@@ -232,6 +222,20 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                                     Log.w(TAG, "Error updating document", e);
                                 }
                             });
+                    DO.update("time_stamp",null )
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully updated!:");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error updating document", e);
+                                }
+                            });
+
 
 
                 }
@@ -421,30 +425,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
     }
-    //function that removes the driver from the DriverOnline Collection
-    //Triggered when a driver goes offline or accepts a new request
-    private void disconnectDriver(){
-        if(mFusedLocationClient != null){
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        }
 
-        CollectionReference DriversOnlineRef = mDb.collection("Clients");
-        DriversOnlineRef.document(clientIdRef)
-                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, "DocumentSnapshot successfully deleted!");
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting document", e);
-                    }
-                });
-
-
-    }
 
     public void getClosestDirver(){
 
@@ -456,17 +437,16 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            HashSet<Drivers> driversSet = new HashSet<Drivers>();
 
                             float shortestDistance = Float.MAX_VALUE;
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Location dest = new Location("");
-
                                 GeoPoint geo = document.get("geoPoint", GeoPoint.class);
                                 dest.setLatitude(geo.getLatitude());
                                 dest.setLongitude(geo.getLongitude());
-                                float dist = mLastLocation.distanceTo(dest);
+
+                                float dist = dest.distanceTo(mLastLocation);
                                 if (shortestDistance >= dist) {
 
                                     assignDriver = document.toObject(Drivers.class);
