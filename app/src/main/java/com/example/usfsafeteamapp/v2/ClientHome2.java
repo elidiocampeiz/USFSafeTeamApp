@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +30,8 @@ import com.ebanx.swipebtn.OnStateChangeListener;
 import com.ebanx.swipebtn.SwipeButton;
 import com.example.usfsafeteamapp.Client.ClientHome;
 import com.example.usfsafeteamapp.DataParser.FetchURL;
+import com.example.usfsafeteamapp.Driver.DriverHome;
+import com.example.usfsafeteamapp.Driver.DriverWait;
 import com.example.usfsafeteamapp.MainActivity;
 import com.example.usfsafeteamapp.Objects.myPlace;
 import com.example.usfsafeteamapp.R;
@@ -80,7 +83,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     private FusedLocationProviderClient mFusedLocationClient;
     private PlacesClient placesClient;
     private SupportMapFragment mapFragment;
-    private Button mLogout;
+    private Button ConfButton;
+    private TextView txtTime;
     private RelativeLayout mCustomerInfo;
 
     private FirebaseFirestore mDb;
@@ -113,6 +117,22 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         // Initialize the AutocompleteSupportFragment.
         setUpAutocompleteSupportFragment();
 
+        //Confirm Request layout
+        txtTime = (TextView ) findViewById(R.id.textViewEstimatedTimeHome2);
+
+        ConfButton = (Button) findViewById(R.id.buttonClientConfirmHome2);
+        ConfButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ClientHome2.this, DriverWait.class);
+
+//                i.putExtra("request", nRequest.getRequest_id());
+                startActivity(i);
+//                LayoutInflater inflater = LayoutInflater
+//                        .from(getApplicationContext());
+
+            }
+        });
 
     }
 
@@ -166,7 +186,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     //update it in the db
                     //NOTE: At this point a driver with the Auth usr id as the document id is already
-                    DocumentReference DO = mDb.collection("DriversOnline").document(clientIdRef);
+                    DocumentReference DO = mDb.collection("Clients").document(clientIdRef);
 //                    Drivers dr = new Drivers(driverIdRef,new GeoPoint( location.getLatitude(), location.getLongitude() ) );
 //                    DO.set(dr, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
 //                        @Override
@@ -232,12 +252,11 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId()+", LatLng: "+ place.getLatLng() );
 
 
+                txtTime.setVisibility(View.VISIBLE);
+                ConfButton.setVisibility(View.VISIBLE);
 
-                //set display estimated time
-                //ToDO: Fetch it from the server or Get it from the directions api
-                TextView txtTime = findViewById(R.id.textViewEstimatedTime);
-                String str = "Estimated time: 5-10 min";
-                txtTime.setText(str);
+
+
             }
 
             @Override
