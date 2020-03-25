@@ -21,6 +21,15 @@ public class Requests  {
         this.time_stamp  = null;
         this.isStarted = false;
     }
+    public Requests(myPlace start, myPlace dest, String request_id, String client_id) {
+        this.start = start;
+        this.dest = dest;
+        this.request_id = request_id;
+        this.client_id = client_id;
+
+        this.time_stamp  = null;
+        this.isStarted = false;
+    }
     public Requests(myPlace start, myPlace dest, String request_id, String client_id, String driver_id) {
         this.start = start;
         this.dest = dest;

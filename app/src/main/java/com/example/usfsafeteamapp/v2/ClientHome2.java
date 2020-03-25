@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -31,6 +32,8 @@ import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.usfsafeteamapp.Driver.DriverWait;
 import com.example.usfsafeteamapp.MainActivity;
+import com.example.usfsafeteamapp.Objects.Drivers;
+import com.example.usfsafeteamapp.Objects.Requests;
 import com.example.usfsafeteamapp.Objects.myPlace;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.common.api.ApiException;
@@ -65,9 +68,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback, RoutingListener {
@@ -94,8 +100,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private FirebaseFirestore mDb;
     private String clientIdRef;
-
-    private myPlace myCurrPlace , myDestPlace;
+    private Drivers assignDriver;
+    private myPlace myCurrPlace ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,6 +146,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             }
         });
+        getClosestDirver();
 
     }
 
@@ -281,6 +288,23 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 //Calling function that will create the route to the destination
                 getRouteToMarker(LL);
 
+// create a Requests Object
+
+                String requestId = mDb.collection("Requests").getId(); // get new request id from fireStore
+
+                String clientId = FirebaseAuth.getInstance().getCurrentUser().getUid();//get clientId from Firebase auth
+
+                myPlace myDestinationPlace = new myPlace(place); // get destination place
+
+                Requests mRequest = new Requests(myCurrPlace, myDestinationPlace, requestId, clientId);
+
+//Get closest driver
+                getClosestDirver();
+// put new request to
+                mRequest.setDriver_id(assignDriver.getDriver_id());
+                mDb.collection("Requests").add(mRequest);
+                mDb.collection("DriversOnline").document(assignDriver.getDriver_id()).update("nextRequest", mRequest);
+                mDb.collection("Drivers").document(assignDriver.getDriver_id()).update("nextRequest", mRequest);
 
 
             }
@@ -421,7 +445,46 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
+    public void getClosestDirver(){
 
+        CollectionReference colRef = mDb.collection("DriversOnline");
+
+        colRef.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            HashSet<Drivers> driversSet = new HashSet<Drivers>();
+
+                            float shortestDistance = Float.MAX_VALUE;
+
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Location dest = new Location("");
+
+                                GeoPoint geo = document.get("geoPoint", GeoPoint.class);
+                                dest.setLatitude(geo.getLatitude());
+                                dest.setLongitude(geo.getLongitude());
+                                float dist = mLastLocation.distanceTo(dest);
+                                if (shortestDistance >= dist) {
+
+                                    assignDriver = document.toObject(Drivers.class);
+
+                                    shortestDistance = dist;
+
+                                    Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + "Distance: " + dist);
+                                }
+
+                            }
+                            if (assignDriver == null) {
+                                Log.i(TAG, "Driver not found ");
+                                assignDriver = new Drivers("Drivers");
+                            }
+                        }
+                    }
+                });
+
+    }
 
     //Menu Options
 
