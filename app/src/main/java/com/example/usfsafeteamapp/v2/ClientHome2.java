@@ -14,23 +14,21 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.ebanx.swipebtn.OnStateChangeListener;
-import com.ebanx.swipebtn.SwipeButton;
-import com.example.usfsafeteamapp.Client.ClientHome;
-import com.example.usfsafeteamapp.DataParser.FetchURL;
-import com.example.usfsafeteamapp.Driver.DriverHome;
+import com.directions.route.AbstractRouting;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 import com.example.usfsafeteamapp.Driver.DriverWait;
 import com.example.usfsafeteamapp.MainActivity;
 import com.example.usfsafeteamapp.Objects.myPlace;
@@ -48,9 +46,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -68,12 +66,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-
-public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback {
+public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback, RoutingListener {
 
     String TAG;
     private GoogleMap mMap;
@@ -86,6 +83,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     private Button ConfButton;
     private TextView txtTime;
     private RelativeLayout mCustomerInfo;
+
+    private MarkerOptions curr_mkr;
 
     private FirebaseFirestore mDb;
     private String clientIdRef;
@@ -100,6 +99,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         getSupportActionBar().setTitle("Client Home2");
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //Declaring the polyline array
+        polylines = new ArrayList<>();
 
         mDb = FirebaseFirestore.getInstance(); // init firebase
 
@@ -255,6 +256,22 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 txtTime.setVisibility(View.VISIBLE);
                 ConfButton.setVisibility(View.VISIBLE);
 
+                //Transform it into LatLng
+                LatLng LL = place.getLatLng();
+
+                //Clear the map after the user changes the location selected
+                mMap.clear();
+
+                //Create a marker for the place selected by the user
+                MarkerOptions place_mkr = new MarkerOptions().position(LL).title(place.getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+
+                //Place the marker for your location and the chosen destination into the map
+                mMap.addMarker(place_mkr);
+                mMap.addMarker(curr_mkr);
+
+                //Calling function that will create the route to the destination
+                getRouteToMarker(LL);
+
 
 
             }
@@ -265,6 +282,17 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
+    }
+
+    private void getRouteToMarker(LatLng LL) {
+        Routing routing = new Routing.Builder()
+                .key(getString(R.string.google_maps_api_key))
+                .travelMode(AbstractRouting.TravelMode.BIKING)
+                .withListener(this)
+                .alternativeRoutes(false)
+                .waypoints(myCurrPlace.getLatLng(), LL)
+                .build();
+        routing.execute();
     }
 
     public void setCurrPlace(){
@@ -293,7 +321,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                     if(response!=null)
                     {
                         myCurrPlace = new myPlace(response.getPlaceLikelihoods().get(0).getPlace());
-                        MarkerOptions curr_mkr = new MarkerOptions().position(myCurrPlace.getLatLng()).title(myCurrPlace.getName());
+                        curr_mkr = new MarkerOptions().position(myCurrPlace.getLatLng()).title(myCurrPlace.getName());
                         mMap.addMarker(curr_mkr);
                     }
                     else{
@@ -301,7 +329,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                         GeoPoint geo = new GeoPoint(mLastLocation.getLatitude(),mLastLocation.getLongitude());
                         myCurrPlace = new myPlace("Pick Up Spot", "Stating Location", geo);
-                        MarkerOptions curr_mkr = new MarkerOptions().position(myCurrPlace.getLatLng()).title(myCurrPlace.getName());
+                        curr_mkr = new MarkerOptions().position(myCurrPlace.getLatLng()).title(myCurrPlace.getName());
                         mMap.addMarker(curr_mkr);
                     }
 
@@ -422,4 +450,59 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
+
+
+
+    //Methods to create the polyline
+
+    private List<Polyline> polylines;
+    private static final int[] COLORS = new int[]{R.color.primary_dark_material_light};
+
+    @Override
+    public void onRoutingFailure(RouteException e)
+    {
+        // The Routing request failed
+        if(e != null) {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }else {
+            Toast.makeText(this, "Something went wrong, Try again", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex)
+    {
+        if(polylines.size()>0) {
+            for (Polyline poly : polylines) {
+                poly.remove();
+            }
+        }
+
+        polylines = new ArrayList<>();
+        //add route(s) to the map.
+        for (int i = 0; i <route.size(); i++) {
+
+            //In case of more than 5 alternative routes
+            int colorIndex = i % COLORS.length;
+
+            PolylineOptions polyOptions = new PolylineOptions();
+            polyOptions.color(getResources().getColor(COLORS[colorIndex]));
+            polyOptions.width(10 + i * 3);
+            polyOptions.addAll(route.get(i).getPoints());
+            Polyline polyline = mMap.addPolyline(polyOptions);
+            polylines.add(polyline);
+
+            Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRoutingCancelled() {
+
+    }
 }
