@@ -11,17 +11,30 @@ public class Requests  {
     private String request_id;
     private @ServerTimestamp Date time_stamp; //when null object of this type is passed to firestore the current date is automatically assigned
     private String driver_id;
+    private String client_id;
+    private boolean isStarted;
 
     public Requests(myPlace start, myPlace dest, String request_id) {
         this.start = start;
         this.dest = dest;
         this.request_id = request_id;
         this.time_stamp  = null;
+        this.isStarted = false;
+    }
+    public Requests(myPlace start, myPlace dest, String request_id, String client_id, String driver_id) {
+        this.start = start;
+        this.dest = dest;
+        this.request_id = request_id;
+        this.client_id = client_id;
+        this.driver_id = driver_id;
+        this.time_stamp  = null;
+        this.isStarted = false;
     }
 
     public Requests() {
 
     }
+
 //    public Requests(Object...objects) {
 //        this.start = new myPlace(objects[0]);
 //        this.dest = new myPlace(objects[1]);
@@ -69,5 +82,21 @@ public class Requests  {
 
     public void setDriver_id(String driver_id) {
         this.driver_id = driver_id;
+    }
+
+    public String getClient_id() {
+        return client_id;
+    }
+
+    public void setClient_id(String client_id) {
+        this.client_id = client_id;
+    }
+
+    public boolean isStarted() {
+        return isStarted;
+    }
+
+    public void setStarted(boolean started) {
+        isStarted = started;
     }
 }

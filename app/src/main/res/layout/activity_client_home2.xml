@@ -7,7 +7,7 @@
 
 
     <fragment
-        android:id="@+id/map"
+        android:id="@+id/map_frag2"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="614dp"
@@ -27,7 +27,7 @@
 
 
     <Button
-        android:id="@+id/buttonConfirm"
+        android:id="@+id/buttonConfirmHome2"
         android:layout_width="216dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="95dp"
@@ -47,7 +47,7 @@
         android:layout_marginTop="60dp">
 
         <fragment
-            android:id="@+id/autocomplete_fragment"
+            android:id="@+id/autocomplete_fragmentHome2"
             android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

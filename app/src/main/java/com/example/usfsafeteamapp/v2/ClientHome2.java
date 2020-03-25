@@ -1,41 +1,374 @@
 package com.example.usfsafeteamapp.v2;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import com.ebanx.swipebtn.OnStateChangeListener;
+import com.ebanx.swipebtn.SwipeButton;
+import com.example.usfsafeteamapp.Client.ClientHome;
+import com.example.usfsafeteamapp.DataParser.FetchURL;
 import com.example.usfsafeteamapp.MainActivity;
+import com.example.usfsafeteamapp.Objects.myPlace;
 import com.example.usfsafeteamapp.R;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
+import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
-public class ClientHome2 extends AppCompatActivity
-{
+import java.util.Arrays;
+import java.util.List;
 
-    private Button mLogout;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
+public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback {
+
+    String TAG;
+    private GoogleMap mMap;
+    private Location mLastLocation;
+    private LocationRequest mLocationRequest;
+
     private FusedLocationProviderClient mFusedLocationClient;
+    private PlacesClient placesClient;
+    private SupportMapFragment mapFragment;
+    private Button mLogout;
+    private RelativeLayout mCustomerInfo;
 
+    private FirebaseFirestore mDb;
+    private String clientIdRef;
+
+    private myPlace myCurrPlace , myDestPlace;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_home2);
 
-        getSupportActionBar().setTitle("Client Home 2");
+        //Creating the activity title and a back button
+        getSupportActionBar().setTitle("Client Home2");
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        mDb = FirebaseFirestore.getInstance(); // init firebase
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_frag2);
+
+        mapFragment.getMapAsync(this);
+
+        clientIdRef = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // Google Places autocomplete fragment
+        setUpPlacesAPI();
+        setCurrPlace();
+        // Initialize the AutocompleteSupportFragment.
+        setUpAutocompleteSupportFragment();
 
 
     }
 
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        mLocationRequest = new LocationRequest();
+//        mLocationRequest.setSmallestDisplacement(10);
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+
+            }else{
+                checkLocationPermission();
+            }
+        }
+
+//        //Get & Display Driver's current location in map
+//        //TODO: Put it into a function that makes the driver "online"
+////        checkLocationPermission();
+//        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+//        mMap.setMyLocationEnabled(true);
+        connectLocation();
 
 
 
+
+    }
+
+
+    LocationCallback mLocationCallback = new LocationCallback()
+    {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+
+            for(Location location : locationResult.getLocations()){
+//                Log.d(TAG, "onLocationResult: B1");
+                if(getApplicationContext()!=null) {
+
+                    mLastLocation = location;
+                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+
+//                    Log.d(TAG, "onLocationResult: B2");
+
+                    //update it in the db
+                    //NOTE: At this point a driver with the Auth usr id as the document id is already
+                    DocumentReference DO = mDb.collection("DriversOnline").document(clientIdRef);
+//                    Drivers dr = new Drivers(driverIdRef,new GeoPoint( location.getLatitude(), location.getLongitude() ) );
+//                    DO.set(dr, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                        @Override
+//                        public void onSuccess(Void aVoid) {
+//                            Log.d(TAG, "DocumentSnapshot successfully written!:");
+//                        }
+//                    })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.w(TAG, "Error writing document", e);
+//                                }
+//                            });
+                    GeoPoint gp = new GeoPoint( location.getLatitude(), location.getLongitude() );
+//                    Drivers dr = new Drivers(driverIdRef,gp );
+//                    DO.set(dr, SetOptions.merge());
+                    DO.update("geoPoint",gp )
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully updated!:");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error updating document", e);
+                                }
+                            });
+
+
+                }
+
+            }
+        }
+
+    };
+
+    public void setUpPlacesAPI(){
+        //Init Places
+        String apiKey = getString(R.string.google_maps_api_key);
+
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), apiKey);
+        }
+
+        // Create a new Places client instance.
+        placesClient = Places.createClient(this);
+    }
+    public void setUpAutocompleteSupportFragment()
+    {
+        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragmentHome2);
+
+
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG));
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected( Place place)
+            {
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId()+", LatLng: "+ place.getLatLng() );
+
+
+
+                //set display estimated time
+                //ToDO: Fetch it from the server or Get it from the directions api
+                TextView txtTime = findViewById(R.id.textViewEstimatedTime);
+                String str = "Estimated time: 5-10 min";
+                txtTime.setText(str);
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });
+    }
+
+    public void setCurrPlace(){
+//        myPlace ret = new myPlace();
+//        String placeN , placeId="";
+//        final LatLng placeLL;
+//        float max = 0;
+        // Use fields to define the data types to return.
+        // Use fields to define the data types to return.
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+// Use the builder to create a FindCurrentPlaceRequest.
+        FindCurrentPlaceRequest request =
+                FindCurrentPlaceRequest.newInstance(placeFields);
+
+        //check location permission
+        checkLocationPermission();
+// Call findCurrentPlace and handle the response (first check that the user has granted permission).
+
+        Task<FindCurrentPlaceResponse> placeResponse = placesClient.findCurrentPlace(request);
+        placeResponse.addOnCompleteListener(new OnCompleteListener<FindCurrentPlaceResponse>() {
+            @Override
+            public void onComplete(@NonNull Task<FindCurrentPlaceResponse> task) {
+                if (task.isSuccessful()) {
+                    FindCurrentPlaceResponse response = task.getResult();
+                    if(response!=null)
+                    {
+                        myCurrPlace = new myPlace(response.getPlaceLikelihoods().get(0).getPlace());
+                        MarkerOptions curr_mkr = new MarkerOptions().position(myCurrPlace.getLatLng()).title(myCurrPlace.getName());
+                        mMap.addMarker(curr_mkr);
+                    }
+                    else{
+                        Log.e(TAG, "Place not found: " );
+
+                        GeoPoint geo = new GeoPoint(mLastLocation.getLatitude(),mLastLocation.getLongitude());
+                        myCurrPlace = new myPlace("Pick Up Spot", "Stating Location", geo);
+                        MarkerOptions curr_mkr = new MarkerOptions().position(myCurrPlace.getLatLng()).title(myCurrPlace.getName());
+                        mMap.addMarker(curr_mkr);
+                    }
+
+                } else {
+                    Exception exception = task.getException();
+                    if (exception instanceof ApiException) {
+                        ApiException apiException = (ApiException) exception;
+                        Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+                    }
+                }
+            }
+        });
+
+
+    }
+
+    private void checkLocationPermission() {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new AlertDialog.Builder(this)
+                        .setTitle("give permission")
+                        .setMessage("give permission message")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ActivityCompat.requestPermissions(ClientHome2.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+            else{
+                ActivityCompat.requestPermissions(ClientHome2.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case 1:{
+                if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                        mMap.setMyLocationEnabled(true);
+                    }
+                } else{
+                    Toast.makeText(getApplicationContext(), "Please provide the permission", Toast.LENGTH_LONG).show();
+                }
+                break;
+            }
+        }
+    }
+
+    private void connectLocation(){
+        checkLocationPermission();
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+        mMap.setMyLocationEnabled(true);
+
+
+    }
+    //function that removes the driver from the DriverOnline Collection
+    //Triggered when a driver goes offline or accepts a new request
+    private void disconnectDriver(){
+        if(mFusedLocationClient != null){
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        }
+
+        CollectionReference DriversOnlineRef = mDb.collection("Clients");
+        DriversOnlineRef.document(clientIdRef)
+                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "DocumentSnapshot successfully deleted!");
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
+
+
+    }
 
 
 
@@ -56,6 +389,7 @@ public class ClientHome2 extends AppCompatActivity
         {
             case R.id.item1:
                 Toast.makeText(this, "You are now logged out", Toast.LENGTH_SHORT).show();
+
                 FirebaseAuth.getInstance().signOut();
                 Intent intent = new Intent(ClientHome2.this, MainActivity.class);
                 startActivity(intent);
@@ -68,8 +402,5 @@ public class ClientHome2 extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-
 
 }
