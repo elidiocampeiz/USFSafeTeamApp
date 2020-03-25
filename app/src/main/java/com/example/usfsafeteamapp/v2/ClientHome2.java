@@ -256,6 +256,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 txtTime.setVisibility(View.VISIBLE);
                 ConfButton.setVisibility(View.VISIBLE);
 
+
+
                 //Transform it into LatLng
                 LatLng LL = place.getLatLng();
 
