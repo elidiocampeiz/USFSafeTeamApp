@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import com.ebanx.swipebtn.OnStateChangeListener;
 import com.ebanx.swipebtn.SwipeButton;
 import com.example.usfsafeteamapp.MainActivity;
+import com.example.usfsafeteamapp.Objects.Requests;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -42,11 +43,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -54,8 +50,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
-
-import java.util.List;
 
 public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -115,32 +109,23 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 }
 
                 if ((documentSnapshot != null) && (documentSnapshot.getData() != null) && documentSnapshot.contains("nextRequest") && documentSnapshot.getData().size()>0 && documentSnapshot.exists()) {
-                    DatabaseReference cusloc = FirebaseDatabase.getInstance().getReference().child("DriversOnline").child(driverId);
-                    ValueEventListener teste = cusloc.addValueEventListener(new ValueEventListener() {
+                    Requests mRequest = (Requests)  documentSnapshot.get("nextRequest", Requests.class);
+                    String clientId = (String) mRequest.getClient_id();
+
+                    DocumentReference cusloc = mDb.collection("Clients").document(clientId);
+                    cusloc.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if(dataSnapshot.exists()){
-                                List<Object> map = (List<Object>) dataSnapshot.getValue();
-                                double locationLat = 0;
-                                double locationLng = 0;
-                                if(map.get(0) != null){
-                                    locationLat = Double.parseDouble(map.get(0).toString());
-                                }
-                                if(map.get(1) != null){
-                                    locationLng = Double.parseDouble(map.get(1).toString());
-                                }
-                                LatLng pickupLatLng = new LatLng(locationLat,locationLng);
+                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                            if ((documentSnapshot != null) && documentSnapshot.exists() ){
+                                GeoPoint geo = documentSnapshot.getGeoPoint("GeoPoint");
+
                                 //GeoPoint pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
                                 //getRouteToMarker(pickupLatLng);
+
                             }
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
                         }
                     });
+
 
 
                 }
