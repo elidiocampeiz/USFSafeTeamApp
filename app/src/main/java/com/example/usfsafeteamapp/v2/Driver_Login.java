@@ -21,6 +21,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
+import org.w3c.dom.Document;
+
+import java.util.List;
+
 public class Driver_Login extends AppCompatActivity {
     private EditText Temail, Tpassword;
     private Button Blogin, Bregistrate;
@@ -38,9 +42,11 @@ public class Driver_Login extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if(user != null){
-                    Intent intent = new Intent(Driver_Login.this, DriverHome2.class);
-                    startActivity(intent);
-                    finish();
+                    if(checkdriver(user.getEmail())) {
+                        Intent intent = new Intent(Driver_Login.this, DriverHome2.class);
+                        startActivity(intent);
+                        finish();
+                    }
                 }
             }
         };
@@ -89,6 +95,14 @@ public class Driver_Login extends AppCompatActivity {
             }
         });
 
+    }
+    private boolean checkdriver(String email){
+        String clientId = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DocumentReference DO = mDb.collection("Drivers").document(clientId);
+        if (DO != null)
+            return true;
+        else
+            return false;
     }
     @Override
     public void onStart(){

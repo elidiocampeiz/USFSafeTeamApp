@@ -22,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 public class Client_Login extends AppCompatActivity {
+    private boolean bool = false;
     private EditText Temail, Tpassword;
     private Button Blogin, Bregistrate;
     private FirebaseAuth aut;
@@ -93,8 +94,8 @@ public class Client_Login extends AppCompatActivity {
                 });
             }
         });
-
     }
+
     @Override
     public void onStart(){
         super.onStart();
