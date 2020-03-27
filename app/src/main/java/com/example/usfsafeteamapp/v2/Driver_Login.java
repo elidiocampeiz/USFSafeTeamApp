@@ -13,11 +13,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -96,13 +98,24 @@ public class Driver_Login extends AppCompatActivity {
         });
 
     }
+    private int intbool = 0;
     private boolean checkdriver(String email){
+        intbool = 0;
         String clientId = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
         DocumentReference DO = mDb.collection("Drivers").document(clientId);
-        if (DO != null)
-            return true;
-        else
+        DO.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful())
+                    intbool = 1;
+                else
+                    intbool = 0;
+            }
+        });
+            if(intbool == 0)
             return false;
+            else
+                return true;
     }
     @Override
     public void onStart(){
