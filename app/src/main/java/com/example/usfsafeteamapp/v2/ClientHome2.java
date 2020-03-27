@@ -69,12 +69,16 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback, RoutingListener {
 
@@ -101,7 +105,9 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private FirebaseFirestore mDb;
     private String clientIdRef;
+    List<Drivers> availableDrivers;
     private Drivers assignDriver;
+    ListenerRegistration mClosestDriversListener;
     private myPlace myCurrPlace ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,7 +154,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 //        getClosestDirver();
-
+//        mClosestDriversListener = mDb.collection("DriversOnline").addSnapshotListener(ClientHome2.this)
     }
 
 
@@ -186,6 +192,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     LocationCallback mLocationCallback = new LocationCallback()
     {
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public void onLocationResult(LocationResult locationResult) {
 
@@ -202,40 +209,57 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     //update it in the db
                     //NOTE: At this point a driver with the Auth usr id as the document id is already
-                    String clientId = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                    String clientId = (String) Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
                     DocumentReference DO = mDb.collection("Clients").document(clientId);
 //
                     GeoPoint gp = new GeoPoint( location.getLatitude(), location.getLongitude() );
 
 //                    Drivers dr = new Drivers(driverIdRef,gp );
 //                    DO.set(dr, SetOptions.merge());
-
-                    DO.update("geoPoint", gp )
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "DocumentSnapshot successfully updated!:");
-                                }
-                            })
+                    HashMap<String, Object> data = new HashMap<String, Object>();
+                    data.put("geoPoint", gp  );
+                    data.put("time_stamp", new Date());
+                    DO.update(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully updated!:");
+                        }
+                    })
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     Log.w(TAG, "Error updating document", e);
                                 }
                             });
-                    DO.update("time_stamp",null )
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "DocumentSnapshot successfully updated!:");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w(TAG, "Error updating document", e);
-                                }
-                            });
+//                    ;
+//                    DO.update("geoPoint", gp )
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    Log.d(TAG, "DocumentSnapshot successfully updated!:");
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.w(TAG, "Error updating document", e);
+//                                }
+//                            });
+//
+//                    DO.update("time_stamp",null )
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    Log.d(TAG, "DocumentSnapshot successfully updated!:");
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.w(TAG, "Error updating document", e);
+//                                }
+//                            });
 
 
                     getClosestDirver();
@@ -320,9 +344,13 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 // put new request to
 
                 mRequest.setDriver_id(assignDriver.getDriver_id());
+                //add request to requests collection
                 mDb.collection("Requests").add(mRequest);
-                mDb.collection("DriversOnline").document(assignDriver.getDriver_id()).update("nextRequest", mRequest);
-                mDb.collection("Drivers").document(assignDriver.getDriver_id()).update("nextRequest", mRequest);
+                //add request to driver
+                mDb.collection("DriversAvailable").document(assignDriver.getDriver_id()).update("nextRequest", mRequest);
+
+                DocumentReference drs = mDb.collection("Drivers").document(assignDriver.getDriver_id());
+                drs.update("nextRequest", mRequest);
 
 
             }

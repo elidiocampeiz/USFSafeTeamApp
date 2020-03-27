@@ -94,6 +94,10 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onStateChange(boolean active) {
                 Toast.makeText(DriverHome2.this, "State: " + active, Toast.LENGTH_SHORT).show();
+                if (active){
+
+//                    mDb.collection("DriversAvailable").
+                }
             }
         });
 

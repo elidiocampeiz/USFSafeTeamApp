@@ -1,75 +1,53 @@
 package com.example.usfsafeteamapp.Driver;
 
-        import androidx.annotation.NonNull;
-        import androidx.annotation.Nullable;
-        import androidx.annotation.RequiresApi;
-        import androidx.appcompat.app.AppCompatActivity;
-        import androidx.core.app.ActivityCompat;
-        import androidx.core.app.BundleCompat;
-        import androidx.core.content.ContextCompat;
-
         import android.Manifest;
-        import android.content.Intent;
-        import android.content.pm.PackageManager;
-        import android.location.Address;
-        import android.location.Geocoder;
-        import android.location.Location;
-        import android.location.LocationListener;
-        import android.location.LocationManager;
-        import android.os.Build;
-        import android.os.Bundle;
-        import android.util.Log;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.Button;
-        import android.widget.TextView;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
-        import com.example.usfsafeteamapp.Client.ClientHome;
-        import com.example.usfsafeteamapp.Client.ClientHome.*;
-        import com.example.usfsafeteamapp.Client.ClientWait;
-        import com.example.usfsafeteamapp.DataParser.FetchURL;
-        import com.example.usfsafeteamapp.DataParser.TaskLoadedCallback;
-        import com.example.usfsafeteamapp.Objects.Drivers;
-        import com.example.usfsafeteamapp.Objects.Requests;
-        import com.example.usfsafeteamapp.Objects.myPlace;
-        import com.example.usfsafeteamapp.R;
-        import com.google.android.gms.location.FusedLocationProviderClient;
-        import com.google.android.gms.location.LocationServices;
-        import com.google.android.gms.maps.CameraUpdateFactory;
-        import com.google.android.gms.maps.GoogleMap;
-        import com.google.android.gms.maps.OnMapReadyCallback;
-        import com.google.android.gms.maps.SupportMapFragment;
-        import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-        import com.google.android.gms.maps.model.LatLng;
-        import com.google.android.gms.maps.model.LatLngBounds;
-        import com.google.android.gms.maps.model.MarkerOptions;
-        import com.google.android.gms.maps.model.Polyline;
-        import com.google.android.gms.maps.model.PolylineOptions;
-        import com.google.android.gms.tasks.OnCompleteListener;
-        import com.google.android.gms.tasks.Task;
-        import com.google.firebase.database.core.Tag;
-        import com.google.firebase.firestore.CollectionReference;
-        import com.google.firebase.firestore.DocumentReference;
-        import com.google.firebase.firestore.DocumentSnapshot;
-        import com.google.firebase.firestore.EventListener;
-        import com.google.firebase.firestore.FirebaseFirestore;
-        import com.google.firebase.firestore.FirebaseFirestoreException;
-        import com.google.firebase.firestore.GeoPoint;
-        import com.google.firebase.firestore.ListenerRegistration;
-        import com.google.firebase.firestore.Query;
-        import com.google.firebase.firestore.QueryDocumentSnapshot;
-        import com.google.firebase.firestore.QuerySnapshot;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-        import org.json.JSONObject;
-
-        import java.io.IOException;
-        import java.util.ArrayList;
-        import java.util.Collection;
-        import java.util.HashMap;
-        import java.util.List;
-        import java.util.Map;
-        import java.util.Objects;
+import com.example.usfsafeteamapp.DataParser.FetchURL;
+import com.example.usfsafeteamapp.DataParser.TaskLoadedCallback;
+import com.example.usfsafeteamapp.Objects.Drivers;
+import com.example.usfsafeteamapp.Objects.Requests;
+import com.example.usfsafeteamapp.Objects.myPlace;
+import com.example.usfsafeteamapp.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class DriverHome extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
@@ -421,7 +399,8 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
         if (place_name==null){
             place_name = "place_name";
         }
-        mPlacesEventListener = mDb.collection("Places").whereEqualTo("name", place_name).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mPlacesEventListener = mDb.collection("Places").whereEqualTo("name", place_name).addSnapshotListener(
+                new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
                                 @Nullable FirebaseFirestoreException e) {
