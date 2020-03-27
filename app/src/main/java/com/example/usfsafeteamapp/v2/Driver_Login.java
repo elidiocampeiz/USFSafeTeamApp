@@ -44,7 +44,8 @@ public class Driver_Login extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if(user != null){
-                    if(checkdriver(user.getEmail())) {
+                    String clientId = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    if(checkdriver(clientId)) {
                         Intent intent = new Intent(Driver_Login.this, DriverHome2.class);
                         startActivity(intent);
                         finish();
@@ -75,6 +76,7 @@ public class Driver_Login extends AppCompatActivity {
                             String user_ID = aut.getCurrentUser().getUid();
                             DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
                             Drivers dr = new Drivers(user_ID);
+                            if(!checkdriver(user_ID))
                             docRef.set(dr, SetOptions.merge());
                         }
                     }
@@ -99,10 +101,10 @@ public class Driver_Login extends AppCompatActivity {
 
     }
     private int intbool = 0;
-    private boolean checkdriver(String email){
+    private boolean checkdriver(String ID){
         intbool = 0;
-        String clientId = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DocumentReference DO = mDb.collection("Drivers").document(clientId);
+
+        DocumentReference DO = mDb.collection("Drivers").document(ID);
         DO.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -117,6 +119,7 @@ public class Driver_Login extends AppCompatActivity {
             else
                 return true;
     }
+
     @Override
     public void onStart(){
         super.onStart();
