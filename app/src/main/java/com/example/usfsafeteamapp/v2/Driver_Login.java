@@ -48,7 +48,7 @@ public class Driver_Login extends AppCompatActivity {
 
 
         aut = FirebaseAuth.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//        FirebaseUser User = FirebaseAuth.getInstance().getCurrentUser();
 
 
 
@@ -76,8 +76,9 @@ public class Driver_Login extends AppCompatActivity {
         };
 
 
-        String ID = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String ID = (String) aut.getCurrentUser().getUid();
         final DocumentReference docRef = mDb.collection("Drivers").document(ID);
+
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot,
@@ -86,9 +87,10 @@ public class Driver_Login extends AppCompatActivity {
                     Log.w(TAG, "Listen failed.", e);
                     return;
                 }
-
-                if (snapshot != null && snapshot.exists()) {
-                    isDriverAuth =true;
+                //add getMetadata().hasPendingWrites() to trigger the intent only once
+                if (snapshot != null && snapshot.exists() && !snapshot.getMetadata().hasPendingWrites()) {
+                    Log.d(TAG, "Current data found");
+                    isDriverAuth = true;
                     driverAuth();
                 } else {
                     isDriverAuth = false;
@@ -108,8 +110,13 @@ public class Driver_Login extends AppCompatActivity {
                                                    Toast.makeText(Driver_Login.this, "new Driver created", Toast.LENGTH_SHORT).show();
                                                    String user_ID = user.getUid();
                                                    DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
+
                                                    Drivers dr = new Drivers(user_ID);
+                                                   dr.setNextRequest(null);
                                                    docRef.set(dr, SetOptions.merge());
+                                                   //set it to DriversOnline by default if not using Switch Button (Working?)
+
+                                                   mDb.collection("DriversOnline").document(user_ID).set(dr, SetOptions.merge());
 
 
                                                }
@@ -125,7 +132,10 @@ public class Driver_Login extends AppCompatActivity {
                                                                String user_ID = aut.getCurrentUser().getUid();
                                                                DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
                                                                Drivers dr = new Drivers(user_ID);
+                                                               dr.setNextRequest(null);
+
                                                                docRef.set(dr, SetOptions.merge());
+                                                               mDb.collection("DriversOnline").document(user_ID).set(dr, SetOptions.merge());
 
                                                            }
                                                        }

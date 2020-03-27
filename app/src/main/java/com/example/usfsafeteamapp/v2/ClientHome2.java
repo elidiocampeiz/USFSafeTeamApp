@@ -69,17 +69,16 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-
+//TODO: Use a ListenerRegistration obj to get a realtime update of the closest available drivers
 public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback, RoutingListener {
 
     //Msc Location
@@ -105,10 +104,12 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private FirebaseFirestore mDb;
     private String clientIdRef;
-    List<Drivers> availableDrivers;
+//    List<Drivers> availableDrivers;
     private Drivers assignDriver;
-    ListenerRegistration mClosestDriversListener;
+//    ListenerRegistration mClosestDriversListener;
     private myPlace myCurrPlace ;
+    private Requests mRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,12 +145,36 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         ConfButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(ClientHome2.this, DriverWait.class);
+
+                if (mRequest==null){
+//                    Toast
+                }
+                else {
+                    //TODO: Put the following code in the clickListener of the Confirm button
+                    getClosestDirver();
+// put new request to
+
+
+                    mRequest.setDriver_id(assignDriver.getDriver_id());
+                    //add request to requests collection
+                    mDb.collection("Requests").add(mRequest);
+                    //add request to driver
+                    HashMap<String, Object> data = new HashMap<String, Object>();
+                    data.put("nextRequest", mRequest);
+                    mDb.collection("DriversOnline").document(assignDriver.getDriver_id()).set(data, SetOptions.merge());
+                    DocumentReference drs = mDb.collection("Drivers").document(assignDriver.getDriver_id());
+                    drs.set(data, SetOptions.merge());
+
+                    Intent i = new Intent(ClientHome2.this, DriverWait.class);
 
 //                i.putExtra("request", nRequest.getRequest_id());
-                startActivity(i);
+                    startActivity(i);
 //                LayoutInflater inflater = LayoutInflater
 //                        .from(getApplicationContext());
+
+                }
+
+
 
             }
         });
@@ -198,7 +223,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             for(Location location : locationResult.getLocations()){
 //                Log.d(TAG, "onLocationResult: B1");
-                if(getApplicationContext()!=null) {
+                if(getApplicationContext() != null) {
 
                     mLastLocation = location;
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -210,7 +235,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                     //update it in the db
                     //NOTE: At this point a driver with the Auth usr id as the document id is already
 
-                    String clientId = (String) Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+                    String clientId = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
                     DocumentReference DO = mDb.collection("Clients").document(clientId);
 //
                     GeoPoint gp = new GeoPoint( location.getLatitude(), location.getLongitude() );
@@ -297,8 +322,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId()+", LatLng: "+ place.getLatLng() );
 
 
-                txtTime.setVisibility(View.VISIBLE);
-                ConfButton.setVisibility(View.VISIBLE);
+
 
 
 
@@ -337,20 +361,11 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                 myPlace myDestinationPlace = new myPlace(place); // get destination place
 
-                Requests mRequest = new Requests(myCurrPlace, myDestinationPlace, requestId, clientId);
+                mRequest = new Requests(myCurrPlace, myDestinationPlace, requestId, clientId);
 
-//Get closest driver
-                getClosestDirver();
-// put new request to
 
-                mRequest.setDriver_id(assignDriver.getDriver_id());
-                //add request to requests collection
-                mDb.collection("Requests").add(mRequest);
-                //add request to driver
-                mDb.collection("DriversAvailable").document(assignDriver.getDriver_id()).update("nextRequest", mRequest);
+                displayConfirmRequestButton();
 
-                DocumentReference drs = mDb.collection("Drivers").document(assignDriver.getDriver_id());
-                drs.update("nextRequest", mRequest);
 
 
             }
@@ -361,6 +376,11 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
+    }
+    private void displayConfirmRequestButton(){
+        txtTime.setVisibility(View.VISIBLE);
+        ConfButton.setVisibility(View.VISIBLE);
+
     }
 
     private void getRouteToMarker(LatLng LL) {
@@ -484,18 +504,23 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Location dest = new Location("");
                                 GeoPoint geo = document.get("geoPoint", GeoPoint.class);
+
                                 dest.setLatitude(geo.getLatitude());
                                 dest.setLongitude(geo.getLongitude());
 
-                                float dist = dest.distanceTo(mLastLocation);
-                                if (shortestDistance >= dist) {
+                                if (mLastLocation != null)
+                                {
+                                    float dist = dest.distanceTo(mLastLocation);
+                                    if (shortestDistance >= dist) {
 
-                                    assignDriver = document.toObject(Drivers.class);
+                                        assignDriver = document.toObject(Drivers.class);
 
-                                    shortestDistance = dist;
+                                        shortestDistance = dist;
 
-                                    Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + "Distance: " + dist);
+                                        Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + " Distance: " + dist);
+                                    }
                                 }
+
 
                             }
                             if (assignDriver == null) {
