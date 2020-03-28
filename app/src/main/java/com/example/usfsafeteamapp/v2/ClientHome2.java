@@ -30,7 +30,6 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
-import com.example.usfsafeteamapp.Driver.DriverWait;
 import com.example.usfsafeteamapp.MainActivity;
 import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.Objects.Requests;
@@ -165,7 +164,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                     DocumentReference drs = mDb.collection("Drivers").document(assignDriver.getDriver_id());
                     drs.set(data, SetOptions.merge());
 
-                    Intent i = new Intent(ClientHome2.this, DriverWait.class);
+                    Intent i = new Intent(ClientHome2.this, ClientWait2.class);
 
 //                i.putExtra("request", nRequest.getRequest_id());
                     startActivity(i);
@@ -404,6 +403,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         //check location permission
         checkLocationPermission();
+
 // Call findCurrentPlace and handle the response (first check that the user has granted permission).
 
         Task<FindCurrentPlaceResponse> placeResponse = placesClient.findCurrentPlace(request);
