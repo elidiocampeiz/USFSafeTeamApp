@@ -116,13 +116,14 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     return;
                 }
 
-                if ((documentSnapshot != null) && (documentSnapshot.getData() != null) && documentSnapshot.contains("nextRequest") && documentSnapshot.getData().size()>0 && documentSnapshot.exists()) {
+                if ((documentSnapshot != null) ) {
+
+                    Log.d(TAG, "Event1");
                     Requests mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
                     if (mRequest!=null){
 
-                        getclientlocation(documentSnapshot); // TODO: we need attach a listener to usr curr location that is not inside the function
-                        getclientdest(documentSnapshot);
-                        getclientinfo(documentSnapshot);
+                        // TODO: we need attach a listener to usr curr location that is not inside the function
+                        getclientinfo(mRequest);
                         mCustomerInfo.setVisibility(View.VISIBLE);
                     }
 
@@ -133,37 +134,10 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         });
     }
-    private void getclientlocation(DocumentSnapshot documentSnapshot){
-        Requests mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
-        String clientId = "";
-        clientId = (String) mRequest.getClient_id();
 
-        DocumentReference cusloc = mDb.collection("Clients").document(clientId);
-        cusloc.addSnapshotListener(DriverHome2.this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if ((documentSnapshot != null) && documentSnapshot.exists() ){
-                    GeoPoint geo = documentSnapshot.getGeoPoint("GeoPoint");
-                    Log.d(TAG, "getclientlocation successfully written!:");
-                    //GeoPoint pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
-                    //getRouteToMarker(pickupLatLng);
 
-                }
-            }
-        });
-    }
-    private void getclientdest(DocumentSnapshot documentSnapshot){
-        final Requests mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
-        String clientId = (String) mRequest.getClient_id();
-        Log.d(TAG, "getclientdest successfully written!:");
-        LatLng LL = mRequest.getDest().getLatLng();
+    private void getclientinfo(Requests mRequest){
 
-                    //GeoPoint pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
-                    //getRouteToMarker(pickupLatLng);
-
-    }
-    private void getclientinfo(DocumentSnapshot documentSnapshot){
-        final Requests mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
         String clientId = (String) mRequest.getClient_id();
 
         DocumentReference cusloc = mDb.collection("Clients").document(clientId);
@@ -171,9 +145,10 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if ((documentSnapshot != null) && documentSnapshot.exists() ){
-                    String clientname = mRequest.getClient_id();
-                    Log.d(TAG, "getclientinfo successfully written!:");
 
+                    Log.d(TAG, "getclientinfo successfully written!:");
+                    GeoPoint geo = documentSnapshot.getGeoPoint("GeoPoint");
+                    Log.d(TAG, "getclientlocation successfully written!:");
                     //GeoPoint pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
                     //getRouteToMarker(pickupLatLng);
 
@@ -226,31 +201,14 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     mLastLocation = location;
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-
-//                    Log.d(TAG, "onLocationResult: B2");
 
                     //update it in the db
                     //NOTE: At this point a driver with the Auth usr id as the document id is already
                     String driverId= (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
                     DocumentReference DO = mDb.collection("DriversOnline").document(driverId);
-//                    Drivers dr = new Drivers(driverIdRef,new GeoPoint( location.getLatitude(), location.getLongitude() ) );
-//                    DO.set(dr, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                        @Override
-//                        public void onSuccess(Void aVoid) {
-//                            Log.d(TAG, "DocumentSnapshot successfully written!:");
-//                        }
-//                    })
-//                            .addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    Log.w(TAG, "Error writing document", e);
-//                                }
-//                            });
+
                     GeoPoint gp = new GeoPoint( location.getLatitude(), location.getLongitude() );
-//                    Drivers dr = new Drivers(driverIdRef,gp );
-//                    DO.set(dr, SetOptions.merge());
+
 
                     HashMap<String, Object> data = new HashMap<String, Object>();
                     data.put("geoPoint", gp  );

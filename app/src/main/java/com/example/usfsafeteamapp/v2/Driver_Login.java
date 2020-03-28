@@ -88,7 +88,7 @@ public class Driver_Login extends AppCompatActivity {
                     return;
                 }
                 //add getMetadata().hasPendingWrites() to trigger the intent only once
-                if (snapshot != null && snapshot.exists() && !snapshot.getMetadata().hasPendingWrites()) {
+                if (snapshot != null && snapshot.exists() && snapshot.getMetadata().hasPendingWrites()) {
                     Log.d(TAG, "Current data found");
                     isDriverAuth = true;
                     driverAuth();
