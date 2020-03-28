@@ -15,7 +15,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,9 +27,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.ebanx.swipebtn.OnStateChangeListener;
-import com.ebanx.swipebtn.SwipeButton;
 import com.example.usfsafeteamapp.MainActivity;
+import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.Objects.Requests;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -35,12 +36,15 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -50,6 +54,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -61,6 +66,9 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     Location mLastLocation;
     LocationRequest mLocationRequest;
 
+    //Msc Location
+    final LatLng msc_LatLng = new LatLng(28.0639,-82.4134);
+
     private FusedLocationProviderClient mFusedLocationClient;
 
     private SupportMapFragment mapFragment;
@@ -69,7 +77,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     FirebaseFirestore mDb;
     String driverIdRef;
-
+    Drivers dr;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,21 +95,43 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_frag);
         mapFragment.getMapAsync(this);
 
-        driverIdRef = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
+
 
         mCustomerInfo = (RelativeLayout) findViewById(R.id.customerInfo);
 
+        driverIdRef = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-
-        SwipeButton enableButton = (SwipeButton) findViewById(R.id.swipe_btn);
-
-        enableButton.setOnStateChangeListener(new OnStateChangeListener() {
+        DocumentReference docRef = mDb.collection("Drivers").document(driverIdRef);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onStateChange(boolean active) {
-                Toast.makeText(DriverHome2.this, "State: " + active, Toast.LENGTH_SHORT).show();
-                if (active){
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        dr = document.toObject(Drivers.class);
+                    } else {
 
-//                    mDb.collection("DriversAvailable").
+                        Log.d(TAG, "No such document");
+
+                    }
+                }else{
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+
+            }
+        });
+
+        Switch enableButton = (Switch) findViewById(R.id.workingSwitch);
+
+        enableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    connectDriver();
+                }else{
+                    disconnectDriver();
+
                 }
             }
         });
@@ -121,7 +151,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     Log.d(TAG, "Event1");
                     Requests mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
-                    if (mRequest!=null){
+                    if (mRequest!=null &&mRequest.getRequest_id()!=null){
 
                         // TODO: we need attach a listener to usr curr location that is not inside the function
                         getclientinfo(mRequest);
@@ -164,6 +194,8 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 12.2f));
+
         mLocationRequest = new LocationRequest();
 //        mLocationRequest.setSmallestDisplacement(10);
         mLocationRequest.setInterval(1000);
@@ -183,7 +215,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 ////        checkLocationPermission();
 //        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
 //        mMap.setMyLocationEnabled(true);
-        connectDriver();
+//        connectLocation();
 
 
 
@@ -205,9 +237,10 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     //update it in the db
                     //NOTE: At this point a driver with the Auth usr id as the document id is already
-                    String driverId= (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    WriteBatch batch = mDb.batch();
+                    String driverId = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
                     DocumentReference DO = mDb.collection("DriversOnline").document(driverId);
-
+                    DocumentReference D = mDb.collection("Drivers").document(driverId);
                     GeoPoint gp = new GeoPoint( location.getLatitude(), location.getLongitude() );
 
 
@@ -215,19 +248,34 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     data.put("geoPoint", gp  );
                     data.put("time_stamp", new Date());
 
-                    DO.set(data, SetOptions.merge() )
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    batch.set(DO, data,SetOptions.merge());
+                    batch.set(D,  data,SetOptions.merge());
+                    batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully updated!:");
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                Log.d(TAG, "DocumentSnapshot success");
+                            }
+                            else {
+                                Log.d(TAG, "Error:");
+                            }
                         }
-                    })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w(TAG, "Error updating document", e);
-                                }
-                            });
+                    });
+//
+//                    DO.set(data, SetOptions.merge() )
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                        @Override
+//                        public void onSuccess(Void aVoid) {
+//                            Log.d(TAG, "DocumentSnapshot successfully updated!:");
+//                        }
+//                    })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.w(TAG, "Error updating document", e);
+//                                }
+//                            });
+//
 
 
                 }
@@ -274,11 +322,17 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         }
     }
-
-    private void connectDriver(){
+    private void connectLocation(){
         checkLocationPermission();
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         mMap.setMyLocationEnabled(true);
+    }
+    private void connectDriver(){
+
+        connectLocation();
+        String user_ID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        mDb.collection("DriversOnline").document(driverIdRef).set(dr, SetOptions.merge());
 
 
     }
