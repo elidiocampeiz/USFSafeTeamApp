@@ -52,7 +52,6 @@ public class Driver_Login extends AppCompatActivity {
 
 
 
-
         mDb = FirebaseFirestore.getInstance(); // init firebase
 
         Temail = (EditText) findViewById(R.id.emailtext);
@@ -67,6 +66,7 @@ public class Driver_Login extends AppCompatActivity {
                 if(user != null){
 
                     isAuth =true;
+                    attachListener();
                     driverAuth();
                 }
                 else{
@@ -75,29 +75,9 @@ public class Driver_Login extends AppCompatActivity {
             }
         };
 
-
-        String ID = (String) aut.getCurrentUser().getUid();
-        final DocumentReference docRef = mDb.collection("Drivers").document(ID);
-
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                //add getMetadata().hasPendingWrites() to trigger the intent only once
-                if (snapshot != null && snapshot.exists() && snapshot.getMetadata().hasPendingWrites()) {
-                    Log.d(TAG, "Current data found");
-                    isDriverAuth = true;
-                    driverAuth();
-                } else {
-                    isDriverAuth = false;
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
+        attachListener();
+        if (aut.getCurrentUser()!=null)
+            attachListener();
 
         Bregistrate.setOnClickListener(new View.OnClickListener() {
                                            @Override
@@ -172,6 +152,30 @@ public class Driver_Login extends AppCompatActivity {
             finish();
         }
 
+    }
+    private void attachListener(){
+        String ID = (String) aut.getCurrentUser().getUid();
+        final DocumentReference docRef = mDb.collection("Drivers").document(ID);
+
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.d(TAG, "Listen failed.", e);
+                    return;
+                }
+                //add getMetadata().hasPendingWrites() to trigger the intent only once
+                if (snapshot != null && snapshot.exists() && snapshot.getMetadata().hasPendingWrites()) {
+                    Log.d(TAG, "Current data found");
+                    isDriverAuth = true;
+                    driverAuth();
+                } else {
+                    isDriverAuth = false;
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
     }
 
 

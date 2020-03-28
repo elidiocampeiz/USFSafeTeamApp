@@ -108,6 +108,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         final String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         final DocumentReference docref = mDb.collection("DriversOnline").document(driverId);
+
         docref.addSnapshotListener(DriverHome2.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {

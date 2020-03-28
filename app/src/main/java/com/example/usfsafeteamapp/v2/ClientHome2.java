@@ -65,10 +65,10 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -490,11 +490,11 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     public void getClosestDirver(){
 
-        CollectionReference colRef = mDb.collection("DriversOnline");
+        Query colRef = mDb.collection("DriversOnline").whereEqualTo("geoPoint", true);
 
         colRef.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @RequiresApi(api = Build.VERSION_CODES.N)
+
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
@@ -508,7 +508,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                                 dest.setLatitude(geo.getLatitude());
                                 dest.setLongitude(geo.getLongitude());
 
-                                if (mLastLocation != null)
+                                if (mLastLocation != null && dest!=null)
                                 {
                                     float dist = dest.distanceTo(mLastLocation);
                                     if (shortestDistance >= dist) {
