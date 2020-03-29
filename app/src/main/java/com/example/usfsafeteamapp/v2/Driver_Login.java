@@ -113,8 +113,9 @@ public class Driver_Login extends AppCompatActivity {
                                 String user_ID = aut.getCurrentUser().getUid();
                                 DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
                                 Drivers dr = new Drivers(user_ID);
-                                dr.setNextRequest(null);
-
+                                DocumentReference clientRef = mDb.collection("Clients").document(user_ID);
+                                Clients cl = new  Clients(user_ID);
+                                clientRef.set(cl, SetOptions.merge());
                                 docRef.set(dr, SetOptions.merge());
 //                                mDb.collection("DriversOnline").document(user_ID).set(dr, SetOptions.merge());
 

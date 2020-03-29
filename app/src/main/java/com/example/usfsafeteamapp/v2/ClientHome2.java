@@ -105,7 +105,9 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 //    List<Drivers> availableDrivers;
     private Drivers assignDriver;
     private String assignDriverId;
+
 //    ListenerRegistration mClosestDriversListener;
+
     private myPlace myCurrPlace ;
     private Requests mRequest;
     private Query mClosestDriverQuery;
@@ -182,6 +184,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             }
         });
+        getClosestAvalableDriver();
 //        getClosestDirver();
 //        mClosestDriversListener = mDb.collection("DriversOnline").addSnapshotListener(ClientHome2.this)
     }
