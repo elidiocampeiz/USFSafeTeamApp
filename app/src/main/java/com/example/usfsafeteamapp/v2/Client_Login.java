@@ -33,6 +33,9 @@ public class Client_Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_login);
 
+        //Creating the activity title and a back button
+        getSupportActionBar().setTitle("Client Login");
+
         aut = FirebaseAuth.getInstance();
         autlist = new FirebaseAuth.AuthStateListener() {
             @Override

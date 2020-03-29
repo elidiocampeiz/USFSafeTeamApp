@@ -41,6 +41,9 @@ public class Driver_Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_login);
 
+        //Creating the activity title and a back button
+        getSupportActionBar().setTitle("Driver Login");
+
         isDriverAuth = false;
         isAuth=false;
 

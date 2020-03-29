@@ -1,60 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg">
+    android:background="@drawable/usf_bg"
+    >
+
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="336dp"
+        android:layout_height="303dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="48dp"
+        android:layout_marginLeft="48dp"
+        android:layout_marginTop="-59dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/usf_logo" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="68dp"
+        android:layout_height="60dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="242dp"
+        android:background="@color/quantum_googgreen900"
+        android:src="@drawable/key" />
 
     <Button
         android:id="@+id/loginbut"
-        android:layout_width="344dp"
-        android:layout_height="wrap_content"
+        android:layout_width="153dp"
+        android:layout_height="67dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="31dp"
-        android:layout_marginLeft="31dp"
-        android:layout_marginTop="123dp"
-        android:layout_marginBottom="432dp"
+        android:layout_marginStart="37dp"
+        android:layout_marginLeft="37dp"
+        android:layout_marginTop="421dp"
+        android:layout_marginBottom="115dp"
         android:text="Login" />
 
     <Button
         android:id="@+id/registratebut"
-        android:layout_width="346dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="177dp"
-        android:text="Registrate" />
-
-    <EditText
-        android:id="@+id/emailtext"
-        android:layout_width="341dp"
-        android:layout_height="wrap_content"
+        android:layout_width="153dp"
+        android:layout_height="67dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="220dp"
+        android:layout_marginLeft="220dp"
+        android:layout_marginTop="421dp"
+        android:text="Register" />
+
+    <EditText
+        android:id="@+id/emailtext"
+        android:layout_width="327dp"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="73dp"
+        android:layout_marginLeft="73dp"
+        android:layout_marginTop="169dp"
+        android:background="@color/cardview_light_background"
         android:ems="10"
-        android:hint="email"
+        android:hint="   E-mail"
         android:inputType="textEmailAddress" />
 
     <EditText
         android:id="@+id/passwordtext"
-        android:layout_width="337dp"
-        android:layout_height="wrap_content"
+        android:layout_width="330dp"
+        android:layout_height="60dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="34dp"
-        android:layout_marginLeft="34dp"
-        android:layout_marginTop="67dp"
-        android:hint="password"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="71dp"
+        android:layout_marginLeft="71dp"
+        android:layout_marginTop="242dp"
+        android:background="@color/cardview_light_background"
         android:ems="10"
+        android:hint="   Password"
         android:inputType="textPassword" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="68dp"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="168dp"
+        android:background="@color/quantum_googgreen900"
+        android:src="@drawable/ic_person_black_24dp" />
+
 
 </RelativeLayout>

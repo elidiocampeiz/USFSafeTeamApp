@@ -17,8 +17,8 @@ import com.example.usfsafeteamapp.v2.Driver_Login;
 //import static com.example.usfsafeteamapp.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 //import static com.example.usfsafeteamapp.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
 
-public class MainActivity extends AppCompatActivity {
-
+public class MainActivity extends AppCompatActivity
+{
     //Button B;
     //Button B1;
 
@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         Button B = findViewById(R.id.buttonClient);
 
