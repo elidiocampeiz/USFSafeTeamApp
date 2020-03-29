@@ -63,11 +63,14 @@ public class Client_Login extends AppCompatActivity {
             public void onClick(View v) {
                 String email = Temail.getText().toString();
                 String password = Tpassword.getText().toString();
-                if (email == ""){
-                    Toast.makeText(Client_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
+                if (email.isEmpty() && password.isEmpty()){
+                    Toast.makeText(Client_Login.this, "Please type your email and password", Toast.LENGTH_SHORT).show();
                 }
-                else if(password == ""){
+                else if(password.isEmpty()){
                     Toast.makeText(Client_Login.this, "Please type your password", Toast.LENGTH_SHORT).show();
+                }
+                else if(email.isEmpty()){
+                    Toast.makeText(Client_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     aut.createUserWithEmailAndPassword(email,password).addOnCompleteListener(Client_Login.this, new OnCompleteListener<AuthResult>() {
@@ -96,11 +99,14 @@ public class Client_Login extends AppCompatActivity {
             public void onClick(View v) {
                 String email = Temail.getText().toString();
                 String password = Tpassword.getText().toString();
-                if (email == ""){
-                    Toast.makeText(Client_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
+                if (email.isEmpty() && password.isEmpty()){
+                    Toast.makeText(Client_Login.this, "Please type your email and password", Toast.LENGTH_SHORT).show();
                 }
-                else if(password == "" ){
+                else if(password.isEmpty()){
                     Toast.makeText(Client_Login.this, "Please type your password", Toast.LENGTH_SHORT).show();
+                }
+                else if(email.isEmpty()){
+                    Toast.makeText(Client_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     aut.signInWithEmailAndPassword(email, password).addOnCompleteListener(Client_Login.this, new OnCompleteListener<AuthResult>() {
@@ -109,6 +115,7 @@ public class Client_Login extends AppCompatActivity {
                             if (!task.isSuccessful())
                                 Toast.makeText(Client_Login.this, "Sign in error", Toast.LENGTH_SHORT).show();
                         }
+
                     });
                 }
             }

@@ -35,7 +35,7 @@
         android:src="@drawable/key" />
 
     <Button
-        android:id="@+id/loginbut"
+        android:id="@+id/loginbutton_driver"
         android:layout_width="153dp"
         android:layout_height="67dp"
         android:layout_alignParentStart="true"
@@ -50,7 +50,7 @@
         android:text="Login" />
 
     <Button
-        android:id="@+id/registratebut"
+        android:id="@+id/registratebutton_driver"
         android:layout_width="153dp"
         android:layout_height="67dp"
         android:layout_alignParentStart="true"
@@ -62,7 +62,7 @@
         android:text="Register" />
 
     <EditText
-        android:id="@+id/emailtext"
+        android:id="@+id/emailtext_driver"
         android:layout_width="327dp"
         android:layout_height="60dp"
         android:layout_alignParentStart="true"
@@ -78,7 +78,7 @@
         android:inputType="textEmailAddress" />
 
     <EditText
-        android:id="@+id/passwordtext"
+        android:id="@+id/passwordtext_driver"
         android:layout_width="330dp"
         android:layout_height="60dp"
         android:layout_alignParentStart="true"

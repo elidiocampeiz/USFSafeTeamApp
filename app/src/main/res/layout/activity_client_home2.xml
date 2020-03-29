@@ -17,8 +17,10 @@
 
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cardView_autocomplete"
             android:layout_width="374dp"
             android:layout_height="50dp"
+            android:autofillHints="Where to?"
             android:layout_marginStart="19dp"
             android:layout_marginLeft="7dp"
             android:layout_marginTop="60dp">

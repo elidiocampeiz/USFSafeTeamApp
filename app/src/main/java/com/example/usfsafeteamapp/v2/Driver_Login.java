@@ -56,10 +56,10 @@ public class Driver_Login extends AppCompatActivity {
 
         mDb = FirebaseFirestore.getInstance(); // init firebase
 
-        Temail = (EditText) findViewById(R.id.emailtext);
-        Tpassword = (EditText) findViewById(R.id.passwordtext);
-        Blogin = (Button) findViewById(R.id.loginbut);
-        Bregistrate = (Button) findViewById(R.id.registratebut);
+        Temail = (EditText) findViewById(R.id.emailtext_driver);
+        Tpassword = (EditText) findViewById(R.id.passwordtext_driver);
+        Blogin = (Button) findViewById(R.id.loginbutton_driver);
+        Bregistrate = (Button) findViewById(R.id.registratebutton_driver);
         autlist = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -87,11 +87,14 @@ public class Driver_Login extends AppCompatActivity {
                 final String email = Temail.getText().toString();
                 final String password = Tpassword.getText().toString();
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (email == ""){
-                    Toast.makeText(Driver_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
+                if (email.isEmpty() && password.isEmpty()){
+                    Toast.makeText(Driver_Login.this, "Please type your email and password", Toast.LENGTH_SHORT).show();
                 }
-                else if(password == ""){
+                else if(password.isEmpty()){
                     Toast.makeText(Driver_Login.this, "Please type your password", Toast.LENGTH_SHORT).show();
+                }
+                else if(email.isEmpty()){
+                    Toast.makeText(Driver_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
                 }
                 else {
 
@@ -141,11 +144,14 @@ public class Driver_Login extends AppCompatActivity {
             public void onClick(View v) {
                 final String email = Temail.getText().toString();
                 final String password = Tpassword.getText().toString();
-                if (email == ""){
-                    Toast.makeText(Driver_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
+                if (email.isEmpty() && password.isEmpty()){
+                    Toast.makeText(Driver_Login.this, "Please type your email and password", Toast.LENGTH_SHORT).show();
                 }
-                else if(password == ""){
+                else if(password.isEmpty()){
                     Toast.makeText(Driver_Login.this, "Please type your password", Toast.LENGTH_SHORT).show();
+                }
+                else if(email.isEmpty()){
+                    Toast.makeText(Driver_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     aut.signInWithEmailAndPassword(email, password).addOnCompleteListener(Driver_Login.this, new OnCompleteListener<AuthResult>() {

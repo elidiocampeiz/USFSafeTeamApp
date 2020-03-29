@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -43,6 +44,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -53,6 +55,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.SquareCap;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -76,6 +79,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.google.android.gms.maps.model.JointType.ROUND;
 
 public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback, RoutingListener {
 
@@ -111,6 +116,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     private myPlace myCurrPlace ;
     private Requests mRequest;
     private Query mClosestDriverQuery;
+    private boolean isTrackingEnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +146,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         setCurrPlace();
         // Initialize the AutocompleteSupportFragment.
         setUpAutocompleteSupportFragment();
+        CardView mCardView = findViewById(R.id.cardView_autocomplete);
 
         //Confirm Request layout
         txtTime = (TextView ) findViewById(R.id.textViewEstimatedTimeHome2);
@@ -216,6 +223,32 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 //        mMap.setMyLocationEnabled(true);
         connectLocation();
 
+        mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+            @Override
+            public void onCameraMoveStarted(int reason) {
+                if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                    isTrackingEnable = false;
+                    Toast.makeText(ClientHome2.this, "The user gestured on the map.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                Log.d(TAG, "onMyLocationButtonClick:");
+                isTrackingEnable = true;
+                return false;
+            }
+        });
+        mMap.setOnMyLocationClickListener(new GoogleMap.OnMyLocationClickListener() {
+            @Override
+            public void onMyLocationClick(@NonNull Location location) {
+                Log.d(TAG, "onMyLocationClick:");
+                isTrackingEnable = true;
+                location.describeContents();
+            }
+        });
 
 
 
@@ -346,9 +379,26 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 if(getApplicationContext() != null) {
 
                     mLastLocation = location;
-                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+                    if(isTrackingEnable){
+                        if (mRequest!=null){
+
+                            LatLngBounds.Builder mBuilder = new LatLngBounds.Builder();
+                            for (LatLng latLng : polylines.get(0).getPoints())
+                                mBuilder.include(latLng);
+                            LatLngBounds BB = mBuilder.build();
+                            CameraUpdate mCu= CameraUpdateFactory.newLatLngBounds(BB,2);
+                            mMap.animateCamera(mCu);
+
+
+                        }
+                        else{
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+                        }
+
+                    }
+
 
 //                    Log.d(TAG, "onLocationResult: B2");
 
@@ -418,6 +468,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     {
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragmentHome2);
 
+        autocompleteFragment.setHint("Where to?");
 
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG));
 
@@ -449,6 +500,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 //Calling function that will create the route to the destination
                 getRouteToMarker(LL);
 
+                //stop zoom on current location
+                isTrackingEnable = false;
                 //Zoom into the path
                 //Northern Lat (secound parameter) has to be bellow Southern Lat(first paramenter)
                 if (LL.latitude < myCurrPlace.getLatLng().latitude){
@@ -714,11 +767,20 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             int colorIndex = i % COLORS.length;
 
             PolylineOptions polyOptions = new PolylineOptions();
-            polyOptions.color(getResources().getColor(COLORS[colorIndex]));
-            polyOptions.width(15 + i * 3);
-            polyOptions.addAll(route.get(i).getPoints());
+            polyOptions.color(getResources().getColor(COLORS[colorIndex]))
+                    .width(15 + i * 3)
+                    .addAll(route.get(i).getPoints())
+                    .startCap(new SquareCap())
+                    .endCap(new SquareCap())
+                    .jointType(ROUND)
+                    .clickable(true);
+
             Polyline polyline = mMap.addPolyline(polyOptions);
             polylines.add(polyline);
+//            route.get(i).getLatLgnBounds();
+//            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(route.get(i).getLatLgnBounds(), 2));
+
+
 
 
             String str = "Time - "+ route.get(i).getDurationValue()/60+" Minutes";
