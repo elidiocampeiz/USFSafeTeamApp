@@ -88,7 +88,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     private SupportMapFragment mapFragment;
     private Button mLogout;
     private RelativeLayout mCustomerInfo;
-
+//    ListenerRegistration mClientListener;
     FirebaseFirestore mDb;
     String driverIdRef;
     Drivers dr;
@@ -117,6 +117,9 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
         mCustomerInfo = (RelativeLayout) findViewById(R.id.customerInfo);
+
+
+
 
         driverIdRef = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -177,7 +180,31 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                         // TODO: we need attach a listener to usr curr location that is not inside the function
 //                        getclientinfo(mRequest);
                         RouteRequest();
+
                         mCustomerInfo.setVisibility(View.VISIBLE);
+                        Query mClientLocationQueury = mDb.collection("Clients").whereEqualTo("client_id", mClientID);
+
+                         mClientLocationQueury.addSnapshotListener(DriverHome2.this, new EventListener<QuerySnapshot>() {
+                            @Override
+                            public void onEvent(@Nullable QuerySnapshot value,
+                                                @Nullable FirebaseFirestoreException e) {
+                                if (e != null) {
+                                    Log.w(TAG, "Listen failed.", e);
+                                    return;
+                                }
+
+                                for (QueryDocumentSnapshot doc : value) {
+                                    GeoPoint gp = doc.get("geoPoint", GeoPoint.class);
+
+                                    if (gp !=  null) {
+                                        mClientGeoPoint = gp;
+                                        Log.d(TAG, "New GeoPoint: " + mClientGeoPoint);
+                                    }
+                                }
+                                Log.d(TAG, "Current  " );
+                            }
+                        });
+
                     }
 
                 }
@@ -186,27 +213,10 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
-        Query mClientLocationQueury = mDb.collection("Clients").whereEqualTo("client_id", mClientID);
 
-        mClientLocationQueury.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(@Nullable QuerySnapshot value,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
 
-                for (QueryDocumentSnapshot doc : value) {
-                    if (doc.get("geoPoint") != null) {
-                        mClientGeoPoint = doc.getGeoPoint("GeoPoint");
-                        Log.d(TAG, "New Client GeoPoint: " + mClientGeoPoint );
-                    }
-                }
-                Log.d(TAG, "Current  " );
-            }
-        });
     }
+
 
 
     private void getclientinfo(final Requests mRequest){
@@ -237,12 +247,12 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 12.2f));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 15.2f));
 
         mLocationRequest = new LocationRequest();
 //        mLocationRequest.setSmallestDisplacement(10);
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setInterval(100);
+        mLocationRequest.setFastestInterval(100);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
@@ -371,6 +381,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         checkLocationPermission();
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         mMap.setMyLocationEnabled(true);
+
     }
     private void connectDriver(){
 
