@@ -14,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
@@ -32,6 +31,8 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.ebanx.swipebtn.OnStateChangeListener;
+import com.ebanx.swipebtn.SwipeButton;
 import com.example.usfsafeteamapp.MainActivity;
 import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.Objects.Requests;
@@ -86,7 +87,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     private FusedLocationProviderClient mFusedLocationClient;
 
     private SupportMapFragment mapFragment;
-    private Button mLogout;
+    private SwipeButton mSwipe;
     private RelativeLayout mCustomerInfo;
 //    ListenerRegistration mClientListener;
     FirebaseFirestore mDb;
@@ -117,8 +118,20 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
         mCustomerInfo = (RelativeLayout) findViewById(R.id.customerInfo);
+        mCustomerInfo.setVisibility(View.INVISIBLE);
+        mSwipe = (SwipeButton) findViewById(R.id.swipe_btn);
+        mSwipe.setOnStateChangeListener(new OnStateChangeListener() {
+            @Override
+            public void onStateChange(boolean active) {
+                if (active){
+                    //Confirm Request
+                    //Either send a "signal" back to the client  (write driver id in)
+                    // Or send the driver to the next activity
 
+                }
 
+            }
+        });
 
 
         driverIdRef = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();

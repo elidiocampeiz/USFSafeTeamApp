@@ -61,40 +61,56 @@ public class Client_Login extends AppCompatActivity {
         Bregistrate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String email = Temail.getText().toString();
-                final String password = Tpassword.getText().toString();
-                aut.createUserWithEmailAndPassword(email,password).addOnCompleteListener(Client_Login.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(!task.isSuccessful()){
-                            Toast.makeText(Client_Login.this, "Sign up error", Toast.LENGTH_SHORT).show();
-                        }
-                        else{
-                            String user_ID = aut.getCurrentUser().getUid();
-                            DocumentReference docRef = mDb.collection("Clients").document(user_ID);
+                String email = Temail.getText().toString();
+                String password = Tpassword.getText().toString();
+                if (email == ""){
+                    Toast.makeText(Client_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
+                }
+                else if(password == ""){
+                    Toast.makeText(Client_Login.this, "Please type your password", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    aut.createUserWithEmailAndPassword(email,password).addOnCompleteListener(Client_Login.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(!task.isSuccessful()){
+                                Toast.makeText(Client_Login.this, "Sign up error", Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                String user_ID = aut.getCurrentUser().getUid();
+                                DocumentReference docRef = mDb.collection("Clients").document(user_ID);
 
-                            Clients cl = new Clients(user_ID);
-                            docRef.set(cl, SetOptions.merge());
+                                Clients cl = new Clients(user_ID);
+                                docRef.set(cl, SetOptions.merge());
 
+                            }
                         }
-                    }
-                });
+                    });
+                }
+
             }
         });
 
         Blogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String email = Temail.getText().toString();
-                final String password = Tpassword.getText().toString();
-
-                aut.signInWithEmailAndPassword(email, password).addOnCompleteListener(Client_Login.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(!task.isSuccessful())
-                            Toast.makeText(Client_Login.this, "Sign in error", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                String email = Temail.getText().toString();
+                String password = Tpassword.getText().toString();
+                if (email == ""){
+                    Toast.makeText(Client_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
+                }
+                else if(password == "" ){
+                    Toast.makeText(Client_Login.this, "Please type your password", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    aut.signInWithEmailAndPassword(email, password).addOnCompleteListener(Client_Login.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (!task.isSuccessful())
+                                Toast.makeText(Client_Login.this, "Sign in error", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
     }

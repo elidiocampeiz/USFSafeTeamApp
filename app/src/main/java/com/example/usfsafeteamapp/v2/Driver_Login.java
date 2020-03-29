@@ -87,46 +87,52 @@ public class Driver_Login extends AppCompatActivity {
                 final String email = Temail.getText().toString();
                 final String password = Tpassword.getText().toString();
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-
-                    Toast.makeText(Driver_Login.this, "new Driver created", Toast.LENGTH_SHORT).show();
-                    String user_ID = user.getUid();
-                    DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
-                    DocumentReference clientRef = mDb.collection("Clients").document(user_ID);
-                    Clients cl = new  Clients(user_ID);
-                    Drivers dr = new Drivers(user_ID);
-//                    dr.setNextRequest(null);
-                    docRef.set(dr, SetOptions.merge());
-                    clientRef.set(cl, SetOptions.merge());
-                    //set it to DriversOnline by default if not using Switch Button (Working?)
-
-
-
-
+                if (email == ""){
+                    Toast.makeText(Driver_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
+                }
+                else if(password == ""){
+                    Toast.makeText(Driver_Login.this, "Please type your password", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    aut.createUserWithEmailAndPassword(email, password).addOnCompleteListener(Driver_Login.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (!task.isSuccessful()) {
-                                Toast.makeText(Driver_Login.this, "Sign up error", Toast.LENGTH_SHORT).show();
+
+                    if (user != null) {
+
+                        Toast.makeText(Driver_Login.this, "new Driver created", Toast.LENGTH_SHORT).show();
+                        String user_ID = user.getUid();
+                        DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
+                        DocumentReference clientRef = mDb.collection("Clients").document(user_ID);
+                        Clients cl = new Clients(user_ID);
+                        Drivers dr = new Drivers(user_ID);
+//                    dr.setNextRequest(null);
+                        docRef.set(dr, SetOptions.merge());
+                        clientRef.set(cl, SetOptions.merge());
+                        //set it to DriversOnline by default if not using Switch Button (Working?)
 
 
-                            } else {
-                                String user_ID = aut.getCurrentUser().getUid();
-                                DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
-                                Drivers dr = new Drivers(user_ID);
-                                DocumentReference clientRef = mDb.collection("Clients").document(user_ID);
-                                Clients cl = new  Clients(user_ID);
-                                clientRef.set(cl, SetOptions.merge());
-                                docRef.set(dr, SetOptions.merge());
+                    } else {
+                        aut.createUserWithEmailAndPassword(email, password).addOnCompleteListener(Driver_Login.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (!task.isSuccessful()) {
+                                    Toast.makeText(Driver_Login.this, "Sign up error", Toast.LENGTH_SHORT).show();
+
+
+                                } else {
+                                    String user_ID = aut.getCurrentUser().getUid();
+                                    DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
+                                    Drivers dr = new Drivers(user_ID);
+                                    DocumentReference clientRef = mDb.collection("Clients").document(user_ID);
+                                    Clients cl = new Clients(user_ID);
+                                    clientRef.set(cl, SetOptions.merge());
+                                    docRef.set(dr, SetOptions.merge());
 //                                mDb.collection("DriversOnline").document(user_ID).set(dr, SetOptions.merge());
 
+                                }
                             }
-                        }
-                    });
+                        });
 
 
+                    }
                 }
             }
         });
@@ -135,15 +141,22 @@ public class Driver_Login extends AppCompatActivity {
             public void onClick(View v) {
                 final String email = Temail.getText().toString();
                 final String password = Tpassword.getText().toString();
+                if (email == ""){
+                    Toast.makeText(Driver_Login.this, "Please type your email", Toast.LENGTH_SHORT).show();
+                }
+                else if(password == ""){
+                    Toast.makeText(Driver_Login.this, "Please type your password", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    aut.signInWithEmailAndPassword(email, password).addOnCompleteListener(Driver_Login.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (!task.isSuccessful())
+                                Toast.makeText(Driver_Login.this, "Sign in error", Toast.LENGTH_SHORT).show();
+                        }
 
-                aut.signInWithEmailAndPassword(email, password).addOnCompleteListener(Driver_Login.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(!task.isSuccessful())
-                            Toast.makeText(Driver_Login.this, "Sign in error", Toast.LENGTH_SHORT).show();
-                    }
-
-                });
+                    });
+                }
 
             }
 
