@@ -23,13 +23,14 @@ public class Drivers {
         this.geoPoint = geoPoint;
         this.time_stamp =   null;
 //        this.username = username;
-        this.nextRequest = new Requests();
+
     }
 
     public Drivers(String driver_id){
         this.driver_id = driver_id;
+        this.geoPoint =  null;
         this.time_stamp =   null;
-        this.nextRequest = new Requests();
+
     }
     public Drivers(){
 

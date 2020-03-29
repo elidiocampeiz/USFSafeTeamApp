@@ -8,6 +8,7 @@ import java.util.Date;
 public class Clients {
     private String client_id;
     private GeoPoint geoPoint;
+    private String current_request_id;
     private @ServerTimestamp Date time_stamp;
     private String username;
 
@@ -71,5 +72,13 @@ public class Clients {
 
     public void setTime_stamp(Date time_stamp) {
         this.time_stamp = time_stamp;
+    }
+
+    public String getCurrent_request_id() {
+        return current_request_id;
+    }
+
+    public void setCurrent_request_id(String current_request_it) {
+        this.current_request_id= current_request_it;
     }
 }

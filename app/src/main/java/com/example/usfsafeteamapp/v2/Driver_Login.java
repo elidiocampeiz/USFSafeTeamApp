@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.usfsafeteamapp.Objects.Clients;
 import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -88,10 +89,12 @@ public class Driver_Login extends AppCompatActivity {
                     Toast.makeText(Driver_Login.this, "new Driver created", Toast.LENGTH_SHORT).show();
                     String user_ID = user.getUid();
                     DocumentReference docRef = mDb.collection("Drivers").document(user_ID);
-
+                    DocumentReference clientRef = mDb.collection("Clients").document(user_ID);
+                    Clients cl = new  Clients(user_ID);
                     Drivers dr = new Drivers(user_ID);
-                    dr.setNextRequest(null);
+//                    dr.setNextRequest(null);
                     docRef.set(dr, SetOptions.merge());
+                    clientRef.set(cl, SetOptions.merge());
                     //set it to DriversOnline by default if not using Switch Button (Working?)
 
 
@@ -113,7 +116,7 @@ public class Driver_Login extends AppCompatActivity {
                                 dr.setNextRequest(null);
 
                                 docRef.set(dr, SetOptions.merge());
-                                mDb.collection("DriversOnline").document(user_ID).set(dr, SetOptions.merge());
+//                                mDb.collection("DriversOnline").document(user_ID).set(dr, SetOptions.merge());
 
                             }
                         }

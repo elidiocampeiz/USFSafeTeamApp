@@ -53,6 +53,9 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -78,6 +81,9 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     FirebaseFirestore mDb;
     String driverIdRef;
     Drivers dr;
+    private String mClientID;
+    private GeoPoint mClientGeoPoint;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +91,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         //Creating the activity title and a back button
         getSupportActionBar().setTitle("Driver Home2");
+//        getSupportActionBar().hide();
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -136,10 +143,10 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        final String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        final DocumentReference docref = mDb.collection("DriversOnline").document(driverId);
 
-        docref.addSnapshotListener(DriverHome2.this, new EventListener<DocumentSnapshot>() {
+        DocumentReference mDriverOref = mDb.collection("DriversOnline").document(driverIdRef);
+
+        mDriverOref.addSnapshotListener(DriverHome2.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
@@ -151,10 +158,11 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     Log.d(TAG, "Event1");
                     Requests mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
-                    if (mRequest!=null &&mRequest.getRequest_id()!=null){
+                    if (mRequest!=null && mRequest.getRequest_id()!=null){
+                        mClientID = mRequest.getClient_id();
 
                         // TODO: we need attach a listener to usr curr location that is not inside the function
-                        getclientinfo(mRequest);
+//                        getclientinfo(mRequest);
                         mCustomerInfo.setVisibility(View.VISIBLE);
                     }
 
@@ -164,10 +172,30 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
+        Query mClientLocationQueury = mDb.collection("Clients").whereEqualTo("client_id", mClientID);
+
+        mClientLocationQueury.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot value,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                for (QueryDocumentSnapshot doc : value) {
+                    if (doc.get("geoPoint") != null) {
+                        mClientGeoPoint = doc.getGeoPoint("GeoPoint");
+                        Log.d(TAG, "New Client GeoPoint: " + mClientGeoPoint );
+                    }
+                }
+                Log.d(TAG, "Current  " );
+            }
+        });
     }
 
 
-    private void getclientinfo(Requests mRequest){
+    private void getclientinfo(final Requests mRequest){
 
         String clientId = (String) mRequest.getClient_id();
 
@@ -178,6 +206,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 if ((documentSnapshot != null) && documentSnapshot.exists() ){
 
                     Log.d(TAG, "getclientinfo successfully written!:");
+                    mClientID = mRequest.getClient_id();
                     GeoPoint geo = documentSnapshot.getGeoPoint("GeoPoint");
                     Log.d(TAG, "getclientlocation successfully written!:");
                     //GeoPoint pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
@@ -187,7 +216,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         });
     }
-
+    
 
 
     @Override
@@ -340,6 +369,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     //Triggered when a driver goes offline or accepts a new request
     private void disconnectDriver(){
         if(mFusedLocationClient != null){
+            mMap.setMyLocationEnabled(false);
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         }
 
