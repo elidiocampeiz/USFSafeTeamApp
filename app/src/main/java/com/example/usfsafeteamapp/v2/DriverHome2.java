@@ -47,7 +47,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -405,7 +404,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     }
                 });
 
-
+        erasePolylines();
     }
 
 
@@ -519,17 +518,17 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         MarkerOptions str_mkr = new MarkerOptions().position(mRequest.getStart().getLatLng()).title(mRequest.getStart().getName());
         MarkerOptions dest_mkr = new MarkerOptions().position(mRequest.getDest().getLatLng()).title(mRequest.getDest().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 
-        if (mRequest.getDest().getLatLng().latitude < mRequest.getDest().getLatLng().latitude){
-            LatLngBounds BB = new LatLngBounds(mRequest.getStart().getLatLng(),mRequest.getDest().getLatLng());
-
-            BB.including(new LatLng( mLastLocation.getLatitude(), mLastLocation.getLongitude() ) ) ;
-
-            //TODO: Handle the case in which a new path causes a bug
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(BB.getCenter(), 15f));
-
-        }else{
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 14f));
-        }
+//        if (mRequest.getDest().getLatLng().latitude < mRequest.getDest().getLatLng().latitude){
+////            LatLngBounds BB = new LatLngBounds(mRequest.getStart().getLatLng(),mRequest.getDest().getLatLng());
+////
+////            BB.including(new LatLng( mLastLocation.getLatitude(), mLastLocation.getLongitude() ) ) ;
+////
+////            //TODO: Handle the case in which a new path causes a bug
+////            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(BB.getCenter(), 15f));
+////
+////        }else{
+////            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 14f));
+////        }
 
         mMap.addMarker(str_mkr);
         mMap.addMarker(dest_mkr);
@@ -537,6 +536,12 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onRoutingCancelled() {
-
+        erasePolylines();
+    }
+    private void erasePolylines(){
+        for(Polyline line : polylines){
+            line.remove();
+        }
+        polylines.clear();
     }
 }
