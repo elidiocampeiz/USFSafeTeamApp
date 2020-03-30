@@ -137,6 +137,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onStateChange(boolean active) {
                 if (active){
+
                     //Confirm Request
                     //Either send a "signal" back to the client  (write driver id in)
                     // Or send the driver to the next activity
@@ -176,6 +177,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
+
                     connectDriver();
                     if (mRequest != null)
                     {
@@ -277,12 +279,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         }
 
-//        //Get & Display Driver's current location in map
-//        //TODO: Put it into a function that makes the driver "online"
-////        checkLocationPermission();
-//        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-//        mMap.setMyLocationEnabled(true);
-//        connectLocation();
+
 
 
 
