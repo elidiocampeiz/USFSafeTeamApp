@@ -490,8 +490,9 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 //Clear the map after the user changes the location selected
                 mMap.clear();
 
+
                 //Create a marker for the place selected by the user
-                MarkerOptions place_mkr = new MarkerOptions().position(LL).title(place.getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                MarkerOptions place_mkr = new MarkerOptions().position(LL).title(place.getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
                 //Place the marker for your location and the chosen destination into the map
                 mMap.addMarker(place_mkr);

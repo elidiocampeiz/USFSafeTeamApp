@@ -471,8 +471,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     private void RouteRequest() {
         if (mRequest != null && mLastLocation != null){
 
-            if (mCustomerInfo.getVisibility() != View.VISIBLE)
-                mCustomerInfo.setVisibility(View.VISIBLE);
+
 
             LatLng StartLL = mRequest.getStart().getLatLng();
             LatLng DestinationtLL = mRequest.getDest().getLatLng();
@@ -489,6 +488,9 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     .build();
 
             routing.execute();
+
+            if (mCustomerInfo.getVisibility() != View.VISIBLE)
+                mCustomerInfo.setVisibility(View.VISIBLE);
         }
         else{
             Log.i(TAG, "Routing error occurred: ") ;
@@ -548,7 +550,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         }
 
         MarkerOptions str_mkr = new MarkerOptions().position(mRequest.getStart().getLatLng()).title(mRequest.getStart().getName());
-        MarkerOptions dest_mkr = new MarkerOptions().position(mRequest.getDest().getLatLng()).title(mRequest.getDest().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        MarkerOptions dest_mkr = new MarkerOptions().position(mRequest.getDest().getLatLng()).title(mRequest.getDest().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
 //        if (mRequest.getDest().getLatLng().latitude < mRequest.getDest().getLatLng().latitude){
 ////            LatLngBounds BB = new LatLngBounds(mRequest.getStart().getLatLng(),mRequest.getDest().getLatLng());
