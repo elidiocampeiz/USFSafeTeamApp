@@ -732,7 +732,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     //Methods to create the polyline
 
     private List<Polyline> polylines;
-    private static final int[] COLORS = new int[]{R.color.primary_dark_material_light};
+    private static final int[] COLORS = new int[]{R.color.colorPrimary};
 
     @Override
     public void onRoutingFailure(RouteException e)

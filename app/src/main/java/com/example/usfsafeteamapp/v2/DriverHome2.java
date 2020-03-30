@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -76,6 +77,10 @@ import java.util.List;
 
 public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback , RoutingListener {
 
+    private TextView txtClientName;
+    private TextView txtClientLocation;
+    private TextView txtClientDestination;
+
     String TAG;
     private GoogleMap mMap;
     Location mLastLocation;
@@ -116,9 +121,15 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
+        //Confirm Request layout
+        txtClientName = (TextView) findViewById(R.id.ClientName);
+        txtClientLocation = (TextView) findViewById(R.id.ClientLocation);
+        txtClientDestination = (TextView) findViewById(R.id.ClientDestination);
+
+
 
         mCustomerInfo = (RelativeLayout) findViewById(R.id.customerInfo);
-        mCustomerInfo.setVisibility(View.INVISIBLE);
+        mCustomerInfo.setVisibility(View.GONE);
 
         mSwipe = (SwipeButton) findViewById(R.id.swipe_btn);
 
@@ -166,6 +177,11 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
                     connectDriver();
+                    if (mRequest != null)
+                    {
+                        mCustomerInfo.setVisibility(View.VISIBLE);
+                    }
+
                 }else{
                     disconnectDriver();
 
@@ -196,7 +212,6 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                         getClientInfo();
                         RouteRequest();
 
-                        mCustomerInfo.setVisibility(View.VISIBLE);
 //                        mSwipe.setVisibility(View.VISIBLE);
 //                        mSwipe.setAlpha(1f);
 
@@ -394,7 +409,8 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     //function that removes the driver from the DriverOnline Collection
     //Triggered when a driver goes offline or accepts a new request
     private void disconnectDriver(){
-        mCustomerInfo.setVisibility(View.INVISIBLE);
+        mCustomerInfo.setVisibility(View.GONE);
+        mMap.clear();
         if(mFusedLocationClient != null){
             mMap.setMyLocationEnabled(false);
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
@@ -455,6 +471,9 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     private void RouteRequest() {
         if (mRequest != null && mLastLocation != null){
 
+            if (mCustomerInfo.getVisibility() != View.VISIBLE)
+                mCustomerInfo.setVisibility(View.VISIBLE);
+
             LatLng StartLL = mRequest.getStart().getLatLng();
             LatLng DestinationtLL = mRequest.getDest().getLatLng();
             LatLng myLocationtLL = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
@@ -477,7 +496,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
     private List<Polyline> polylines;
-    private static final int[] COLORS = new int[]{R.color.quantum_googgreen900};
+    private static final int[] COLORS = new int[]{R.color.colorPrimary};
 
     @Override
     public void onRoutingFailure(RouteException e)
@@ -518,10 +537,10 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             Polyline polyline = mMap.addPolyline(polyOptions);
             polylines.add(polyline);
 
+            txtClientName.setText("Client Name: Bob");
+            txtClientLocation.setText("Client Location: "+ mRequest.getStart().getName());
+            txtClientDestination.setText("Client Destination: "+ mRequest.getDest().getName());
 
-            String str = "Time - "+ route.get(i).getDurationValue()/60+" Minutes";
-//            estimatedTime = findViewById(R.id.textViewEstimatedTimeHome2);
-//            estimatedTime.setText(str);
             //Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
 
 
