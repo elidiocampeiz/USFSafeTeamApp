@@ -783,10 +783,10 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
 
-
-            String str = "Time - "+ route.get(i).getDurationValue()/60+" Minutes";
+            String str = "Estimated time: "+ route.get(i).getDurationValue()/60+" Minutes";
             estimatedTime = findViewById(R.id.textViewEstimatedTimeHome2);
             estimatedTime.setText(str);
+            estimatedTime.setBackgroundResource(R.color.colorPrimary);
             //Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
 
 

@@ -177,10 +177,6 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
                     connectDriver();
-                    if (mRequest != null)
-                    {
-                        mCustomerInfo.setVisibility(View.VISIBLE);
-                    }
 
                 }else{
                     disconnectDriver();
@@ -539,9 +535,16 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             Polyline polyline = mMap.addPolyline(polyOptions);
             polylines.add(polyline);
 
+            //Making the green background displaying the client location, destination and name visible
+            if (mRequest != null)
+            {
+                mCustomerInfo.setVisibility(View.VISIBLE);
+            }
+
             txtClientName.setText("Client Name: Bob");
             txtClientLocation.setText("Client Location: "+ mRequest.getStart().getName());
             txtClientDestination.setText("Client Destination: "+ mRequest.getDest().getName());
+
 
             //Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
 
