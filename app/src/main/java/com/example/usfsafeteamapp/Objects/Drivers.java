@@ -10,6 +10,7 @@ public class Drivers {
     private @ServerTimestamp Date time_stamp;
 //    private String username;
     private Requests nextRequest;
+    private String current_request_id;
 
 
     public Drivers(String driver_id, GeoPoint geoPoint, Requests nextRequest) {
@@ -68,5 +69,11 @@ public class Drivers {
     }
 
 
+    public String getCurrent_request_id() {
+        return current_request_id;
+    }
 
+    public void setCurrent_request_id(String current_request_id) {
+        this.current_request_id = current_request_id;
+    }
 }

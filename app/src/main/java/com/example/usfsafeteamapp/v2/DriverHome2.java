@@ -93,11 +93,12 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private SupportMapFragment mapFragment;
     private SwipeButton mSwipe;
+    Switch enableButton;
     private RelativeLayout mCustomerInfo;
 //    ListenerRegistration mClientListener;
     FirebaseFirestore mDb;
     String driverIdRef;
-    Drivers dr;
+    Drivers mDriver;
     private String mClientID;
     private GeoPoint mClientGeoPoint;
     private Requests mRequest;
@@ -158,7 +159,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        dr = document.toObject(Drivers.class);
+                        mDriver = document.toObject(Drivers.class);
                     } else {
 
                         Log.d(TAG, "No such document");
@@ -171,7 +172,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        Switch enableButton = (Switch) findViewById(R.id.workingSwitch);
+        enableButton = (Switch) findViewById(R.id.workingSwitch);
 
         enableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -198,15 +199,18 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     return;
                 }
 
-                if ((documentSnapshot != null) ) {
+                if ((documentSnapshot != null) && documentSnapshot.getData() !=null) {
 
                     Log.d(TAG, "Event1");
+
+                    mDriver = documentSnapshot.toObject(Drivers.class);
+//                    getRequest();
                     mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
                     if (mRequest!=null && mRequest.getClient_id() != null){
 
                         mClientID = mRequest.getClient_id();
 
-                        // TODO: we need attach a listener to usr curr location that is not inside the function
+                        // TODO: we need attach a listener to Request
                         getClientInfo();
                         RouteRequest();
 
@@ -225,6 +229,13 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
+//    private void getRequest() {
+//        if ( mDriver != null ){
+//
+//
+//
+//        }
+//    }
 
 
     private void getClientInfo(){
@@ -290,7 +301,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             for(Location location : locationResult.getLocations()){
 //                Log.d(TAG, "onLocationResult: B1");
-                if(getApplicationContext()!=null) {
+                if(getApplicationContext()!=null && enableButton.isChecked()) {
 
                     mLastLocation = location;
                     if (mRequest!=null)
@@ -299,6 +310,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     //update it in the db
                     //NOTE: At this point a driver with the Auth usr id as the document id is already
+
                     WriteBatch batch = mDb.batch();
                     String driverId = (String) FirebaseAuth.getInstance().getCurrentUser().getUid();
                     DocumentReference DO = mDb.collection("DriversOnline").document(driverId);
@@ -323,23 +335,6 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                             }
                         }
                     });
-//
-//                    DO.set(data, SetOptions.merge() )
-//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                        @Override
-//                        public void onSuccess(Void aVoid) {
-//                            Log.d(TAG, "DocumentSnapshot successfully updated!:");
-//                        }
-//                    })
-//                            .addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    Log.w(TAG, "Error updating document", e);
-//                                }
-//                            });
-//
-
-
                 }
 
             }
@@ -394,8 +389,11 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         connectLocation();
         String user_ID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        mDb.collection("DriversOnline").document(driverIdRef).set(dr, SetOptions.merge());
+        Drivers newD = new Drivers(user_ID);
+        if (mRequest!=null){
+            newD.setNextRequest(mRequest);
+        }
+        mDb.collection("DriversOnline").document(driverIdRef).set(newD, SetOptions.merge());
 
 
     }
@@ -409,10 +407,30 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
         }
+        if (mDriver.getNextRequest() != null){
+            mDriver.setNextRequest(null);
+        }
+        //TODO *************** *************** *************** *************** *************** ****************************** *************** *************** *************** *************** ***************
+        //TODO: set variable mRequest to null as well
+        //TODO *************** *************** *************** *************** *************** ****************************** *************** *************** *************** *************** ***************
+        mRequest = null;
+
 
         CollectionReference DriversOnlineRef = mDb.collection("DriversOnline");
-        DriversOnlineRef.document(driverIdRef)
-                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+        DocumentReference doc = DriversOnlineRef.document(driverIdRef);
+        doc.update("nextRequest", null).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "DocumentSnapshot successfully !");
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting updated", e);
+                    }
+                });
+        doc.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d(TAG, "DocumentSnapshot successfully deleted!");
@@ -573,9 +591,13 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         erasePolylines();
     }
     private void erasePolylines(){
-        for(Polyline line : polylines){
-            line.remove();
+
+        if (polylines != null){
+            for(Polyline line : polylines){
+                line.remove();
+            }
+            polylines.clear();
         }
-        polylines.clear();
+
     }
 }

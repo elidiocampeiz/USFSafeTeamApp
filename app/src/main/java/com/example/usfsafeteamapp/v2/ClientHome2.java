@@ -382,15 +382,22 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             WriteBatch batch = mDb.batch();
             mRequest.setDriver_id(assignDriverId);
             DocumentReference clientRef = mDb.collection("Clients").document(clientIdRef);
-            clientRef.update("current_request_id", mRequest.getRequest_id());
-
             DocumentReference RequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
             DocumentReference DriverRef = mDb.collection("Drivers").document(assignDriverId);
             DocumentReference DriverOnlineRef = mDb.collection("DriversOnline").document(assignDriverId);
+
+//            clientRef.update("current_request_id", mRequest.getRequest_id());
+//            DriverOnlineRef.update("current_request_id", mRequest.getRequest_id());
+
             HashMap<String, Object> data = new HashMap<String, Object>();
             data.put("nextRequest", mRequest);
-            //Setting the request to the right documents
 
+            //Update request id in the respective documents
+            batch.update(clientRef,"current_request_id" ,mRequest.getRequest_id());
+            batch.update(DriverRef,"current_request_id" ,mRequest.getRequest_id());
+            batch.update(DriverOnlineRef,"current_request_id" ,mRequest.getRequest_id());
+
+            //Setting the request to the right documents
             batch.set(RequestRef, mRequest, SetOptions.merge());
             batch.set(DriverRef, data, SetOptions.merge());
             batch.set(DriverOnlineRef, data, SetOptions.merge());
