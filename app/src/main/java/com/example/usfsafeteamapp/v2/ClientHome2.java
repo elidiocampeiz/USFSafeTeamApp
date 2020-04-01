@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,7 +45,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -67,7 +67,10 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -103,7 +106,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     private TextView txtTime;
     private RelativeLayout mCustomerInfo;
 
-    private MarkerOptions curr_mkr;
+    private MarkerOptions curr_mkr, dest_mkr, driver_mkr;
 
     private FirebaseFirestore mDb;
     private String clientIdRef;
@@ -175,11 +178,12 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 //                    drs.set(data, SetOptions.merge());
 
                     if (ConfirmRequest()){
-                        Intent i = new Intent(ClientHome2.this, ClientWait2.class);
-
-//                i.putExtra("request", nRequest.getRequest_id());
-                        startActivity(i);
-                        finish();
+                        StartRequestTracking();
+//                        Intent i = new Intent(ClientHome2.this, ClientWait2.class);
+//
+////                i.putExtra("request", nRequest.getRequest_id());
+//                        startActivity(i);
+//                        finish();
                     }
 
 //                LayoutInflater inflater = LayoutInflater
@@ -194,6 +198,130 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         getClosestAvalableDriver();
 //        getClosestDirver();
 //        mClosestDriversListener = mDb.collection("DriversOnline").addSnapshotListener(ClientHome2.this)
+    }
+
+    private void StartRequestTracking() {
+
+        DocumentReference mRequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
+        mRequestRef.addSnapshotListener(ClientHome2.this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    Log.d(TAG, "Request snapshot success!");
+                    mRequest = snapshot.toObject(Requests.class);
+                    getRouteFromRequet();
+                }
+
+            }
+        });
+
+    }
+    //TODO: better handle addition od markers and map.clear
+
+    // "unassigned" | "assigned" | "ride" | "fulfilled"
+    private void getRouteFromRequet() {
+        //clear map
+        mMap.clear();
+
+        if (mRequest != null){
+            Log.d(TAG, "Current State: " + mRequest.getState());
+            if ( mRequest.getState().equals("unassigned") ) {
+
+                // display "looking for Driver" -> "Waiting for Confirmation" -> "Driver found!"
+
+                getRouteToMarker(mRequest.getStart().getLatLng(), mRequest.getDest().getLatLng());
+
+                //mkrs from start to dest
+                curr_mkr = new MarkerOptions().position(mRequest.getStart().getLatLng()).title(mRequest.getStart().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                dest_mkr = new MarkerOptions().position(mRequest.getDest().getLatLng()).title(mRequest.getDest().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+
+                mMap.addMarker(curr_mkr);
+                mMap.addMarker(dest_mkr);
+            }
+            else if( mRequest.getState().equals("assigned") ) {
+
+                // display "Driver Assigned" -> "Time of arrival: --:--"
+                getRouteFromDriver();
+
+                //mkrs from driver to start
+
+                curr_mkr = new MarkerOptions().position(mRequest.getStart().getLatLng()).title(mRequest.getStart().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                //TODO: Set Cart image as marker icon
+                driver_mkr = new MarkerOptions().position(mRequest.getDest().getLatLng()).title(mRequest.getDest().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+
+                mMap.addMarker(curr_mkr);
+                mMap.addMarker(driver_mkr);
+
+            }
+            else if( mRequest.getState().equals("ride") ) {
+
+                // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
+                getRouteToDestination();
+            }
+            else if( mRequest.getState().equals("fulfilled") ) {
+
+                // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
+                //...
+                //...
+
+                erasePolylines();
+                mRequest = null;
+            }
+
+        }else {
+            Log.d(TAG, "getRouteToDestination Fail");
+        }
+
+
+    }
+    private void getRouteToDestination() {
+        if ( mRequest != null && mLastLocation!=null ){
+            Log.d(TAG, "getRouteToDestination success!");
+            LatLng myCurrLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
+            getRouteToMarker( myCurrLocation, mRequest.getDest().getLatLng() );
+
+        } else {
+            Log.d(TAG, "getRouteToDestination Fail");
+        }
+
+    }
+
+    private void getRouteFromDriver() {
+        if (mRequest != null && mRequest.getDriver_id() != null){
+            Log.d(TAG, "getRouteFromDriver success");
+            Query mDriverQueury = mDb.collection("DriversOnline").whereEqualTo("driver_id", mRequest.getDriver_id());
+            mDriverQueury.addSnapshotListener(ClientHome2.this, new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot value,
+                                    @Nullable FirebaseFirestoreException e) {
+                    if (e != null) {
+                        Log.w(TAG, "Listen failed.", e);
+                        return;
+                    }
+
+                    for (QueryDocumentSnapshot doc : value) {
+                        GeoPoint driverGp = doc.get("geoPoint", GeoPoint.class);
+
+                        if (driverGp !=  null) {
+
+                            LatLng driver_pos = new LatLng(driverGp.getLatitude(), driverGp.getLongitude());
+                            getRouteToMarker(driver_pos, mRequest.getStart().getLatLng() );
+                            Log.d(TAG, "New GeoPoint: " + driverGp);
+                        }
+                    }
+
+                }
+            });
+        }
+        else {
+            Log.d(TAG, "getRouteFromDriver Fail");
+        }
     }
 
 
@@ -216,11 +344,6 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         }
 
-//        //Get & Display Driver's current location in map
-//        //TODO: Put it into a function that makes the driver "online"
-////        checkLocationPermission();
-//        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-//        mMap.setMyLocationEnabled(true);
         connectLocation();
 
         mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
@@ -228,8 +351,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             public void onCameraMoveStarted(int reason) {
                 if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
                     isTrackingEnable = false;
-                    Toast.makeText(ClientHome2.this, "The user gestured on the map.",
-                            Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
@@ -262,14 +384,14 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             DocumentReference clientRef = mDb.collection("Clients").document(clientIdRef);
             clientRef.update("current_request_id", mRequest.getRequest_id());
 
-            DocumentReference requestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
+            DocumentReference RequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
             DocumentReference DriverRef = mDb.collection("Drivers").document(assignDriverId);
             DocumentReference DriverOnlineRef = mDb.collection("DriversOnline").document(assignDriverId);
             HashMap<String, Object> data = new HashMap<String, Object>();
             data.put("nextRequest", mRequest);
             //Setting the request to the right documents
 
-            batch.set(requestRef, data, SetOptions.merge());
+            batch.set(RequestRef, mRequest, SetOptions.merge());
             batch.set(DriverRef, data, SetOptions.merge());
             batch.set(DriverOnlineRef, data, SetOptions.merge());
 
@@ -380,22 +502,10 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     mLastLocation = location;
                     if(isTrackingEnable){
-                        if (mRequest!=null){
 
-                            LatLngBounds.Builder mBuilder = new LatLngBounds.Builder();
-                            for (LatLng latLng : polylines.get(0).getPoints())
-                                mBuilder.include(latLng);
-                            LatLngBounds BB = mBuilder.build();
-                            CameraUpdate mCu= CameraUpdateFactory.newLatLngBounds(BB,2);
-                            mMap.animateCamera(mCu);
-
-
-                        }
-                        else{
-                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-                        }
+                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
                     }
 
@@ -424,25 +534,6 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                             }
                         }
                     });
-//                    Drivers dr = new Drivers(driverIdRef,gp );
-//                    DO.set(dr, SetOptions.merge());
-//                    HashMap<String, Object> data = new HashMap<String, Object>();
-//                    data.put("geoPoint", gp  );
-//                    data.put("time_stamp", new Date());
-//
-//                    DO.update(data).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                        @Override
-//                        public void onComplete(@NonNull Task<Void> task) {
-//                            if (task.isSuccessful()){
-//                                Log.d(TAG, "Document update success");
-//                            }
-//                            else {
-//
-//                                Log.d(TAG, "Document update Error:");
-//                            }
-//                        }
-//                    });
-
 
 //                    getClosestDirver();
                 }
@@ -495,11 +586,25 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 MarkerOptions place_mkr = new MarkerOptions().position(LL).title(place.getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
                 //Place the marker for your location and the chosen destination into the map
+
+
+                // create a Requests Object
+
+                String requestId = mDb.collection("Requests").document().getId(); // get new request id from fireStore
+
+                String clientId = FirebaseAuth.getInstance().getCurrentUser().getUid();//get clientId from Firebase auth
+
+                myPlace myDestinationPlace = new myPlace(place); // get destination place
+
+                mRequest = new Requests(myCurrPlace, myDestinationPlace, requestId, clientId);
+
+
+                //Calling function that will create the route to the destination
+
                 mMap.addMarker(place_mkr);
                 mMap.addMarker(curr_mkr);
 
-                //Calling function that will create the route to the destination
-                getRouteToMarker(LL);
+                getRouteToMarker(mRequest.getStart().getLatLng(), mRequest.getDest().getLatLng());
 
                 //stop zoom on current location
                 isTrackingEnable = false;
@@ -513,16 +618,6 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 }else{
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 13f));
                 }
-
-// create a Requests Object
-
-                String requestId = mDb.collection("Requests").getId(); // get new request id from fireStore
-
-                String clientId = FirebaseAuth.getInstance().getCurrentUser().getUid();//get clientId from Firebase auth
-
-                myPlace myDestinationPlace = new myPlace(place); // get destination place
-
-                mRequest = new Requests(myCurrPlace, myDestinationPlace, requestId, clientId);
 
 
                 displayConfirmRequestButton();
@@ -544,13 +639,14 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    private void getRouteToMarker(LatLng LL) {
+    private void getRouteToMarker(LatLng... params) {
+
         Routing routing = new Routing.Builder()
                 .key(getString(R.string.google_maps_api_key))
                 .travelMode(AbstractRouting.TravelMode.BIKING)
                 .withListener(this)
                 .alternativeRoutes(false)
-                .waypoints(myCurrPlace.getLatLng(), LL)
+                .waypoints(params)
                 .build();
 
         routing.execute();
@@ -795,6 +891,12 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onRoutingCancelled() {
-
+        erasePolylines();
+    }
+    private void erasePolylines(){
+        for(Polyline line : polylines){
+            line.remove();
+        }
+        polylines.clear();
     }
 }

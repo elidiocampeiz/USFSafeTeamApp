@@ -19,7 +19,7 @@ public class Requests  {
         this.dest = dest;
         this.request_id = request_id;
         this.time_stamp  = null;
-        this.State = "Unassigned";
+        this.State = "unassigned"; // "unassigned" | "assigned" | "ride" | "fulfilled"
     }
     public Requests(myPlace start, myPlace dest, String request_id, String client_id) {
         this.start = start;
@@ -28,7 +28,7 @@ public class Requests  {
         this.client_id = client_id;
 
         this.time_stamp  = null;
-        this.State = "Unassigned";
+        this.State = "unassigned"; // "unassigned" | "assigned" | "ride" | "fulfilled"
     }
     public Requests(myPlace start, myPlace dest, String request_id, String client_id, String driver_id) {
         this.start = start;
@@ -37,7 +37,7 @@ public class Requests  {
         this.client_id = client_id;
         this.driver_id = driver_id;
         this.time_stamp  = null;
-        this.State = "Unassigned";
+        this.State = "unassigned"; // "unassigned" | "assigned" | "ride" | "fulfilled"
     }
 
     public Requests() {
