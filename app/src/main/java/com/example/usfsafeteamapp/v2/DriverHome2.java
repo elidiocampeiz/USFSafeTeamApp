@@ -137,11 +137,9 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         mSwipe.setOnStateChangeListener(new OnStateChangeListener() {
             @Override
             public void onStateChange(boolean active) {
-                if (active){
-
-                    //Confirm Request
-                    //Either send a "signal" back to the client  (write driver id in)
-                    // Or send the driver to the next activity
+                if (active)
+                {
+                    updateRequest();
 
                 }
 
@@ -159,7 +157,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        mDriver = document.toObject(Drivers.class);
+                        //mDriver = document.toObject(Drivers.class);
                     } else {
 
                         Log.d(TAG, "No such document");
@@ -223,6 +221,85 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
+
+
+    }
+
+    private void updateRequest()
+    {
+
+        if (mRequest != null)
+        {
+            DocumentReference RequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
+            if (mRequest.getState().equals("unassigned"))
+            {
+                RequestRef.update("state","assigned").addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.d(TAG, "Document update success");
+                        }
+                        else {
+
+                            Log.d(TAG, "Document update Error:");
+                        }
+                    }
+                });
+            }
+            else if (mRequest.getState().equals("assigned"))
+            {
+                RequestRef.update("state","ride").addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.d(TAG, "Document update success");
+                        }
+                        else {
+
+                            Log.d(TAG, "Document update Error:");
+                        }
+                    }
+                });
+            }
+
+            else if (mRequest.getState().equals("ride"))
+            {
+                RequestRef.update("state","fulfilled").addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.d(TAG, "Document update success");
+                        }
+                        else {
+
+                            Log.d(TAG, "Document update Error:");
+                        }
+                    }
+                });
+            }
+
+            else if (mRequest.getState().equals("fulfilled"))
+            {
+                DocumentReference DriverRef = mDb.collection("Drivers").document(driverIdRef);
+                DocumentReference DriverOnlineRef = mDb.collection("DriversOnline").document(driverIdRef);
+                WriteBatch batch = mDb.batch();
+                batch.update(DriverRef,"current_request_id",null);
+                batch.update(DriverOnlineRef,"current_request_id",null);
+
+                batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.d(TAG, "Batch success");
+                        }
+                        else {
+                            Log.d(TAG, "Batch Error:");
+                        }
+                    }
+                });
+            }
+
+        }
 
 
     }
@@ -563,41 +640,27 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             Polyline polyline = mMap.addPolyline(polyOptions);
             polylines.add(polyline);
 
-            //Making the green background displaying the client location, destination and name visible
-            if (mRequest != null)
-            {
-                mCustomerInfo.setVisibility(View.VISIBLE);
-            }
 
+        }
+        //Making the green background display the client location, destination and name
+        if (mRequest != null)
+        {
+            mCustomerInfo.setVisibility(View.VISIBLE);
             txtClientName.setText("Client Name: Bob");
             txtClientLocation.setText("Client Location: "+ mRequest.getStart().getName());
             txtClientDestination.setText("Client Destination: "+ mRequest.getDest().getName());
+            MarkerOptions str_mkr = new MarkerOptions().position(mRequest.getStart().getLatLng()).title(mRequest.getStart().getName());
+            MarkerOptions dest_mkr = new MarkerOptions().position(mRequest.getDest().getLatLng()).title(mRequest.getDest().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
-
-            //Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
-            //h
-
-
+            mMap.addMarker(str_mkr);
+            mMap.addMarker(dest_mkr);
         }
 
-        MarkerOptions str_mkr = new MarkerOptions().position(mRequest.getStart().getLatLng()).title(mRequest.getStart().getName());
-        MarkerOptions dest_mkr = new MarkerOptions().position(mRequest.getDest().getLatLng()).title(mRequest.getDest().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
-//        if (mRequest.getDest().getLatLng().latitude < mRequest.getDest().getLatLng().latitude){
-////            LatLngBounds BB = new LatLngBounds(mRequest.getStart().getLatLng(),mRequest.getDest().getLatLng());
-////
-////            BB.including(new LatLng( mLastLocation.getLatitude(), mLastLocation.getLongitude() ) ) ;
-////
-////            //TODO: Handle the case in which a new path causes a bug
-////            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(BB.getCenter(), 15f));
-////
-////        }else{
-////            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(msc_LatLng, 14f));
-////        }
 
-        mMap.addMarker(str_mkr);
-        mMap.addMarker(dest_mkr);
     }
+
+
 
     @Override
     public void onRoutingCancelled() {
@@ -614,3 +677,5 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
 }
+
+

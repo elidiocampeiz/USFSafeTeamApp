@@ -179,15 +179,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     if (ConfirmRequest()){
                         StartRequestTracking();
-//                        Intent i = new Intent(ClientHome2.this, ClientWait2.class);
-//
-////                i.putExtra("request", nRequest.getRequest_id());
-//                        startActivity(i);
-//                        finish();
-                    }
 
-//                LayoutInflater inflater = LayoutInflater
-//                        .from(getApplicationContext());
+                    }
 
                 }
 
@@ -195,9 +188,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             }
         });
-        getClosestAvalableDriver();
-//        getClosestDirver();
-//        mClosestDriversListener = mDb.collection("DriversOnline").addSnapshotListener(ClientHome2.this)
+        getClosestAvailableDriver();
     }
 
     private void StartRequestTracking() {
@@ -248,12 +239,6 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 // display "Driver Assigned" -> "Time of arrival: --:--"
                 getRouteFromDriver();
 
-                //mkrs from driver to start
-
-                curr_mkr = new MarkerOptions().position(mRequest.getStart().getLatLng()).title(mRequest.getStart().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-
-                mMap.addMarker(curr_mkr);
-                mMap.addMarker(driver_mkr);
 
             }
             else if( mRequest.getState().equals("ride") ) {
@@ -261,8 +246,6 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
                 //TODO: Set Cart image as marker icon
                 getRouteToDestination();
-
-                mMap.addMarker(curr_mkr);
                 mMap.addMarker(dest_mkr);
             }
             else if( mRequest.getState().equals("fulfilled") ) {
@@ -270,9 +253,22 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
                 //... ->Store in clients history
                 //...
-//
-//                erasePolylines();
-//                mRequest = null;
+
+                DocumentReference DriverRef = mDb.collection("Clients").document(clientIdRef);
+
+               DriverRef.update("current_request_id", null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.d(TAG, "Batch success");
+                        }
+                        else {
+                            Log.d(TAG, "Batch Error:");
+                        }
+                    }
+                });
+                erasePolylines();
+                //mRequest = null;
             }
 
         }else {
@@ -314,7 +310,13 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                             LatLng driver_pos = new LatLng(driverGp.getLatitude(), driverGp.getLongitude());
                             //TODO: Set Cart image as marker icon
+
+                            mMap.clear();
                             driver_mkr = new MarkerOptions().position(driver_pos).title("Your Driver is here").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                            curr_mkr = new MarkerOptions().position(mRequest.getStart().getLatLng()).title(mRequest.getStart().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+
+                            mMap.addMarker(curr_mkr);
+                            mMap.addMarker(driver_mkr);
 
                             getRouteToMarker(driver_pos, mRequest.getStart().getLatLng() );
                             Log.d(TAG, "New GeoPoint: " + driverGp);
@@ -382,8 +384,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
     private boolean ConfirmRequest(){
-        getClosestAvalableDriver();
-        if (getClosestAvalableDriver()){
+        getClosestAvailableDriver();
+        if (getClosestAvailableDriver()){
 
             WriteBatch batch = mDb.batch();
             mRequest.setDriver_id(assignDriverId);
@@ -405,8 +407,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             //Setting the request to the right documents
             batch.set(RequestRef, mRequest, SetOptions.merge());
-            batch.set(DriverRef, data, SetOptions.merge());
-            batch.set(DriverOnlineRef, data, SetOptions.merge());
+//            batch.set(DriverRef, data, SetOptions.merge());
+//            batch.set(DriverOnlineRef, data, SetOptions.merge());
 
             batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
@@ -426,7 +428,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             return false;
         }
     }
-    private boolean getClosestAvalableDriver(){
+    private boolean getClosestAvailableDriver(){
         mClosestDriverQuery = mDb.collection("DriversOnline");
         mClosestDriverQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -582,11 +584,6 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             {
 
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId()+", LatLng: "+ place.getLatLng() );
-
-
-
-
-
 
                 //Transform it into LatLng
                 LatLng LL = place.getLatLng();
@@ -760,7 +757,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
-    public void getClosestDirver(){
+    public void getClosestDriver(){
 
         Query colRef = mDb.collection("DriversOnline").whereEqualTo("geoPoint", true);
 
