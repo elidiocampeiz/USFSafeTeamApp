@@ -204,20 +204,18 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     Log.d(TAG, "Event1");
 
                     mDriver = documentSnapshot.toObject(Drivers.class);
-//                    getRequest();
-                    mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
-                    if (mRequest!=null && mRequest.getClient_id() != null){
-
-                        mClientID = mRequest.getClient_id();
-
-                        // TODO: we need attach a listener to Request
-                        getClientInfo();
-                        RouteRequest();
-
-//                        mSwipe.setVisibility(View.VISIBLE);
-//                        mSwipe.setAlpha(1f);
-
-                    }
+                    getRequestinfo();
+//                    mRequest = (Requests) documentSnapshot.get("nextRequest", Requests.class);
+//                    if (mRequest!=null && mRequest.getClient_id() != null){
+//
+//                        mClientID = mRequest.getClient_id();
+//
+//                        // TODO: we need attach a listener to Request
+//                        getClientInfo();
+//                        RouteRequest();
+////                        mSwipe.setVisibility(View.VISIBLE);
+////                        mSwipe.setAlpha(1f);
+//                    }
 
                 }
                 else {
@@ -229,13 +227,30 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-//    private void getRequest() {
-//        if ( mDriver != null ){
-//
-//
-//
-//        }
-//    }
+    private void getRequestinfo() {
+
+        if ( mDriver != null ) {
+            DocumentReference mRequestRef = mDb.collection("Requests").document(mDriver.getCurrent_request_id());
+
+            mRequestRef.addSnapshotListener(DriverHome2.this, new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                    @Nullable FirebaseFirestoreException e) {
+                    if (e != null) {
+                        Log.w(TAG, "Listen failed.", e);
+
+                    }
+                    if (snapshot != null && snapshot.exists()) {
+                        Log.d(TAG, "Request snapshot success!");
+                        mRequest = snapshot.toObject(Requests.class);
+                        getClientInfo();
+                        RouteRequest();
+                    }
+
+                }
+            });
+        }
+    }
 
 
     private void getClientInfo(){
@@ -481,8 +496,6 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private void RouteRequest() {
         if (mRequest != null && mLastLocation != null){
-
-
 
             LatLng StartLL = mRequest.getStart().getLatLng();
             LatLng DestinationtLL = mRequest.getDest().getLatLng();

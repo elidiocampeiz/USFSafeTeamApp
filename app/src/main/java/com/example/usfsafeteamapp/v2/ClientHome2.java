@@ -214,7 +214,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 if (snapshot != null && snapshot.exists()) {
                     Log.d(TAG, "Request snapshot success!");
                     mRequest = snapshot.toObject(Requests.class);
-                    getRouteFromRequet();
+                    getRouteFromRequest();
                 }
 
             }
@@ -224,7 +224,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     //TODO: better handle addition od markers and map.clear
 
     // "unassigned" | "assigned" | "ride" | "fulfilled"
-    private void getRouteFromRequet() {
+    private void getRouteFromRequest() {
         //clear map
         mMap.clear();
 
@@ -268,8 +268,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
                 //...
                 //...
-
-                erasePolylines();
+//
+//                erasePolylines();
                 mRequest = null;
             }
 
@@ -280,11 +280,11 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
     private void getRouteToDestination() {
-        if ( mRequest != null && mLastLocation!=null ){
+        if ( mRequest != null && mLastLocation != null ){
             Log.d(TAG, "getRouteToDestination success!");
             LatLng myCurrLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-            getRouteToMarker( myCurrLocation, mRequest.getDest().getLatLng() );
+            getRouteToMarker( myCurrLocation, mRequest.getDest().getLatLng());
 
         } else {
             Log.d(TAG, "getRouteToDestination Fail");
@@ -377,6 +377,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
     private boolean ConfirmRequest(){
+        getClosestAvalableDriver();
         if (getClosestAvalableDriver()){
 
             WriteBatch batch = mDb.batch();
