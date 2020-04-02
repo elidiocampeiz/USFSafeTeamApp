@@ -14,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -103,8 +102,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     private PlacesClient placesClient;
     private SupportMapFragment mapFragment;
     private Button ConfButton;
-    private TextView txtTime;
-    private RelativeLayout mCustomerInfo;
+    CardView mCardView;
 
     private MarkerOptions curr_mkr, dest_mkr, driver_mkr;
 
@@ -120,11 +118,13 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     private Requests mRequest;
     private Query mClosestDriverQuery;
     private boolean isTrackingEnable;
+    private AutocompleteSupportFragment autocompleteFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_home2);
+
 
         //Creating the activity title and a back button
         getSupportActionBar().setTitle("Client Home2");
@@ -133,6 +133,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         //Declaring the polyline array
         polylines = new ArrayList<>();
+
+        estimatedTime = findViewById(R.id.textViewEstimatedTimeHome2);
 
         mDb = FirebaseFirestore.getInstance(); // init firebase
 
@@ -149,10 +151,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         setCurrPlace();
         // Initialize the AutocompleteSupportFragment.
         setUpAutocompleteSupportFragment();
-        CardView mCardView = findViewById(R.id.cardView_autocomplete);
-
-        //Confirm Request layout
-        txtTime = (TextView ) findViewById(R.id.textViewEstimatedTimeHome2);
+        mCardView = findViewById(R.id.cardView_autocomplete);
 
         ConfButton = (Button) findViewById(R.id.buttonClientConfirmHome2);
         ConfButton.setOnClickListener(new View.OnClickListener() {
@@ -236,23 +235,45 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
             else if( mRequest.getState().equals("assigned") ) {
 
+                mCardView.setVisibility(View.INVISIBLE);
+                ConfButton.setVisibility(View.INVISIBLE);
                 // display "Driver Assigned" -> "Time of arrival: --:--"
                 getRouteFromDriver();
+
 
 
             }
             else if( mRequest.getState().equals("ride") ) {
 
+                if(mCardView.getVisibility() == View.VISIBLE)
+                {
+                    mCardView.setVisibility(View.INVISIBLE);
+                }
+
+                if(ConfButton.getVisibility() == View.VISIBLE)
+                {
+                    ConfButton.setVisibility(View.INVISIBLE);
+                }
+
+
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
                 //TODO: Set Cart image as marker icon
                 getRouteToDestination();
                 mMap.addMarker(dest_mkr);
+
             }
             else if( mRequest.getState().equals("fulfilled") ) {
 
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
                 //... ->Store in clients history
                 //...
+                autocompleteFragment.setText("");
+                autocompleteFragment.setHint("Where to?");
+
+                estimatedTime.setVisibility(View.INVISIBLE);
+
+                mCardView.setVisibility(View.VISIBLE);
+                ConfButton.setVisibility(View.INVISIBLE);
 
                 DocumentReference DriverRef = mDb.collection("Clients").document(clientIdRef);
 
@@ -572,7 +593,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     }
     public void setUpAutocompleteSupportFragment()
     {
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragmentHome2);
+         autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragmentHome2);
 
         autocompleteFragment.setHint("Where to?");
 
@@ -644,7 +665,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         });
     }
     private void displayConfirmRequestButton(){
-        txtTime.setVisibility(View.VISIBLE);
+        estimatedTime.setVisibility(View.VISIBLE);
         ConfButton.setVisibility(View.VISIBLE);
 
     }
@@ -890,7 +911,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
             String str = "Estimated time: "+ route.get(i).getDurationValue()/60+" Minutes";
-            estimatedTime = findViewById(R.id.textViewEstimatedTimeHome2);
+
+            estimatedTime.setVisibility(View.VISIBLE);
             estimatedTime.setText(str);
             estimatedTime.setBackgroundResource(R.color.colorPrimary);
             //Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
