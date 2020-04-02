@@ -229,7 +229,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private void getRequestinfo() {
 
-        if ( mDriver != null ) {
+        if ( mDriver != null && mDriver.getCurrent_request_id() != null ) {
             DocumentReference mRequestRef = mDb.collection("Requests").document(mDriver.getCurrent_request_id());
 
             mRequestRef.addSnapshotListener(DriverHome2.this, new EventListener<DocumentSnapshot>() {
