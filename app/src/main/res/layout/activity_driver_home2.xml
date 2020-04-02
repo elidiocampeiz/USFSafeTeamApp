@@ -106,14 +106,15 @@
             app:button_left_padding="20dp"
             app:button_right_padding="20dp"
             app:button_top_padding="20dp"
-            app:has_activate_state="true"
+            app:has_activate_state="false"
             app:initial_state="disabled"
             app:inner_text="SWIPE TO CONFIRM"
             app:inner_text_background="@drawable/shape_rounded"
             app:inner_text_bottom_padding="18dp"
             app:inner_text_color="@android:color/white"
             app:inner_text_size="16sp"
-            app:inner_text_top_padding="18dp" />
+            app:inner_text_top_padding="18dp"
+            />
 
 
     </RelativeLayout>

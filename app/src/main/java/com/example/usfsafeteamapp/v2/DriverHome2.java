@@ -102,6 +102,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     private String mClientID;
     private GeoPoint mClientGeoPoint;
     private Requests mRequest;
+    private boolean isTrackingEnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -377,6 +378,31 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 checkLocationPermission();
             }
         }
+        mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+            @Override
+            public void onCameraMoveStarted(int reason) {
+                if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                    isTrackingEnable = false;
+
+                }
+            }
+        });
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                Log.d(TAG, "onMyLocationButtonClick:");
+                isTrackingEnable = true;
+                return false;
+            }
+        });
+        mMap.setOnMyLocationClickListener(new GoogleMap.OnMyLocationClickListener() {
+            @Override
+            public void onMyLocationClick(@NonNull Location location) {
+                Log.d(TAG, "onMyLocationClick:");
+                isTrackingEnable = true;
+                location.describeContents();
+            }
+        });
 
 
 
@@ -399,6 +425,13 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     if (mRequest!=null)
                         RouteRequest();
 
+                    if(isTrackingEnable){
+
+                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+
+                    }
 
                     //update it in the db
                     //NOTE: At this point a driver with the Auth usr id as the document id is already
@@ -487,11 +520,13 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         }
         mDb.collection("DriversOnline").document(driverIdRef).set(newD, SetOptions.merge());
 
+        isTrackingEnable = true;
 
     }
     //function that removes the driver from the DriverOnline Collection
     //Triggered when a driver goes offline or accepts a new request
     private void disconnectDriver(){
+
         mCustomerInfo.setVisibility(View.GONE);
         mMap.clear();
         if(mFusedLocationClient != null){

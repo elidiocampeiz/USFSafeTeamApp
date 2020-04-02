@@ -35,7 +35,7 @@
         android:layout_centerInParent="true"
         android:layout_marginStart="-1dp"
         android:layout_marginLeft="44dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="101dp"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/usf_logo"
         tools:layout_editor_absoluteY="-59dp" />
