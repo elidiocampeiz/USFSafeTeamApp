@@ -251,8 +251,6 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 //mkrs from driver to start
 
                 curr_mkr = new MarkerOptions().position(mRequest.getStart().getLatLng()).title(mRequest.getStart().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                //TODO: Set Cart image as marker icon
-                driver_mkr = new MarkerOptions().position(mRequest.getDest().getLatLng()).title(mRequest.getDest().getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
                 mMap.addMarker(curr_mkr);
                 mMap.addMarker(driver_mkr);
@@ -261,16 +259,20 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             else if( mRequest.getState().equals("ride") ) {
 
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
+                //TODO: Set Cart image as marker icon
                 getRouteToDestination();
+
+                mMap.addMarker(curr_mkr);
+                mMap.addMarker(dest_mkr);
             }
             else if( mRequest.getState().equals("fulfilled") ) {
 
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
-                //...
+                //... ->Store in clients history
                 //...
 //
 //                erasePolylines();
-                mRequest = null;
+//                mRequest = null;
             }
 
         }else {
@@ -307,10 +309,13 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     for (QueryDocumentSnapshot doc : value) {
                         GeoPoint driverGp = doc.get("geoPoint", GeoPoint.class);
-
-                        if (driverGp !=  null) {
+//TODO: ******************
+                        if (driverGp !=  null && mRequest.getState().equals("assigned") ) {
 
                             LatLng driver_pos = new LatLng(driverGp.getLatitude(), driverGp.getLongitude());
+                            //TODO: Set Cart image as marker icon
+                            driver_mkr = new MarkerOptions().position(driver_pos).title("Your Driver is here").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+
                             getRouteToMarker(driver_pos, mRequest.getStart().getLatLng() );
                             Log.d(TAG, "New GeoPoint: " + driverGp);
                         }
