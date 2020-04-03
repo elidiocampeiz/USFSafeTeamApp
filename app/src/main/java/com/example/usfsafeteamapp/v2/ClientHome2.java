@@ -216,12 +216,12 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     // "unassigned" | "assigned" | "ride" | "fulfilled"
     private void getRouteFromRequest() {
         //clear map
-        mMap.clear();
+
 
         if (mRequest != null){
             Log.d(TAG, "Current State: " + mRequest.getState());
             if ( mRequest.getState().equals("unassigned") ) {
-
+                mMap.clear();
                 // display "looking for Driver" -> "Waiting for Confirmation" -> "Driver found!"
 
                 getRouteToMarker(mRequest.getStart().getLatLng(), mRequest.getDest().getLatLng());
@@ -234,6 +234,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 mMap.addMarker(dest_mkr);
             }
             else if( mRequest.getState().equals("assigned") ) {
+                Toast.makeText(getApplicationContext(), "Your Safe Team is on its way!", Toast.LENGTH_LONG).show();
 
                 mCardView.setVisibility(View.INVISIBLE);
                 ConfButton.setVisibility(View.INVISIBLE);
@@ -245,6 +246,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
             else if( mRequest.getState().equals("ride") ) {
 
+                Toast.makeText(getApplicationContext(), "Your Safe Team is on its way!", Toast.LENGTH_LONG).show();
                 if(mCardView.getVisibility() == View.VISIBLE)
                 {
                     mCardView.setVisibility(View.INVISIBLE);
@@ -255,9 +257,10 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                     ConfButton.setVisibility(View.INVISIBLE);
                 }
 
-
+                mMap.clear();
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
                 //TODO: Set Cart image as marker icon
+
                 getRouteToDestination();
                 mMap.addMarker(dest_mkr);
 
@@ -267,6 +270,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
                 //... ->Store in clients history
                 //...
+                mMap.clear();
                 autocompleteFragment.setText("");
                 autocompleteFragment.setHint("Where to?");
 
@@ -360,8 +364,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         mLocationRequest = new LocationRequest();
 //        mLocationRequest.setSmallestDisplacement(10);
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setInterval(3000);
+        mLocationRequest.setFastestInterval(3000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
@@ -450,7 +454,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         }
     }
     private boolean getClosestAvailableDriver(){
-        mClosestDriverQuery = mDb.collection("DriversOnline");
+        mClosestDriverQuery = mDb.collection("DriversOnline").whereEqualTo("current_request_id", null);
         mClosestDriverQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -534,7 +538,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             for(Location location : locationResult.getLocations()){
 //                Log.d(TAG, "onLocationResult: B1");
-                if(getApplicationContext() != null) {
+                if(getApplicationContext() != null ) {
 
                     mLastLocation = location;
                     if(isTrackingEnable){
