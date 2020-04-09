@@ -58,7 +58,11 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginLeft="30dp"
                 android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:layout_marginTop="82dp" />
+                android:layout_marginTop="82dp"
+                android:shadowColor="@color/quantum_black_100"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"/>
 
             <TextView
                 android:id="@+id/ClientName"
@@ -68,7 +72,11 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginLeft="30dp"
                 android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:layout_marginTop="9dp" />
+                android:layout_marginTop="9dp"
+                android:shadowColor="@color/quantum_black_100"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"/>
 
             <TextView
                 android:id="@+id/ClientLocation"
@@ -78,7 +86,11 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginLeft="30dp"
                 android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:layout_marginTop="44dp" />
+                android:layout_marginTop="44dp"
+                android:shadowColor="@color/quantum_black_100"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"/>
 
         </RelativeLayout>
 

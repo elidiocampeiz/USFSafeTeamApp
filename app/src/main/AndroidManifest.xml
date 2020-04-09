@@ -19,6 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".AboutSafeTeam"></activity>
         <activity android:name=".MainActivity" />
         <activity android:name=".v2.ClientHome2" />
         <activity android:name=".v2.DriverHome2" />

@@ -10,6 +10,12 @@
         />
 
     <item
+        android:title="About Safe Team"
+        android:id="@+id/about"
+        app:showAsAction="never"
+        />
+
+    <item
         android:title="Report problem"
         android:id="@+id/item2"
         app:showAsAction="never"

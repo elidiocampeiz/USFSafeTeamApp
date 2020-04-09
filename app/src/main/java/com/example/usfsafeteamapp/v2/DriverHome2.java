@@ -35,6 +35,7 @@ import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.ebanx.swipebtn.OnStateChangeListener;
 import com.ebanx.swipebtn.SwipeButton;
+import com.example.usfsafeteamapp.AboutSafeTeam;
 import com.example.usfsafeteamapp.MainActivity;
 import com.example.usfsafeteamapp.Objects.Drivers;
 import com.example.usfsafeteamapp.Objects.Requests;
@@ -112,7 +113,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_driver_home2);
 
         //Creating the activity title and a back button
-        getSupportActionBar().setTitle("Driver Home2");
+        getSupportActionBar().setTitle("Driver Map");
 //        getSupportActionBar().hide();
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -690,6 +691,11 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             case R.id.item2:
                 Toast.makeText(this, "To be implemented", Toast.LENGTH_SHORT).show();
                 return true;
+
+            case R.id.about:
+                Intent it = new Intent(DriverHome2.this, AboutSafeTeam.class);
+                startActivity(it);
+                finish();
         }
         return super.onOptionsItemSelected(item);
     }

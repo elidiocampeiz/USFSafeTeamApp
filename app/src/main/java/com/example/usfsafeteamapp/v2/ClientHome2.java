@@ -31,6 +31,7 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.example.usfsafeteamapp.AboutSafeTeam;
 import com.example.usfsafeteamapp.MainActivity;
 import com.example.usfsafeteamapp.Objects.Clients;
 import com.example.usfsafeteamapp.Objects.Drivers;
@@ -56,6 +57,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -102,6 +105,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     private PlacesClient placesClient;
     private SupportMapFragment mapFragment;
     private Button ConfButton;
+    private Button cancelButton;
     CardView mCardView;
 
     private MarkerOptions curr_mkr, dest_mkr, driver_mkr;
@@ -127,7 +131,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
         //Creating the activity title and a back button
-        getSupportActionBar().setTitle("Client Home2");
+        getSupportActionBar().setTitle("Client Map");
 //        getSupportActionBar().hide();
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -152,6 +156,20 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         // Initialize the AutocompleteSupportFragment.
         setUpAutocompleteSupportFragment();
         mCardView = findViewById(R.id.cardView_autocomplete);
+
+
+        cancelButton = (Button) findViewById(R.id.buttonClientCancelHome2);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+               cancelRequestMessage();
+
+
+            }
+        });
+
+
 
         ConfButton = (Button) findViewById(R.id.buttonClientConfirmHome2);
         ConfButton.setOnClickListener(new View.OnClickListener() {
@@ -178,6 +196,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     if (ConfirmRequest()){
                         StartRequestTracking();
+                        cancelButton.setVisibility(View.VISIBLE);
 
                     }
 
@@ -190,30 +209,36 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         getClosestAvailableDriver();
     }
 
+
+
+
     private void StartRequestTracking() {
 
-        DocumentReference mRequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
-        mRequestRef.addSnapshotListener(ClientHome2.this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
+        if (mRequest!= null){
+            DocumentReference mRequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
+            mRequestRef.addSnapshotListener(ClientHome2.this, new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                    @Nullable FirebaseFirestoreException e) {
+                    if (e != null) {
+                        Log.w(TAG, "Listen failed.", e);
+
+                    }
+                    if (snapshot != null && snapshot.exists() && mRequest!= null) {
+                        Log.d(TAG, "Request snapshot success!");
+                        mRequest = snapshot.toObject(Requests.class);
+                        getRouteFromRequest();
+                    }
 
                 }
-                if (snapshot != null && snapshot.exists()) {
-                    Log.d(TAG, "Request snapshot success!");
-                    mRequest = snapshot.toObject(Requests.class);
-                    getRouteFromRequest();
-                }
+            });
+        }
 
-            }
-        });
 
     }
     //TODO: better handle addition od markers and map.clear
 
-    // "unassigned" | "assigned" | "ride" | "fulfilled"
+    // "unassigned" | "assigned" | "ride" | "fulfilled" | "canceled"
     private void getRouteFromRequest() {
         //clear map
 
@@ -238,6 +263,12 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                 mCardView.setVisibility(View.INVISIBLE);
                 ConfButton.setVisibility(View.INVISIBLE);
+
+                if(cancelButton.getVisibility() == View.INVISIBLE)
+                {
+                    cancelButton.setVisibility(View.VISIBLE);
+                }
+
                 // display "Driver Assigned" -> "Time of arrival: --:--"
                 getRouteFromDriver();
 
@@ -246,7 +277,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
             else if( mRequest.getState().equals("ride") ) {
 
-                Toast.makeText(getApplicationContext(), "Your Safe Team is on its way!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Your Safe Team arrived", Toast.LENGTH_LONG).show();
                 if(mCardView.getVisibility() == View.VISIBLE)
                 {
                     mCardView.setVisibility(View.INVISIBLE);
@@ -256,6 +287,13 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 {
                     ConfButton.setVisibility(View.INVISIBLE);
                 }
+
+                if(cancelButton.getVisibility() == View.VISIBLE)
+                {
+                    cancelButton.setVisibility(View.INVISIBLE);
+                }
+
+
 
                 mMap.clear();
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
@@ -270,6 +308,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
                 //... ->Store in clients history
                 //...
+                resetClient();
                 mMap.clear();
                 autocompleteFragment.setText("");
                 autocompleteFragment.setHint("Where to?");
@@ -279,21 +318,33 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 mCardView.setVisibility(View.VISIBLE);
                 ConfButton.setVisibility(View.INVISIBLE);
 
-                DocumentReference DriverRef = mDb.collection("Clients").document(clientIdRef);
+                if(cancelButton.getVisibility() == View.VISIBLE)
+                {
+                    cancelButton.setVisibility(View.INVISIBLE);
+                }
 
-                DriverRef.update("current_request_id", null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            Log.d(TAG, "Batch success");
-                        }
-                        else {
-                            Log.d(TAG, "Batch Error:");
-                        }
-                    }
-                });
+
                 erasePolylines();
                 //mRequest = null;
+            }
+
+            else if( mRequest.getState().equals("canceled"))
+            {
+                resetClient();
+                mMap.clear();
+                erasePolylines();
+                autocompleteFragment.setText("");
+                autocompleteFragment.setHint("Where to?");
+
+                estimatedTime.setVisibility(View.INVISIBLE);
+
+                mCardView.setVisibility(View.VISIBLE);
+                ConfButton.setVisibility(View.INVISIBLE);
+
+                if(cancelButton.getVisibility() == View.VISIBLE)
+                {
+                    cancelButton.setVisibility(View.INVISIBLE);
+                }
             }
 
         }else {
@@ -301,7 +352,71 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         }
 
 
+
     }
+    private void cancelRequestMessage() {
+
+        new AlertDialog.Builder(this)
+                .setTitle("Cancel Request")
+                .setMessage("Are you sure you want to cancel the current Request?")
+
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                })
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        cancelRequest();
+                        dialogInterface.cancel();
+                    }
+                })
+                .create()
+                .show();
+    }
+
+    private void cancelRequest()
+    {
+        DocumentReference RequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
+        RequestRef.update("state","canceled").addOnCompleteListener(new OnCompleteListener<Void>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                if (task.isSuccessful()){
+                    Log.d(TAG, "Document update success");
+                }
+                else {
+                    Log.d(TAG, "Document update Error:");
+                }
+            }
+        });
+    }
+
+    private void resetClient()
+    {
+
+        DocumentReference doc = mDb.collection("Clients").document(clientIdRef);
+        doc.update("current_request_id", null).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "DocumentSnapshot successfully !");
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting updated", e);
+                    }
+                });
+
+        //TODO: make the mRequest update happen from an event in the database
+        mRequest = null;
+
+    }
+
     private void getRouteToDestination() {
         if ( mRequest != null && mLastLocation != null ){
             Log.d(TAG, "getRouteToDestination success!");
@@ -331,7 +446,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                     for (QueryDocumentSnapshot doc : value) {
                         GeoPoint driverGp = doc.get("geoPoint", GeoPoint.class);
 //TODO: ******
-                        if (driverGp !=  null && mRequest.getState().equals("assigned") ) {
+                        if (driverGp !=  null &&  mRequest!=null && mRequest.getState().equals("assigned") ) {
 
                             LatLng driver_pos = new LatLng(driverGp.getLatitude(), driverGp.getLongitude());
                             //TODO: Set Cart image as marker icon
@@ -561,8 +676,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                     GeoPoint gp = new GeoPoint( location.getLatitude(), location.getLongitude() );
 
                     Clients CL = new Clients(clientIdRef, gp );
-
-                    DO.set(CL, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    DO.update("geoPoint",gp).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
@@ -574,6 +688,19 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                             }
                         }
                     });
+//
+//                    DO.set(CL, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<Void> task) {
+//                            if (task.isSuccessful()){
+//                                Log.d(TAG, "Document update success");
+//                            }
+//                            else {
+//
+//                                Log.d(TAG, "Document update Error:");
+//                            }
+//                        }
+//                    });
 
 //                    getClosestDirver();
                 }
@@ -854,6 +981,12 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             case R.id.item2:
                 Toast.makeText(this, "To be implemented", Toast.LENGTH_SHORT).show();
                 return true;
+
+            case R.id.about:
+                Intent it = new Intent(ClientHome2.this, AboutSafeTeam.class);
+                startActivity(it);
+                finish();
+
         }
         return super.onOptionsItemSelected(item);
     }

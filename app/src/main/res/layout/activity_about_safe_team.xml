@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/usf_bg"
+    tools:context=".AboutSafeTeam">
+
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="371dp"
+        android:layout_height="426dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="2dp"
+        android:text="SAFE Team is a service provided by the conjoint effort of USF University Police and Student Government. It provides safe transportation to USF students and faculty, and constantly patrols the university campus to prevent crimes and improve the overall safety on campus. The SAFE Team Escort service consists of a golf cart or walking team of two ground field staff accompanying a number (usually one or two) of USF students, faculty or staff, from one location on the USF campus to another and is available from 6:30 pm to 2:30 am every day."
+        android:textColor="@color/cardview_light_background"
+        android:textSize="21.5dp"
+        android:shadowColor="@color/quantum_black_100"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
+
+        />
+
+    <ImageView
+        android:id="@+id/imageView7"
+        android:layout_width="296dp"
+        android:layout_height="242dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="51dp"
+        android:layout_marginLeft="51dp"
+        android:layout_marginBottom="0dp"
+        app:srcCompat="@drawable/staff" />
+
+
+</RelativeLayout>
