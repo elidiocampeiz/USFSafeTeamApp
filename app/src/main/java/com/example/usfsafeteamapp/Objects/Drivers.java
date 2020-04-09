@@ -9,15 +9,15 @@ public class Drivers {
     private GeoPoint geoPoint;
     private @ServerTimestamp Date time_stamp;
 //    private String username;
-    private Requests nextRequest;
+//    private Requests nextRequest;
     private String current_request_id;
 
 
-    public Drivers(String driver_id, GeoPoint geoPoint, Requests nextRequest) {
+    public Drivers(String driver_id, GeoPoint geoPoint, String current_request_id) {
         this.driver_id = driver_id;
         this.geoPoint = geoPoint;
         this.time_stamp  = null;
-        this.nextRequest = nextRequest;
+        this.current_request_id = current_request_id;
     }
     public Drivers(String driver_id, GeoPoint geoPoint ) {
         this.driver_id = driver_id;
@@ -60,13 +60,13 @@ public class Drivers {
 
 
 
-    public Requests getNextRequest() {
-        return nextRequest;
-    }
-
-    public void setNextRequest(Requests nextRequest) {
-        this.nextRequest = nextRequest;
-    }
+//    public Requests getNextRequest() {
+//        return nextRequest;
+//    }
+//
+//    public void setNextRequest(Requests nextRequest) {
+//        this.nextRequest = nextRequest;
+//    }
 
 
     public String getCurrent_request_id() {

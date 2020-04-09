@@ -558,8 +558,8 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
         }
-        if (mDriver.getNextRequest() != null){
-            mDriver.setNextRequest(null);
+        if (mDriver.getCurrent_request_id() != null){
+            mDriver.setCurrent_request_id(null);
         }
         //TODO *************** *************** *************** ***************
         //TODO: set variable mRequest to null as well

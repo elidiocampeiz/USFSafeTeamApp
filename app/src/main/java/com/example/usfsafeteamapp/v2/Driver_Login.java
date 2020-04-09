@@ -48,7 +48,7 @@ public class Driver_Login extends AppCompatActivity {
         isAuth=false;
 
 
-        aut = FirebaseAuth.getInstance();
+
 //        FirebaseUser User = FirebaseAuth.getInstance().getCurrentUser();
 
 
@@ -60,6 +60,8 @@ public class Driver_Login extends AppCompatActivity {
         Tpassword = (EditText) findViewById(R.id.passwordtext_driver);
         Blogin = (Button) findViewById(R.id.loginbutton_driver);
         Bregistrate = (Button) findViewById(R.id.registratebutton_driver);
+
+        aut = FirebaseAuth.getInstance();
         autlist = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {

@@ -218,7 +218,7 @@ public class DriverHome extends AppCompatActivity implements OnMapReadyCallback,
 ////                    }
 //                    Requests nRequest = new Requests(object);
                     Drivers currDr = documentSnapshot.toObject(Drivers.class);
-                    Requests nRequest = currDr.getNextRequest();
+//                    Requests nRequest = currDr.getNextRequest();
 
                     //Query DB
 //                    myPlace Defaut_place = new myPlace();

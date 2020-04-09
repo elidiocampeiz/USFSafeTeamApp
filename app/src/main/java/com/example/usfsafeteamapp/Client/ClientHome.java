@@ -195,7 +195,7 @@ public class ClientHome extends AppCompatActivity implements OnMapReadyCallback,
                             });
                     //set request inside driver
                     Drivers dr = new Drivers("Driver",myCurrPlace.getGeoPoint());
-                    dr.setNextRequest(nRequest);
+//                    dr.setNextRequest(nRequest);
                     DriverRef.set(dr, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
