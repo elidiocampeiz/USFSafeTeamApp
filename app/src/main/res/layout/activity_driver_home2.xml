@@ -124,11 +124,11 @@
 
     <Button
         android:id="@+id/cancelbutton"
-        android:layout_width="133dp"
-        android:layout_height="62dp"
-        android:layout_marginLeft="200sp"
-        android:hint="Cancel"
-        android:text="Cancel Ride"
+        android:layout_width="91dp"
+        android:layout_height="37dp"
+        android:layout_marginLeft="10sp"
+        android:layout_marginTop="40dp"
+        android:text="Cancel"
         android:visibility="invisible" />
 
     <Switch

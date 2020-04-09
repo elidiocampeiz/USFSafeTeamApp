@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
@@ -57,7 +58,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -93,6 +93,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private SupportMapFragment mapFragment;
     private SwipeButton mSwipe;
+    private Button mCancelButton;
     Switch enableButton;
     private RelativeLayout mCustomerInfo;
     //    ListenerRegistration mClientListener;
@@ -134,6 +135,13 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         mCustomerInfo = (RelativeLayout) findViewById(R.id.customerInfo);
         mCustomerInfo.setVisibility(View.GONE);
 
+        mCancelButton = (Button) findViewById(R.id.cancelbutton);
+        mCancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelRequestMessage();
+            }
+        });
         mSwipe = (SwipeButton) findViewById(R.id.swipe_btn);
 
         mSwipe.setOnStateChangeListener(new OnStateChangeListener() {
@@ -142,7 +150,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 if (active)
                 {
                     updateRequest();
-                    mSwipe.setActivated(false);
+//                    mSwipe.setActivated(false);
 //                    mSwipe.setPressed(false);
                 }
 
@@ -230,6 +238,54 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
     }
+    private void cancelRequestMessage() {
+
+        new AlertDialog.Builder(this)
+                .setTitle("Cancel Request")
+                .setMessage("Are you sure you want to cancel the current Request?")
+
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                })
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        cancelRequest();
+                        dialogInterface.cancel();
+                    }
+                })
+                .create()
+                .show();
+    }
+    private void cancelRequest() {
+        //function that changes the state of current request to "canceled"
+        //NOTE: This function does not unsubscribe the driver to the request because that event is handle as a result of the request's
+            //  state being "canceled", since it could have happened as a result of either driver or client changing the state of the request
+
+
+
+        if (mRequest != null && mRequest.getRequest_id() != null && !mRequest.getRequest_id().isEmpty() )
+        {
+            DocumentReference RequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
+
+            RequestRef.update("state","canceled").addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        Log.d(TAG, "Document update success");
+                    }
+                    else {
+
+                        Log.d(TAG, "Document update Error:");
+                    }
+                }
+            });
+        }
+
+    }
 
     private void updateRequest()
     {
@@ -270,7 +326,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             else if (mRequest.getState().equals("ride"))
             {
-                mCustomerInfo.setVisibility(View.GONE);
+
                 RequestRef.update("state","fulfilled").addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -285,26 +341,10 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 });
             }
 
-            else if (mRequest.getState().equals("fulfilled"))
+            else if (mRequest.getState().equals("fulfilled") || mRequest.getState().equals("canceled")  )
             {
 
-                DocumentReference DriverRef = mDb.collection("Drivers").document(driverIdRef);
-                DocumentReference DriverOnlineRef = mDb.collection("DriversOnline").document(driverIdRef);
-                WriteBatch batch = mDb.batch();
-                batch.update(DriverRef,"current_request_id",null);
-                batch.update(DriverOnlineRef,"current_request_id",null);
-
-                batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            Log.d(TAG, "Batch success");
-                        }
-                        else {
-                            Log.d(TAG, "Batch Error:");
-                        }
-                    }
-                });
+            // Should neve reach this state TODO: Handle/Display error
             }
 
         }
@@ -329,6 +369,8 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                         Log.d(TAG, "Request snapshot success!");
                         mRequest = snapshot.toObject(Requests.class);
                         if(mRequest != null){
+
+
                             getClientInfo();
                             RouteRequest();
 
@@ -336,13 +378,24 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                         }
 
                     }
+                    else{
+                        Log.d(TAG, "Request snapshot fail!");
+                    }
 
                 }
             });
         }
+        else{
+            mRequest = null;
+            Log.d(TAG, "Request snapshot fail222");
+        }
+
     }
 
     private void displayRequestInfo() {
+        //Display Cancel Button
+        mCancelButton.setVisibility(View.VISIBLE);
+
         mCustomerInfo.setVisibility(View.VISIBLE);
         txtClientName.setText("Client Name: Bob");
         txtClientLocation.setText("Client Location: "+ mRequest.getStart().getName());
@@ -470,9 +523,12 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     HashMap<String, Object> data = new HashMap<String, Object>();
                     data.put("geoPoint", gp  );
                     data.put("time_stamp", new Date());
-
-                    batch.set(DO, data,SetOptions.merge());
-                    batch.set(D,  data,SetOptions.merge());
+                    batch.update(DO,"geoPoint", gp);
+                    batch.update(D,"geoPoint", gp);
+                    batch.update(DO,"time_stamp", new Date());
+                    batch.update(D,"time_stamp", new Date());
+//                    batch.set(DO, data, SetOptions.merge());
+//                    batch.set(D,  data, SetOptions.merge());
                     batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -534,6 +590,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         mMap.setMyLocationEnabled(true);
 
     }
+    //
     private void connectDriver(){
 
         connectLocation();
@@ -558,29 +615,36 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
         }
-        if (mDriver.getCurrent_request_id() != null){
-            mDriver.setCurrent_request_id(null);
-        }
-        //TODO ***** ***** ***** *****
-        //TODO: set variable mRequest to null as well
-        //TODO ***** ***** ***** *****
-        mRequest = null;
+
+        cancelRequestMessage();
+
+        DocumentReference doc = mDb.collection("DriversOnline").document(driverIdRef);
+//
+//        if (mDriver.getCurrent_request_id() != null){
+//            mDriver.setCurrent_request_id(null);
+//        }
+//        //TODO ***** ***** ***** *****
+//        //TODO: set variable mRequest to null as well
+//        //TODO ***** ***** ***** *****
+//        mRequest = null;
 
 
-        CollectionReference DriversOnlineRef = mDb.collection("DriversOnline");
-        DocumentReference doc = DriversOnlineRef.document(driverIdRef);
-        doc.update("current_request_id", null).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, "DocumentSnapshot successfully !");
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting updated", e);
-                    }
-                });
+//        CollectionReference DriversOnlineRef = mDb.collection("DriversOnline");
+
+
+//        doc.update("current_request_id", null).addOnSuccessListener(new OnSuccessListener<Void>() {
+//            @Override
+//            public void onSuccess(Void aVoid) {
+//                Log.d(TAG, "DocumentSnapshot successfully !");
+//            }
+//        })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.w(TAG, "Error deleting updated", e);
+//                    }
+//                });
+        //Delete driver instance from the "DriversOnline" Collection
         doc.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -665,10 +729,18 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
             else if ( mRequest.getState().equals("fulfilled") )
             {
-
-
+                //TODO: recordRequest() - > Function that adds the current request to the request history sub-collection of the driver
+                resetDriver();
                 mMap.clear();
                 erasePolylines();
+            }
+            else if ( mRequest.getState().equals("canceled") )
+            {
+                resetDriver();
+                mMap.clear();
+                erasePolylines();
+
+
             }
 
 
@@ -676,6 +748,52 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         else{
             Log.i(TAG, "Routing error occurred: ") ;
         }
+
+    }
+
+    private void resetDriver() {
+
+
+//        //TODO ***** ***** ***** *****
+//        //TODO: make sure mRequest is set to null as a result of the change in the Database
+//        //TODO ***** ***** ***** *****
+
+//        mRequest = null;
+        mCustomerInfo.setVisibility(View.GONE);
+        mCancelButton.setVisibility(View.GONE);
+
+        DocumentReference DriverRef = mDb.collection("Drivers").document(driverIdRef);
+        DocumentReference DriverOnlineRef = mDb.collection("DriversOnline").document(driverIdRef);
+        WriteBatch batch = mDb.batch();
+        batch.update(DriverRef,"current_request_id",null);
+        batch.update(DriverOnlineRef,"current_request_id",null);
+        // Update current_request_id to null, which "unsubscribe" the driver to the request
+        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Log.d(TAG, "Batch success");
+                }
+                else {
+                    Log.d(TAG, "Batch Error:");
+                }
+            }
+        });
+
+
+//        DocumentReference doc = mDb.collection("DriversOnline").document(driverIdRef);
+//        doc.update("current_request_id", null).addOnSuccessListener(new OnSuccessListener<Void>() {
+//            @Override
+//            public void onSuccess(Void aVoid) {
+//                Log.d(TAG, "DocumentSnapshot successfully !");
+//            }
+//        })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.w(TAG, "Error deleting updated", e);
+//                    }
+//                });
 
     }
 
