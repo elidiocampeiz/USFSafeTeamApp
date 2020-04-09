@@ -95,7 +95,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     private SwipeButton mSwipe;
     Switch enableButton;
     private RelativeLayout mCustomerInfo;
-//    ListenerRegistration mClientListener;
+    //    ListenerRegistration mClientListener;
     FirebaseFirestore mDb;
     String driverIdRef;
     Drivers mDriver;
@@ -561,9 +561,9 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         if (mDriver.getCurrent_request_id() != null){
             mDriver.setCurrent_request_id(null);
         }
-        //TODO *************** *************** *************** ***************
+        //TODO ***** ***** ***** *****
         //TODO: set variable mRequest to null as well
-        //TODO *************** *************** *************** ***************
+        //TODO ***** ***** ***** *****
         mRequest = null;
 
 
@@ -770,5 +770,3 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
 }
-
-

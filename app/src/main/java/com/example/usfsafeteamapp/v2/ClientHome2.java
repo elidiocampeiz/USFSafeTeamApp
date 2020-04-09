@@ -108,7 +108,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private FirebaseFirestore mDb;
     private String clientIdRef;
-//    List<Drivers> availableDrivers;
+    //    List<Drivers> availableDrivers;
     private Drivers assignDriver;
     private String assignDriverId;
 
@@ -281,7 +281,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                 DocumentReference DriverRef = mDb.collection("Clients").document(clientIdRef);
 
-               DriverRef.update("current_request_id", null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                DriverRef.update("current_request_id", null).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
@@ -330,7 +330,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     for (QueryDocumentSnapshot doc : value) {
                         GeoPoint driverGp = doc.get("geoPoint", GeoPoint.class);
-//TODO: ******************
+//TODO: ******
                         if (driverGp !=  null && mRequest.getState().equals("assigned") ) {
 
                             LatLng driver_pos = new LatLng(driverGp.getLatitude(), driverGp.getLongitude());
@@ -462,29 +462,29 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     QuerySnapshot result = task.getResult();
 
-                        float shortestDistance = Float.MAX_VALUE;
-                        for (QueryDocumentSnapshot document : result) {
-                            Location dest = new Location("");
-                            GeoPoint geo = document.getGeoPoint("geoPoint");
+                    float shortestDistance = Float.MAX_VALUE;
+                    for (QueryDocumentSnapshot document : result) {
+                        Location dest = new Location("");
+                        GeoPoint geo = document.getGeoPoint("geoPoint");
 //                            GeoPoint geo = document.get("geoPoint", GeoPoint.class);
-                            String temp_id = (String) document.get("driver_id");
+                        String temp_id = (String) document.get("driver_id");
 
-                            dest.setLatitude(geo.getLatitude());
-                            dest.setLongitude(geo.getLongitude());
+                        dest.setLatitude(geo.getLatitude());
+                        dest.setLongitude(geo.getLongitude());
 
-                            if (mLastLocation != null )
-                            {
-                                float dist = dest.distanceTo(mLastLocation);
-                                if (shortestDistance >= dist) {
-                                    assignDriverId = temp_id;
-                                    assignDriver = document.toObject(Drivers.class);
+                        if (mLastLocation != null )
+                        {
+                            float dist = dest.distanceTo(mLastLocation);
+                            if (shortestDistance >= dist) {
+                                assignDriverId = temp_id;
+                                assignDriver = document.toObject(Drivers.class);
 
-                                    shortestDistance = dist;
+                                shortestDistance = dist;
 
-                                    Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + " Distance: " + dist);
+                                Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + " Distance: " + dist);
 
-                                }
                             }
+                        }
 
 
 
@@ -597,7 +597,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
     }
     public void setUpAutocompleteSupportFragment()
     {
-         autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragmentHome2);
+        autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragmentHome2);
 
         autocompleteFragment.setHint("Where to?");
 
