@@ -581,25 +581,29 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                     for (QueryDocumentSnapshot document : result) {
                         Location dest = new Location("");
                         GeoPoint geo = document.getGeoPoint("geoPoint");
-//                            GeoPoint geo = document.get("geoPoint", GeoPoint.class);
-                        String temp_id = (String) document.get("driver_id");
-
-                        dest.setLatitude(geo.getLatitude());
-                        dest.setLongitude(geo.getLongitude());
-
-                        if (mLastLocation != null )
+                        if (geo != null)
                         {
-                            float dist = dest.distanceTo(mLastLocation);
-                            if (shortestDistance >= dist) {
-                                assignDriverId = temp_id;
-                                assignDriver = document.toObject(Drivers.class);
+                            String temp_id = (String) document.get("driver_id");
 
-                                shortestDistance = dist;
+                            dest.setLatitude(geo.getLatitude());
+                            dest.setLongitude(geo.getLongitude());
 
-                                Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + " Distance: " + dist);
+                            if (mLastLocation != null )
+                            {
+                                float dist = dest.distanceTo(mLastLocation);
+                                if (shortestDistance >= dist) {
+                                    assignDriverId = temp_id;
+                                    assignDriver = document.toObject(Drivers.class);
 
+                                    shortestDistance = dist;
+
+                                    Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + " Distance: " + dist);
+
+                                }
                             }
                         }
+//                            GeoPoint geo = document.get("geoPoint", GeoPoint.class);
+
 
 
 

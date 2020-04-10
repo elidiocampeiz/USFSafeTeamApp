@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -81,7 +82,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     private TextView txtClientName;
     private TextView txtClientLocation;
     private TextView txtClientDestination;
-
+    private TextView mRequestStateTextBox;
     String TAG;
     private GoogleMap mMap;
     Location mLastLocation;
@@ -101,11 +102,12 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
     FirebaseFirestore mDb;
     String driverIdRef;
     Drivers mDriver;
-    private String mClientID;
+    private String mClientID, mRequestStateMessage, mRequestButtonMessage;
     private GeoPoint mClientGeoPoint;
     private Requests mRequest;
     private boolean isTrackingEnable;
     private boolean mCheckedBool;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,17 +128,20 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
-        //Confirm Request layout
+        // Request Info layout
         txtClientName = (TextView) findViewById(R.id.ClientName);
         txtClientLocation = (TextView) findViewById(R.id.ClientLocation);
         txtClientDestination = (TextView) findViewById(R.id.ClientDestination);
+        mRequestStateTextBox = (TextView) findViewById(R.id.RequestState);
 
-
+        mRequestStateMessage = "Please confirm ride request";
+        mRequestButtonMessage = "CONFIRM REQUEST";
 
         mCustomerInfo = (RelativeLayout) findViewById(R.id.customerInfo);
         mCustomerInfo.setVisibility(View.GONE);
 
         mCancelButton = (Button) findViewById(R.id.cancelbutton);
+
         mCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,13 +149,15 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         });
         mSwipe = (SwipeButton) findViewById(R.id.swipe_btn);
-
+        mSwipe.setHorizontalGravity(10);
         mSwipe.setOnStateChangeListener(new OnStateChangeListener() {
             @Override
             public void onStateChange(boolean active) {
                 if (active)
                 {
                     updateRequest();
+
+
 //                    mSwipe.setActivated(false);
 //                    mSwipe.setPressed(false);
                 }
@@ -181,7 +188,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 //
 //            }
 //        });
-        mCheckedBool = false;
+        mCheckedBool = true;
         enableButton = (Switch) findViewById(R.id.workingSwitch);
         enableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -240,26 +247,28 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     }
     private void cancelRequestMessage() {
+        if (mRequest!=null){
+            new AlertDialog.Builder(this)
+                    .setTitle("Cancel Request")
+                    .setMessage("Are you sure you want to cancel the current Request?")
 
-        new AlertDialog.Builder(this)
-                .setTitle("Cancel Request")
-                .setMessage("Are you sure you want to cancel the current Request?")
+                    .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                        }
+                    })
+                    .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            cancelRequest();
+                            dialogInterface.cancel();
+                        }
+                    })
+                    .create()
+                    .show();
+        }
 
-                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                })
-                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        cancelRequest();
-                        dialogInterface.cancel();
-                    }
-                })
-                .create()
-                .show();
     }
     private void cancelRequest() {
         //function that changes the state of current request to "canceled"
@@ -301,6 +310,13 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             Log.d(TAG, "Document update success");
+                            //Toast.makeText(getApplicationContext(), "Pick up client!", Toast.LENGTH_LONG).show();
+                            mRequestStateMessage = "Proceed for client pick up";
+//                            mRequestButtonMessage = "CONFIRM PICK UP";
+                            Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+                            t.setGravity(Gravity.CENTER, 0, 0);
+                            t.show();
+
                         }
                         else {
 
@@ -316,6 +332,11 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             Log.d(TAG, "Document update success");
+                            mRequestStateMessage = "Proceed for client drop-off";
+//                            mRequestButtonMessage = "CONFIRM DROP OFF";
+                            Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+                            t.setGravity(Gravity.CENTER, 0, 0);
+                            t.show();
                         }
                         else {
 
@@ -333,6 +354,11 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             Log.d(TAG, "Document update success");
+                            mRequestStateMessage = "Please confirm ride request";
+//                            mRequestButtonMessage = "REQUEST FULFILLED";
+                            Toast t = Toast.makeText(getApplicationContext(), "Request Fulfilled", Toast.LENGTH_SHORT);
+                            t.setGravity(Gravity.CENTER, 0, 0);
+                            t.show();
                         }
                         else {
 
@@ -398,6 +424,11 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         mCancelButton.setVisibility(View.VISIBLE);
 
         mCustomerInfo.setVisibility(View.VISIBLE);
+
+//        mRequestStateTextBox.setText(mRequestStateMessage);
+
+
+        //setText(mRequestButtonMessage);
         txtClientName.setText("Client Name: Bob");
         txtClientLocation.setText("Client Location: "+ mRequest.getStart().getName());
         txtClientDestination.setText("Client Destination: "+ mRequest.getDest().getName());
