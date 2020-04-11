@@ -188,12 +188,13 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 //
 //            }
 //        });
-        mCheckedBool = true;
+        isTrackingEnable = true;
+        mCheckedBool = false;
         enableButton = (Switch) findViewById(R.id.workingSwitch);
         enableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+                mCheckedBool = isChecked;
                 if (isChecked ){
 
                     connectDriver();
@@ -204,7 +205,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     disconnectDriver();
 
                 }
-                mCheckedBool = isChecked;
+
             }
         });
 
@@ -311,11 +312,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                         if (task.isSuccessful()){
                             Log.d(TAG, "Document update success");
                             //Toast.makeText(getApplicationContext(), "Pick up client!", Toast.LENGTH_LONG).show();
-                            mRequestStateMessage = "Proceed for client pick up";
-//                            mRequestButtonMessage = "CONFIRM PICK UP";
-                            Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
-                            t.setGravity(Gravity.CENTER, 0, 0);
-                            t.show();
+
 
                         }
                         else {
@@ -332,11 +329,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             Log.d(TAG, "Document update success");
-                            mRequestStateMessage = "Proceed for client drop-off";
-//                            mRequestButtonMessage = "CONFIRM DROP OFF";
-                            Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
-                            t.setGravity(Gravity.CENTER, 0, 0);
-                            t.show();
+
                         }
                         else {
 
@@ -354,11 +347,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             Log.d(TAG, "Document update success");
-                            mRequestStateMessage = "Please confirm ride request";
-//                            mRequestButtonMessage = "REQUEST FULFILLED";
-                            Toast t = Toast.makeText(getApplicationContext(), "Request Fulfilled", Toast.LENGTH_SHORT);
-                            t.setGravity(Gravity.CENTER, 0, 0);
-                            t.show();
+
                         }
                         else {
 
@@ -425,10 +414,10 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         mCustomerInfo.setVisibility(View.VISIBLE);
 
-//        mRequestStateTextBox.setText(mRequestStateMessage);
+        mRequestStateTextBox.setText(mRequestStateMessage);
 
 
-        //setText(mRequestButtonMessage);
+
         txtClientName.setText("Client Name: Bob");
         txtClientLocation.setText("Client Location: "+ mRequest.getStart().getName());
         txtClientDestination.setText("Client Destination: "+ mRequest.getDest().getName());
@@ -749,6 +738,12 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 mMap.addMarker(str_mkr);
                 mMap.addMarker(dest_mkr);
 
+                mRequestStateMessage = "Confirm Request";
+
+//                Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+//                t.setGravity(Gravity.CENTER, 0, 0);
+//                t.show();
+
             }
             else if ( mRequest.getState().equals("assigned") )
             {
@@ -756,6 +751,11 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 getRouteToMarker(myLocationLL, StartLL);
                 mMap.addMarker(driver_mkr);
                 mMap.addMarker(str_mkr);
+                mRequestStateMessage = "Proceed for client pick up";
+
+//                Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+//                t.setGravity(Gravity.CENTER, 0, 0);
+//                t.show();
             }
             else if ( mRequest.getState().equals("ride") )
             {
@@ -763,6 +763,12 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 getRouteToMarker(myLocationLL, DestinationLL);
                 mMap.addMarker(driver_mkr);
                 mMap.addMarker(dest_mkr);
+
+                mRequestStateMessage = "Proceed for client drop off";
+//                            mRequestButtonMessage = "CONFIRM PICK UP";
+//                Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+//                t.setGravity(Gravity.CENTER, 0, 0);
+//                t.show();
             }
             else if ( mRequest.getState().equals("fulfilled") )
             {
@@ -770,12 +776,22 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 resetDriver();
                 mMap.clear();
                 erasePolylines();
+                mRequestStateMessage = "Request Fulfilled";
+//                            mRequestButtonMessage = "CONFIRM PICK UP";
+                Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
             }
             else if ( mRequest.getState().equals("canceled") )
             {
                 resetDriver();
                 mMap.clear();
                 erasePolylines();
+                mRequestStateMessage = "Request Canceled";
+//                            mRequestButtonMessage = "CONFIRM PICK UP";
+                Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
 
 
             }

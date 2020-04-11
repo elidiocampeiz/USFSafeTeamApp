@@ -49,6 +49,7 @@
             android:layout_marginRight="0dp"
             android:orientation="vertical"
             >
+
             <TextView
                 android:id="@+id/RequestState"
                 android:layout_width="wrap_content"
@@ -56,12 +57,12 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="30dp"
                 android:layout_marginLeft="30dp"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:layout_marginTop="9dp"
+                android:layout_marginTop="10dp"
                 android:shadowColor="@color/quantum_black_100"
                 android:shadowDx="1"
                 android:shadowDy="1"
-                android:shadowRadius="2"/>
+                android:shadowRadius="2"
+                android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
             <TextView
                 android:id="@+id/ClientName"
@@ -70,12 +71,12 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="30dp"
                 android:layout_marginLeft="30dp"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:layout_marginTop="27dp"
+                android:layout_marginTop="35dp"
                 android:shadowColor="@color/quantum_black_100"
                 android:shadowDx="1"
                 android:shadowDy="1"
-                android:shadowRadius="2"/>
+                android:shadowRadius="2"
+                android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
             <TextView
                 android:id="@+id/ClientLocation"
@@ -84,12 +85,13 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="30dp"
                 android:layout_marginLeft="30dp"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:layout_marginTop="45dp"
+                android:layout_marginTop="60dp"
                 android:shadowColor="@color/quantum_black_100"
                 android:shadowDx="1"
                 android:shadowDy="1"
-                android:shadowRadius="2"/>
+                android:shadowRadius="2"
+                android:textColor="@color/common_google_signin_btn_text_dark_default" />
+
             <TextView
                 android:id="@+id/ClientDestination"
                 android:layout_width="wrap_content"
@@ -97,12 +99,12 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="30dp"
                 android:layout_marginLeft="30dp"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:layout_marginTop="63dp"
+                android:layout_marginTop="85dp"
                 android:shadowColor="@color/quantum_black_100"
                 android:shadowDx="1"
                 android:shadowDy="1"
-                android:shadowRadius="2"/>
+                android:shadowRadius="2"
+                android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
         </RelativeLayout>
 

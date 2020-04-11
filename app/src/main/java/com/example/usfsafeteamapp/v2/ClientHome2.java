@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -135,6 +136,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 //        getSupportActionBar().hide();
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        isTrackingEnable = true;
         //Declaring the polyline array
         polylines = new ArrayList<>();
 
@@ -176,29 +178,16 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
 
-                if (mRequest==null){
-//                    Toast
+                if (mRequest == null){
+
+                    Toast t = Toast.makeText(ClientHome2.this, "No place selected, PLease try again", Toast.LENGTH_SHORT);
+                    t.setGravity(Gravity.CENTER, 0, 0);
+                    t.show();
                 }
                 else {
                     //TODO: Put the following code in the clickListener of the Confirm button
-//                    getClosestDirver();
-//// put new request to
-//
-//                    mRequest.setDriver_id(assignDriver.getDriver_id());
-//                    //add request to requests collection
-//                    mDb.collection("Requests").add(mRequest);
-//                    //add request to driver
-//                    HashMap<String, Object> data = new HashMap<String, Object>();
-//                    data.put("nextRequest", mRequest);
-//                    mDb.collection("DriversOnline").document(assignDriver.getDriver_id()).set(data, SetOptions.merge());
-//                    DocumentReference drs = mDb.collection("Drivers").document(assignDriver.getDriver_id());
-//                    drs.set(data, SetOptions.merge());
 
-                    if (ConfirmRequest()){
-                        StartRequestTracking();
-                        cancelButton.setVisibility(View.VISIBLE);
-
-                    }
+                    getClosestAvailableDriver();
 
                 }
 
@@ -206,7 +195,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             }
         });
-        getClosestAvailableDriver();
+//        getClosestAvailableDriver();
     }
 
 
@@ -224,7 +213,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                         Log.w(TAG, "Listen failed.", e);
 
                     }
-                    if (snapshot != null && snapshot.exists() && mRequest!= null) {
+                    if (snapshot != null && snapshot.exists() && mRequest != null) {
                         Log.d(TAG, "Request snapshot success!");
                         mRequest = snapshot.toObject(Requests.class);
                         getRouteFromRequest();
@@ -232,11 +221,11 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                 }
             });
+
         }
 
 
     }
-    //TODO: better handle addition od markers and map.clear
 
     // "unassigned" | "assigned" | "ride" | "fulfilled" | "canceled"
     private void getRouteFromRequest() {
@@ -245,9 +234,18 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         if (mRequest != null){
             Log.d(TAG, "Current State: " + mRequest.getState());
+
             if ( mRequest.getState().equals("unassigned") ) {
                 mMap.clear();
                 // display "looking for Driver" -> "Waiting for Confirmation" -> "Driver found!"
+                Toast t = Toast.makeText(getApplicationContext(), "Request assigned. Confirming closest available driver", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
+
+                //TODO: Start Animation of looking for driver
+                cancelButton.setVisibility(View.VISIBLE);
+                mCardView.setVisibility(View.INVISIBLE);
+                ConfButton.setVisibility(View.INVISIBLE);
 
                 getRouteToMarker(mRequest.getStart().getLatLng(), mRequest.getDest().getLatLng());
 
@@ -259,7 +257,10 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 mMap.addMarker(dest_mkr);
             }
             else if( mRequest.getState().equals("assigned") ) {
-                Toast.makeText(getApplicationContext(), "Your Safe Team is on its way!", Toast.LENGTH_LONG).show();
+
+                Toast t = Toast.makeText(getApplicationContext(), "Your Safe Team is on its way!", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
 
                 mCardView.setVisibility(View.INVISIBLE);
                 ConfButton.setVisibility(View.INVISIBLE);
@@ -277,7 +278,12 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
             else if( mRequest.getState().equals("ride") ) {
 
-                Toast.makeText(getApplicationContext(), "Your Safe Team arrived", Toast.LENGTH_LONG).show();
+
+                Toast t = Toast.makeText(getApplicationContext(), "Your Safe Team Arrived", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
+
+
                 if(mCardView.getVisibility() == View.VISIBLE)
                 {
                     mCardView.setVisibility(View.INVISIBLE);
@@ -305,9 +311,14 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
             else if( mRequest.getState().equals("fulfilled") ) {
 
-                // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
+
                 //... ->Store in clients history
                 //...
+
+                Toast t = Toast.makeText(getApplicationContext(), "Request Fulfilled", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
+
                 resetClient();
                 mMap.clear();
                 autocompleteFragment.setText("");
@@ -330,7 +341,12 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
             else if( mRequest.getState().equals("canceled"))
             {
-                resetClient();
+
+                Toast t = Toast.makeText(getApplicationContext(), "Request Canceled", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
+
+
                 mMap.clear();
                 erasePolylines();
                 autocompleteFragment.setText("");
@@ -345,6 +361,8 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 {
                     cancelButton.setVisibility(View.INVISIBLE);
                 }
+                deleteRequest();
+                resetClient();
             }
 
         }else {
@@ -354,6 +372,27 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
     }
+
+    private void deleteRequest() {
+        if (mRequest != null){
+            DocumentReference RequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
+            RequestRef.delete().addOnCompleteListener(new OnCompleteListener<Void>()
+            {
+                @Override
+                public void onComplete(@NonNull Task<Void> task)
+                {
+                    if (task.isSuccessful()){
+                        Log.d(TAG, "Document delete success");
+                    }
+                    else {
+                        Log.d(TAG, "Document delete Error:");
+                    }
+                }
+            });
+        }
+
+    }
+
     private void cancelRequestMessage() {
 
         new AlertDialog.Builder(this)
@@ -393,8 +432,11 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
+
     }
 
+
+    //function called as a result of a change in the Request Object from FireStore
     private void resetClient()
     {
 
@@ -414,6 +456,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
         //TODO: make the mRequest update happen from an event in the database
         mRequest = null;
+        assignDriver = null;
 
     }
 
@@ -446,7 +489,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                     for (QueryDocumentSnapshot doc : value) {
                         GeoPoint driverGp = doc.get("geoPoint", GeoPoint.class);
 //TODO: ******
-                        if (driverGp !=  null &&  mRequest!=null && mRequest.getState().equals("assigned") ) {
+                        if (driverGp !=  null &&  mRequest != null && mRequest.getState().equals("assigned") ) {
 
                             LatLng driver_pos = new LatLng(driverGp.getLatitude(), driverGp.getLongitude());
                             //TODO: Set Cart image as marker icon
@@ -523,16 +566,15 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
     }
-    private boolean ConfirmRequest(){
-        getClosestAvailableDriver();
-        if (getClosestAvailableDriver()){
-
+    private void confirmRequest(){
+//        getClosestAvailableDriver();
+        if (assignDriver != null && assignDriver.getDriver_id() != null && clientIdRef != null){
             WriteBatch batch = mDb.batch();
-            mRequest.setDriver_id(assignDriverId);
+            mRequest.setDriver_id(assignDriver.getDriver_id());
             DocumentReference clientRef = mDb.collection("Clients").document(clientIdRef);
             DocumentReference RequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
-            DocumentReference DriverRef = mDb.collection("Drivers").document(assignDriverId);
-            DocumentReference DriverOnlineRef = mDb.collection("DriversOnline").document(assignDriverId);
+            DocumentReference DriverRef = mDb.collection("Drivers").document(assignDriver.getDriver_id());
+            DocumentReference DriverOnlineRef = mDb.collection("DriversOnline").document(assignDriver.getDriver_id());
 
 //            clientRef.update("current_request_id", mRequest.getRequest_id());
 //            DriverOnlineRef.update("current_request_id", mRequest.getRequest_id());
@@ -555,20 +597,18 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()){
                         Log.d(TAG, "Batch success");
+                        StartRequestTracking();
                     }
                     else {
                         Log.d(TAG, "Batch Error:");
                     }
                 }
             });
-            return true;
+
         }
-        else{
-            Toast.makeText(getApplicationContext(), "All Drivers are currently busy, Please try again later", Toast.LENGTH_LONG).show();
-            return false;
-        }
+
     }
-    private boolean getClosestAvailableDriver(){
+    private void getClosestAvailableDriver(){
         mClosestDriverQuery = mDb.collection("DriversOnline").whereEqualTo("current_request_id", null);
         mClosestDriverQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -577,37 +617,44 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                     QuerySnapshot result = task.getResult();
 
-                    float shortestDistance = Float.MAX_VALUE;
-                    for (QueryDocumentSnapshot document : result) {
-                        Location dest = new Location("");
-                        GeoPoint geo = document.getGeoPoint("geoPoint");
-                        if (geo != null)
-                        {
-                            String temp_id = (String) document.get("driver_id");
 
-                            dest.setLatitude(geo.getLatitude());
-                            dest.setLongitude(geo.getLongitude());
+                    if ( result != null && !result.isEmpty() ) {
+                        float shortestDistance = Float.MAX_VALUE;
+                        for (QueryDocumentSnapshot document : result) {
+                            Location dest = new Location("");
+                            GeoPoint geo = document.getGeoPoint("geoPoint");
+                            if (geo != null) {
+                                String temp_id = (String) document.get("driver_id");
 
-                            if (mLastLocation != null )
-                            {
-                                float dist = dest.distanceTo(mLastLocation);
-                                if (shortestDistance >= dist) {
-                                    assignDriverId = temp_id;
-                                    assignDriver = document.toObject(Drivers.class);
+                                dest.setLatitude(geo.getLatitude());
+                                dest.setLongitude(geo.getLongitude());
 
-                                    shortestDistance = dist;
+                                if (mLastLocation != null) {
+                                    float dist = dest.distanceTo(mLastLocation);
+                                    if (shortestDistance >= dist) {
+                                        assignDriverId = temp_id;
+                                        assignDriver = document.toObject(Drivers.class);
 
-                                    Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + " Distance: " + dist);
+                                        shortestDistance = dist;
 
+                                        Log.i(TAG, "Driver: " + assignDriver.getDriver_id() + " Distance: " + dist);
+
+                                    }
                                 }
                             }
                         }
-//                            GeoPoint geo = document.get("geoPoint", GeoPoint.class);
-
-
-
-
                     }
+                    if (assignDriver != null && assignDriver.getDriver_id() != null)
+                    {
+                        confirmRequest();
+                    }
+                    else{
+                        Toast t = Toast.makeText(getApplicationContext(), "All Drivers are currently busy. Please try again in 5~10 minutes", Toast.LENGTH_SHORT);
+                        t.setGravity(Gravity.CENTER, 0, 0);
+                        t.show();
+                    }
+
+
 
                 } else {
                     Log.d(TAG, "Error getting Drivers Online documents: ", task.getException());
@@ -616,38 +663,9 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         });
         //return whether assignment was successful
         //return assignDriver!=null && assignDriver.getNextRequest() == null; //risky
-        return assignDriverId!=null ;
+//        return assignDriver != null && assignDriver.getDriver_id() != null;
+
     }
-    //TODO::
-//    private void SendRequestTransaction(){
-////        final DocumentReference sfDocRef = mDb.collection("DriversOnline");
-//        mDb.runTransaction(new Transaction.Function<Void>() {
-//            @Override
-//            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
-////                DocumentSnapshot snapshot = transaction.get(....)
-//
-//
-//                // Note: this could be done without a transaction
-//                //       by updating the population using FieldValue.increment()
-//                double newPopulation = snapshot.getDouble("population") + 1;
-//                transaction.update(sfDocRef, "population", newPopulation);
-//
-//                // Success
-//                return null;
-//            }
-//        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-//            @Override
-//            public void onSuccess(Void aVoid) {
-//                Log.d(TAG, "Transaction success!");
-//            }
-//        })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.w(TAG, "Transaction failure.", e);
-//                    }
-//                });
-//    }
 
     LocationCallback mLocationCallback = new LocationCallback()
     {
@@ -750,7 +768,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
                 //Create a marker for the place selected by the user
                 MarkerOptions place_mkr = new MarkerOptions().position(LL).title(place.getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-
+                curr_mkr = new MarkerOptions().position(myCurrPlace.getLatLng()).title(myCurrPlace.getName());
                 //Place the marker for your location and the chosen destination into the map
 
 
