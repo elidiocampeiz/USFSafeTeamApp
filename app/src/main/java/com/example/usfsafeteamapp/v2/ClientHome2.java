@@ -301,12 +301,12 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
 
 
-                mMap.clear();
+
                 // display "Driver Assigned" -> "Driver found!" -> "Waiting for Confirmation"
                 //TODO: Set Cart image as marker icon
 
                 getRouteToDestination();
-                mMap.addMarker(dest_mkr);
+
 
             }
             else if( mRequest.getState().equals("fulfilled") ) {
@@ -464,8 +464,11 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         if ( mRequest != null && mLastLocation != null ){
             Log.d(TAG, "getRouteToDestination success!");
             LatLng myCurrLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            mMap.clear();
 
             getRouteToMarker( myCurrLocation, mRequest.getDest().getLatLng());
+
+            mMap.addMarker(dest_mkr);
 
         } else {
             Log.d(TAG, "getRouteToDestination Fail");
@@ -678,6 +681,10 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
                 if(getApplicationContext() != null ) {
 
                     mLastLocation = location;
+
+                    if (mRequest != null && mRequest.getState().equals("ride") )
+                        getRouteToDestination();
+
                     if(isTrackingEnable){
 
                         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -731,6 +738,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
         }
 
     };
+
 
     public void setUpPlacesAPI(){
         //Init Places
@@ -924,6 +932,7 @@ public class ClientHome2 extends AppCompatActivity implements OnMapReadyCallback
 
     private void connectLocation(){
         checkLocationPermission();
+
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         mMap.setMyLocationEnabled(true);
 
