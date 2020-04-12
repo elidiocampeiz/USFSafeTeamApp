@@ -149,7 +149,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             }
         });
         mSwipe = (SwipeButton) findViewById(R.id.swipe_btn);
-        mSwipe.setHorizontalGravity(10);
+
         mSwipe.setOnStateChangeListener(new OnStateChangeListener() {
             @Override
             public void onStateChange(boolean active) {
@@ -295,6 +295,33 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 }
             });
         }
+        mRequestStateMessage = "Request Canceled";
+//                            mRequestButtonMessage = "CONFIRM PICK UP";
+
+
+        Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+        t.setGravity(Gravity.CENTER, 0, 0);
+        t.show();
+
+
+    }
+    private void deleteRequest() {
+        if (mRequest != null){
+            DocumentReference RequestRef = mDb.collection("Requests").document(mRequest.getRequest_id());
+            RequestRef.delete().addOnCompleteListener(new OnCompleteListener<Void>()
+            {
+                @Override
+                public void onComplete(@NonNull Task<Void> task)
+                {
+                    if (task.isSuccessful()){
+                        Log.d(TAG, "Document delete success");
+                    }
+                    else {
+                        Log.d(TAG, "Document delete Error:");
+                    }
+                }
+            });
+        }
 
     }
 
@@ -355,6 +382,13 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                         }
                     }
                 });
+                mRequestStateMessage = "Request Fulfilled";
+//                            mRequestButtonMessage = "CONFIRM PICK UP";
+
+
+                Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
             }
 
             else if (mRequest.getState().equals("fulfilled") || mRequest.getState().equals("canceled")  )
@@ -638,7 +672,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
         }
 
         cancelRequestMessage();
-
+        resetDriver();
         DocumentReference doc = mDb.collection("DriversOnline").document(driverIdRef);
 //
 //        if (mDriver.getCurrent_request_id() != null){
@@ -773,25 +807,33 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
             else if ( mRequest.getState().equals("fulfilled") )
             {
                 //TODO: recordRequest() - > Function that adds the current request to the request history sub-collection of the driver
-                resetDriver();
+
                 mMap.clear();
                 erasePolylines();
-                mRequestStateMessage = "Request Fulfilled";
-//                            mRequestButtonMessage = "CONFIRM PICK UP";
-                Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
-                t.setGravity(Gravity.CENTER, 0, 0);
-                t.show();
+
+
+
+
+
+
+                resetDriver();// reset driver sets its mRequest to null such that the toast will appear only once
             }
             else if ( mRequest.getState().equals("canceled") )
             {
-                resetDriver();
+
                 mMap.clear();
                 erasePolylines();
-                mRequestStateMessage = "Request Canceled";
-//                            mRequestButtonMessage = "CONFIRM PICK UP";
-                Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
-                t.setGravity(Gravity.CENTER, 0, 0);
-                t.show();
+//                mRequestStateMessage = "Request Canceled";
+////                            mRequestButtonMessage = "CONFIRM PICK UP";
+//
+//                if (mRequest != null){
+//                    Toast t = Toast.makeText(getApplicationContext(), mRequestStateMessage, Toast.LENGTH_SHORT);
+//                    t.setGravity(Gravity.CENTER, 0, 0);
+//                    t.show();
+//                }
+                deleteRequest();
+                resetDriver(); // reset driver sets its mRequest to null such that the toast will appear only once
+
 
 
             }
@@ -832,6 +874,7 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
+        mRequest = null;
 
 
 //        DocumentReference doc = mDb.collection("DriversOnline").document(driverIdRef);
@@ -847,7 +890,6 @@ public class DriverHome2 extends AppCompatActivity implements OnMapReadyCallback
 //                        Log.w(TAG, "Error deleting updated", e);
 //                    }
 //                });
-
     }
 
     private void getRouteToMarker(LatLng... params) {
